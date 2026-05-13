@@ -105,9 +105,18 @@ quantitative claim is that this ratio is ~0.85 for Latin on Pythia
 ### Step 5 — Visualise the modular circles
 
 For each period `T`, take the two columns of `W` corresponding to
-`cos(2πa/T)` and `sin(2πa/T)`. These are vectors in residual space.
-Orthonormalize them via QR (otherwise the circle would render as an
-ellipse) and project `H` onto the resulting 2D plane.
+`cos(2πa/T)` and `sin(2πa/T)`. These are two vectors in residual
+space — the directions where the cosine and sine features live. To
+draw a 2D plot we want to use these two vectors as the axes of the
+plot, but they aren't perpendicular to each other and aren't the
+same length, so using them naively would render a true circle as a
+tilted, stretched ellipse (a "bent ruler" problem).
+
+We fix this by replacing the two vectors with a clean pair that
+spans the **same 2D plane** but is **perpendicular and unit-length**.
+This is the standard Gram-Schmidt orthonormalisation procedure (in
+the code, `np.linalg.qr` does it in one call). Projecting onto the
+clean pair gives an honest 2D plot.
 
 The result: the 100 integers trace out a **circle**, with numbers
 sharing the same `(a mod T)` landing on the same point. T=10 gives
@@ -120,10 +129,14 @@ integers out as a number line.
 
 ### Step 6 — Visualise the 3D helix
 
-Take the three directions for `(cos(2πa/10), sin(2πa/10), a)` —
-QR-orthonormalize them — project `H` onto the 3D frame. Plot.
-You should see a helix that winds once per 10 integers and rises
-along the linear axis. This is the iconic Figure 1 of the paper.
+Same idea but with three directions: `cos(2πa/10)`, `sin(2πa/10)`,
+and the linear axis `a`. Orthonormalise them (same Gram-Schmidt
+procedure as above, just on three vectors instead of two), project
+`H` onto the resulting 3D frame, and plot.
+
+You should see a helix that winds once per 10 integers around the
+two circle axes and rises along the linear axis. This is the iconic
+Figure 1 of the paper.
 
 ### The three saved figures
 
