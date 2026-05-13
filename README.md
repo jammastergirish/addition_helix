@@ -1,4 +1,4 @@
-# addition_helix
+# Does the number helix survive non-Latin scripts?
 
 A from-scratch replication of **Kantamneni & Tegmark, _"Language Models Use
 Trigonometry to Do Addition"_** ([arXiv:2502.00873](https://arxiv.org/abs/2502.00873),
