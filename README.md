@@ -64,9 +64,24 @@ So:
 Now do this for *every one of the 4096 columns* and average the
 magnitudes. Random noise washes out; periods that many dimensions
 agree on survive averaging. The top panel of `fig2_fourier_pc1.png` is
-this averaged spectrum. **We did not put the periods in.** The peaks
-at `T = 2, 5, 10, 100` emerge from the data — the paper's central
-empirical finding.
+this averaged spectrum.
+
+**The FFT panel is unbiased — it shows whatever periodic structure
+the model uses.** The script does two things with it:
+
+1. Draws gray reference lines at the paper's predicted periods
+   (`T = 2, 5, 10, 100`) — useful for comparison.
+2. Runs an automatic peak detector (`scipy.signal.find_peaks`) and
+   labels the **top 5 peaks regardless of where they are**, using
+   `T ≈ round(1/f)`. If the model uses the paper's periods, the
+   labels coincide with the gray lines. If it uses *different*
+   periods (some other base, or non-helix structure), the labels
+   appear elsewhere and tell us what the model actually encodes.
+
+For Pythia and Llama on Latin, the labels land on T=2, 5, 10, 100 —
+**the paper's central empirical finding, reproduced**. For Gemma 4
+(at the middle layer at least) the labels land elsewhere, telling us
+either to look at other layers or to look for non-helix structure.
 
 ### Step 3 — Verify the linear "spine"
 
@@ -138,13 +153,52 @@ You should see a helix that winds once per 10 integers around the
 two circle axes and rises along the linear axis. This is the iconic
 Figure 1 of the paper.
 
-### The three saved figures
+### Optional: layer sweep (`--sweep`)
+
+The default reads at one layer (`num_layers // 2`). That's the right
+place for Pythia (the paper's model) but not necessarily for any
+other model — Gemma 4, for instance, doesn't show a clean helix at
+that depth.
+
+Pass `--sweep` to also capture activations at **every** layer in the
+same forward pass per integer, compute three R² metrics at each layer,
+and save a fourth figure:
+
+| file | content |
+|---|---|
+| `fig_layer_sweep.png` | three side-by-side panels: PC1 R², helix R², and helix-to-9-D-PCA ratio, each plotted vs layer index |
+
+When `--sweep` is on, the three standard figures (above) are then
+generated at the **helix-R² peak layer** instead of the middle layer.
+This way you also see the cleanest version of the modular circles
+and 3D helix for whichever depth this particular model carries them.
+
+Example:
+
+```bash
+uv run main.py --model google/gemma-4-E4B --script latin --sweep
+```
+
+prints something like:
+
+```
+PC1 R²    peak 0.93 @ layer 6
+helix R²  peak 0.51 @ layer 0
+helix/PCA peak 0.62 @ layer 4
+using peak layer 0 for the three standard figures
+```
+
+…and tells you immediately *where* (if anywhere) the helix lives in
+this model.
+
+### The three (or four) saved figures
 
 | file | paper figure | content |
 |---|---|---|
 | `fig2_fourier_pc1.png` | Fig 2 | FFT spectrum (top) + PC1-vs-`a` linear ramp (bottom) |
 | `fig3_circles_and_line.png` | Fig 3 | four `(cos_T, sin_T)` panels + linear "number line" strip |
 | `fig1_helix_T10.png` | Fig 1 (right) | the iconic 3D `T=10` helix |
+| `fig_layer_sweep.png` *(only with `--sweep`)* | — | PC1 R² / helix R² / dominance vs layer |
 
 ## Requirements
 
@@ -175,6 +229,9 @@ uv run main.py --script roman
 # pick a pooling mode (see "pooling" below)
 uv run main.py --pool last       # paper's default for single-token Latin
 uv run main.py --pool mean       # the default; honest for multi-token numerals
+
+# sweep all layers to find where the helix (if any) actually lives
+uv run main.py --model google/gemma-4-E4B --sweep
 ```
 
 Or run the full sweep — `run.sh` covers four models × seven scripts:
@@ -205,6 +262,7 @@ All are **base** (non-instruction-tuned) checkpoints, matching the paper's setup
 | `chinese` | `二三` | positional base-10, CJK glyphs |
 | `greek` | `κγ` | additive (Milesian) |
 | `roman` | `XXIII` | additive |
+| `babylonian` | `𒌋𒌋𒁹𒁹𒁹` | positional base-60, additive within each column |
 
 ## Pooling (`--pool`)
 
