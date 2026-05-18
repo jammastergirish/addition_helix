@@ -1,0 +1,890 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{microtype}
+% This paper uses Unicode characters from several scripts (Arabic-Indic,
+% Devanagari, CJK, cuneiform). Compile with XeLaTeX or LuaLaTeX so the
+% fontspec-based font selection below works; pdfLaTeX will not render
+% these glyphs.
+\usepackage{fontspec}
+\usepackage{xeCJK}
+
+% Inline font switches for non-Latin scripts. Each \newfontfamily picks a
+% font that ships with macOS by default (Geeza Pro, Devanagari Sangam MN)
+% plus Noto Sans Cuneiform for Babylonian wedges (install via
+% `brew install --cask font-noto-sans-cuneiform`).
+\newfontfamily\arabicscriptfont{Geeza Pro}[Scale=0.9]
+\newfontfamily\devanagariscriptfont{Devanagari Sangam MN}[Scale=0.9]
+\newfontfamily\cuneiformscriptfont{Noto Sans Cuneiform}[Scale=0.9]
+\newcommand{\arabicnum}[1]{{\arabicscriptfont #1}}
+\newcommand{\devnum}[1]{{\devanagariscriptfont #1}}
+\newcommand{\cuneinum}[1]{{\cuneiformscriptfont #1}}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!50!black,
+  citecolor=blue!50!black,
+  urlcolor=blue!60!black,
+}
+
+\title{Where the Number Helix Lives, and How to Find It:\\
+       Cross-Architecture and Cross-Script Geometry of Integer Representations}
+
+\author{Girish Gupta\thanks{\texttt{girish@girishgupta.com}}}
+\date{\today}
+
+\graphicspath{{out/}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Kantamneni and Tegmark~\cite{kantamneni2025helix} showed that for an
+integer $a \in [0, 99]$, the residual stream of three mid-sized LLMs
+(GPT-J-6B, Pythia-6.9B, Llama-3.1-8B) encodes $a$ as a generalised
+helix---a linear ``number-line'' axis plus four orthogonal modular
+circles at periods $T \in \{2, 5, 10, 100\}$, and that this helix is
+causally used to perform addition. Their basis itself is the LLM-scale
+analogue of Nanda~et al.~\cite{nanda2023progress}, who reverse-engineered
+the same trig solution in a small transformer trained from scratch on
+modular addition---the canonical grokking task of
+Power~et al.~\cite{power2022grokking}. We extend the LLM result along
+three orthogonal axes. \textbf{Architecture}: we add a new model
+family (Gemma~4, at E4B and 31B) and re-measure Pythia and Llama under
+a wider protocol, recovering the helix on all four models but at
+radically different depths---Pythia/Llama mid-stack, Gemma-4-E4B at
+$L\!=\!5$ of $30$, Gemma-4-31B as a sharp spike at $L\!=\!29$ of $61$. \textbf{Script}: across eight numeral
+systems we find a three-way split---positional base-10 scripts the
+model has been trained on (Latin, Devanagari, Arabic-Indic, Persian,
+positional Chinese) reproduce the helix on multilingual models;
+additive systems (Roman, Greek alphabetic) collapse it in two
+qualitatively distinct ways distinguishable only by inspecting where
+PC1 and helix $R^2$ peak in layer-space; and Babylonian cuneiform, a
+positional base-60 system, encodes its native period~60 on
+\emph{all four models}, provided we widen the input window past one
+base-60 wrap and add $T=60$ to the trig basis (adding the single
+missing period recovers $7\!-\!13$ percentage points of variance
+uniformly across the four models). 2-D PCA scatters of the residual
+stream further reveal that on Gemma the first principal component is
+not magnitude but \emph{tokenisation} (PC1 captures up to $96.6\%$ of
+variance but separates points by digit count, not value).
+We extract two methodological lessons: (M1) any basis-dependent metric
+must be cross-checked against a basis-free FFT and against a 2-D PCA
+scatter; (M2) the input range must contain several wraps of every
+candidate period.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:introduction}
+
+Mechanistic interpretability has produced a growing catalogue of
+``cognitive'' structures embedded in transformer residual
+streams---induction heads, indirect-object identification circuits,
+and so on. Arithmetic has been a particularly load-bearing case:
+Power~et al.~\cite{power2022grokking} observed that a small transformer
+trained on modular addition continues training long past memorisation
+before suddenly generalising (``grokking''), and Nanda~et
+al.~\cite{nanda2023progress} reverse-engineered the resulting solution
+as a Fourier/trig basis---integers laid out on circles, addition
+implemented via $\cos(a+b) = \cos a \cos b - \sin a \sin b$. The
+number-helix of Kantamneni and Tegmark \cite{kantamneni2025helix}
+carries the same basis into \emph{pretrained} LLMs on the naturals:
+integers are not stored as opaque embeddings but laid out as a 3-D
+spiral---a linear number-line axis plus four orthogonal circles---and
+addition is performed by rotating the spiral's circular components.
+The claim is striking; it is also based on three models in the same
+broad decoder-only lineage (GPT-J-6B, Pythia-6.9B, Llama-3.1-8B) and
+on a single numeral system (Latin digits).
+
+This paper asks: \emph{how general is the helix?} We ask the question
+along two independent axes:
+
+\begin{enumerate}
+  \item \textbf{Architecture}: does the helix extend beyond the
+    decoder-only lineage Kantamneni and Tegmark studied? We add
+    Gemma~4 (E4B and 31B---different tokeniser, different training
+    mix, different depth) and re-measure Pythia and Llama under a
+    wider protocol. If the helix is there, at what depth?
+  \item \textbf{Script}: when the model reads ``\arabicnum{٢٣}'',
+    ``\devnum{२३}'', ``\cuneinum{𒌋𒌋𒁹𒁹𒁹}'', does it represent
+    these as numbers in the same helical way, or as ordinary
+    multi-byte words?
+\end{enumerate}
+
+Both axes turn out to matter, and both surface methodological
+subtleties that are easy to miss if one runs only the paper's exact
+measurement recipe. Section~\ref{sec:methods} reviews the helix
+construction and our two basis-free diagnostics. Section~\ref{sec:arch}
+reports the layer-depth findings across four models.
+Section~\ref{sec:script} compares eight numeral systems, and analyses
+the two qualitatively distinct ways the helix collapses on
+non-positional scripts. Section~\ref{sec:babylonian} contains the
+main scientific surprise: Babylonian cuneiform is represented at its
+native base 60 on every model we tested, once the measurement window
+is widened past a single wrap and the basis is extended with $T=60$.
+Section~\ref{sec:method-matters} distills the two
+generalisable methodological lessons.
+
+\section{Methods}
+\label{sec:methods}
+
+\subsection{Setup}
+For each integer $a \in [0, n_{\max})$ we feed the string
+``\verb*| <numeral(a)>|'' to the model and pool the residual stream at
+a chosen layer $L$ across the sub-tokens of the numeral. With $d$ the
+hidden width, the result is an activation matrix
+$H \in \mathbb{R}^{n_{\max} \times d}$. Latin digits 0--99 are single
+tokens on Pythia, so pooling is trivial there; in every other case
+(non-Latin scripts; Latin on Llama and Gemma; the $n_{\max}\!=\!600$
+sweep) we average activations across the numeral's sub-tokens to avoid
+a last-byte cycling artifact in which $\{23, 33, 43, \dots\}$ read
+identical activations because they end in the same glyph.
+
+\subsection{The helix basis}
+The Kantamneni--Tegmark hypothesis is that $h(a)$, for fixed $L$,
+factors as
+\begin{equation}
+\label{eq:helix}
+h(a) \;\approx\; W^{\top}\,B(a), \qquad
+B(a) \;=\; \bigl[a,\;\cos\tfrac{2\pi a}{T_1},\,\sin\tfrac{2\pi a}{T_1},\,
+\dots,\,\cos\tfrac{2\pi a}{T_K},\,\sin\tfrac{2\pi a}{T_K}\bigr],
+\end{equation}
+with $T = \{2, 5, 10, 100\}$ for Latin in $[0,99]$, giving a
+$(1\!+\!2K) = 9$-dimensional feature space. The linear coordinate is
+the ``rise'' of the helix; each $(\cos, \sin)$ pair places $a$ on the
+unit circle at angle $2\pi a / T$, so integers sharing the same
+$a \bmod T$ land on the same point. Addition becomes rotation of
+angles: the paper's ``Clock'' algorithm.
+
+We solve $H \approx B W$ by ordinary least squares and report the
+variance-weighted coefficient of determination, which we call
+\emph{helix $R^2$}.
+
+\subsection{Three diagnostics}
+\label{sec:diagnostics}
+Helix $R^2$ alone is fragile---it depends on the fixed basis $T$. We
+pair it with two basis-free diagnostics.
+
+\paragraph{Fourier diagnostic.}
+For each hidden dimension $j$, the column $H_{\cdot,j}$ is a sequence
+indexed by $a$. We take its discrete Fourier transform, average the
+magnitudes across $j$, and inspect the spectrum. Periodic structure
+\emph{at any period}, including ones not in $T$, surfaces as a peak.
+We label the top peaks via \texttt{scipy.signal.find\_peaks} so that
+the FFT panel honestly reports whatever periods the model actually
+encodes, rather than only those the paper's basis assumes.
+
+\paragraph{PC1 diagnostic.}
+The leading principal component of $H$ is the direction of maximum
+variance. If the helix's linear axis is present, plotting PC1 against
+$a$ should yield a clean line; we report the linear-fit $R^2$ as
+\emph{PC1 $R^2$}.
+
+\paragraph{Eckart--Young upper bound.}
+Helix $R^2$ uses a $9$-D fit, but $9$ is also the dimensionality of
+many other regression targets. The best possible $9$-D fit is the
+$9$-D PCA reconstruction; we call its variance-weighted $R^2$ the
+\emph{$K$-D PCA bound}, and report the ratio $\rho = R^2_{\text{helix}}
+/ R^2_{\text{PCA}}$ as \emph{helix/PCA}. When $\rho \gtrsim 0.8$, the
+trig basis is \emph{the} $9$-D structure of the residual stream rather
+than merely \emph{a} $9$-D approximation of it.
+
+\subsection{Layer sweep}
+The paper reads at layer $L = N/2$ in an $N$-layer model. We capture
+activations at all $L = 0, 1, \dots, N$ in one forward pass per
+integer and compute (PC1 $R^2$, helix $R^2$, $K$-D PCA bound) at each.
+The peak helix-$R^2$ layer is then used for the standard regression
+fit. As Section~\ref{sec:arch} shows, ``read the middle layer'' is a
+Pythia/GPT-J convention, not a universal one.
+
+\subsection{2-D PCA scatter}
+\label{sec:pca2d-method}
+At the helix-peak layer of each cell we scatter the first two
+principal components of $H$, colour-coded by $a$, with consecutive
+integers connected by a faint trajectory line. This is the cheapest
+basis-free diagnostic for \emph{non}-periodic structure (Roman's
+threshold-aligned clusters; Greek's diffuse noise; Gemma's
+tokenisation-dominated PC1; Section~\ref{sec:pca2d}).
+
+\section{Architecture: the helix is consistent, the layer is not}
+\label{sec:arch}
+
+We test four base (non-instruction-tuned) models:
+Pythia-6.9B, Llama-3.1-8B, Gemma-4-E4B (efficient $\sim$4\,B), and
+Gemma-4-31B. All four converge on the same geometric encoding on
+Latin digits 0--99 (Table~\ref{tab:arch}), but the depth at which the
+helix peaks varies dramatically, and so does the shape of the
+depth profile (Figure~\ref{fig:layer-sweep}).
+
+\begin{table}[h!]
+\centering
+\caption{Latin helix metrics at the peak layer of each model.
+``helix/PCA'' is the ratio of helix $R^2$ to the $9$-D PCA upper bound
+(values $\gtrsim\!0.8$ indicate the trig basis dominates the
+$9$-D subspace).}
+\label{tab:arch}
+\begin{tabular}{lcccc}
+\toprule
+Model & helix $R^2$ & helix/PCA & peak layer & total layers \\
+\midrule
+Pythia-6.9B   & 0.53 & 0.85 & 15 & 32 \\
+Llama-3.1-8B  & 0.63 & 0.85 & 14 & 32 \\
+Gemma-4-E4B   & 0.50 & 0.77 & 5  & $\sim$30 \\
+Gemma-4-31B   & \textbf{0.70} & 0.75 & 29 & 61 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.95\linewidth]{_compare/fig_latin_sweep_4models.png}
+\caption{PC1 $R^2$, helix $R^2$ and helix/PCA ratio plotted against
+layer index, for each of the four models (Latin digits 0--99). Pythia
+and Llama rise into the back half of the stack and stay high.
+Gemma-4-E4B peaks early and decays. Gemma-4-31B is nearly flat at
+$\sim$0.5 with a sharp spike at $L\!=\!29$ that reads as ``no helix''
+if one samples at $L \!=\! 30 = N/2$.}
+\label{fig:layer-sweep}
+\end{figure}
+
+Three depth regimes emerge:
+\begin{itemize}
+  \item \textbf{Pythia and Llama}: helix forms in the back half of the
+    stack and remains until at least $L = N-1$. Either $L = N/2$ or
+    $L = N-1$ would have worked.
+  \item \textbf{Gemma-4-E4B}: helix is strongest at $L = 0\!-\!5$ and
+    decays in later layers. The paper's middle-layer recipe would
+    literally read at decayed structure.
+  \item \textbf{Gemma-4-31B}: helix $R^2$ is essentially flat at
+    $\sim$0.5 across the whole stack, with a single sharp peak of 0.70
+    at $L = 29$. The default $L = N/2 = 30$ misses the peak by exactly
+    one layer.
+\end{itemize}
+We initially concluded ``Gemma-4-31B does not form a helix'' from a
+default-layer reading---a conclusion wrong by a single layer. The
+methodological consequence is unambiguous: \emph{for any new model, a
+layer sweep is mandatory.} The helix is general; the recipe for
+finding it is not.
+
+\section{Script: positional structure is necessary, training exposure
+is what makes the helix appear}
+\label{sec:script}
+
+\subsection{The numeral systems at a glance}
+For readers unfamiliar with the non-Latin systems we test:
+\begin{itemize}
+  \item \textbf{Arabic-Indic} (\arabicnum{٠١٢٣٤٥٦٧٨٩}) and
+    \textbf{Persian} (\arabicnum{۰۱۲۳۴۵۶۷۸۹}) are positional
+    base-10 like Latin, differing only in glyph shape (Persian is a
+    visual variant of Arabic-Indic). Numerals are written
+    most-significant-first despite Arabic script flowing
+    right-to-left.
+  \item \textbf{Devanagari} (\devnum{०१२३४५६७८९}) is also positional
+    base-10, used across Indian languages including Hindi, Sanskrit,
+    and Marathi.
+  \item \textbf{Positional Chinese} uses the digits
+    \mbox{零一二三四五六七八九} in the same place-value layout as
+    Latin (e.g.\ \mbox{二三} for 23). Classical Chinese also admits a
+    non-positional form (\mbox{二十三}, ``two-tens-three''); we do
+    not use it here.
+  \item \textbf{Greek alphabetic (Milesian)} is additive: each letter
+    carries a fixed value ($\alpha = 1, \dots, \theta = 9,
+    \iota = 10, \kappa = 20, \dots, \pi = 80, \varkappa = 90,
+    \rho = 100, \dots$). 23 is $\kappa\gamma = 20 + 3$. There is no
+    shared ``ones digit'' between 13, 23, and 33.
+  \item \textbf{Roman} is additive with subtractive shortcuts at 4,
+    9, 40, 90, etc.: I$=1$, V$=5$, X$=10$, L$=50$, C$=100$.
+    23 = XXIII. Glyphs shift at $4\leftrightarrow 5$,
+    $9\leftrightarrow 10$, $49\leftrightarrow 50$,
+    $89\leftrightarrow 90$ --- the same boundaries that later appear
+    as staircase discontinuities in the PC1 panel
+    (Section~\ref{sec:script-collapse}).
+  \item \textbf{Babylonian cuneiform} is positional at base 60,
+    additive within each sexagesimal column. Two glyphs combine
+    inside a column: \cuneinum{𒁹} (one) and \cuneinum{𒌋} (ten).
+    23 is \cuneinum{𒌋𒌋𒁹𒁹𒁹} --- two tens plus three ones, all
+    in one column. 60 opens a new column to the left
+    (Section~\ref{sec:babylonian}).
+\end{itemize}
+
+\subsection{Setup}
+We rendered every integer in $[0,99]$ in eight numeral systems
+(Table~\ref{tab:scripts}) and re-ran the analysis under mean-pooling.
+
+\begin{table}[h!]
+\centering
+\caption{Numeral systems tested. The Babylonian column is the most
+interesting and is treated separately in Section~\ref{sec:babylonian}.}
+\label{tab:scripts}
+\small
+\begin{tabular}{lll}
+\toprule
+Script & Example (23) & Family \\
+\midrule
+Latin             & \texttt{23}              & positional base-10 \\
+Arabic-Indic      & \arabicnum{٢٣}              & positional base-10 \\
+Persian           & \arabicnum{۲۳}              & positional base-10 \\
+Devanagari        & \devnum{२३}          & positional base-10 \\
+Chinese (pos.)    & 二三                      & positional base-10 \\
+Greek alphabetic  & \(\kappa\gamma\)         & additive (Milesian) \\
+Roman             & \texttt{XXIII}           & additive \\
+Babylonian        & \cuneinum{𒌋𒌋𒁹𒁹𒁹}     & positional base-60, additive within column \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Helix/PCA across scripts}
+\begin{table}[h!]
+\centering
+\caption{Helix/PCA ratio at each model's peak layer, by script (mean
+pooling). Bold = highest score per model.}
+\label{tab:script-results}
+\begin{tabular}{lcccc}
+\toprule
+Script & Pythia-6.9B & Llama-3.1-8B & Gemma-4-E4B & Gemma-4-31B \\
+\midrule
+Latin             & \textbf{0.85} & \textbf{0.85} & \textbf{0.77} & 0.75 \\
+Arabic-Indic      & 0.55 & 0.58 & 0.66 & 0.69 \\
+Persian           & 0.55 & 0.70 & 0.72 & 0.72 \\
+Devanagari        & 0.53 & 0.61 & 0.78 & \textbf{0.79} \\
+Chinese           & 0.60 & 0.58 & 0.68 & 0.66 \\
+Greek (additive)  & 0.54 & 0.57 & 0.57 & 0.57 \\
+Roman  (additive) & 0.54 & 0.55 & 0.62 & 0.64 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Three observations stand out:
+
+\paragraph{Non-positional scripts collapse uniformly.} On every model,
+Greek and Roman collapse the helix/PCA ratio to $\sim$0.55--0.65.
+A trig basis with a tens-loop only buys representational efficiency if
+the numeral system has a tens column. Roman \texttt{IV} versus
+\texttt{V} is not the kind of transition a fixed-period circle can
+align to.
+
+\paragraph{Latin is uniform.} All four models clear 0.75 on Latin. The
+shape itself is not model-specific.
+
+\paragraph{Non-Latin positional cells split by training data.} Pythia
+on Devanagari (0.53) is statistically indistinguishable from Pythia on
+Greek (0.54): the helix is gone. Llama on Devanagari (0.61) is a
+little better. Gemma-4-31B on Devanagari hits 0.79, matching its own
+Latin score of 0.75. Pythia's training mix is English-heavy; Llama
+saw more multilingual data; Gemma is the most multilingual of the
+four. \emph{Positional structure is necessary for the helix, but
+training exposure to the specific script is what makes it appear.}
+The encoding is built per-script during pre-training; architecture
+alone is not enough.
+
+\subsection{Two qualitatively distinct collapses on non-positional
+scripts}
+\label{sec:script-collapse}
+The naive reading of Table~\ref{tab:script-results} is that ``Greek
+and Roman collapse the helix.'' That is correct on the numerical
+metric but misleading: the underlying geometry is qualitatively
+different in the two cases. Reading PC1 $R^2$ alongside helix $R^2$,
+\emph{and the layer at which each peaks}, reveals the difference
+(Table~\ref{tab:script-collapse}).
+
+\begin{table}[h!]
+\centering
+\caption{Layer of peak PC1 and helix $R^2$ on Latin, Roman, Greek.
+Latin: both peak at the same layer (a single helix). Roman:
+peaks are 9--20 layers apart (decomposed parallel modules). Greek:
+helix $R^2$ peaks at $L=0$ (tokeniser artifact at the embedding).}
+\label{tab:script-collapse}
+\begin{tabular}{llccc}
+\toprule
+Model & Script & PC1 $R^2$ peak & helix $R^2$ peak & layer gap \\
+\midrule
+Pythia-6.9B  & Latin & 0.96 @ L5  & 0.53 @ L32 & --- \\
+Pythia-6.9B  & Roman & 0.66 @ L9  & 0.36 @ L18 & \textbf{9} \\
+Pythia-6.9B  & Greek & 0.10 @ L9  & 0.28 @ \textbf{L0}  & (artifact) \\
+Llama-3.1-8B & Roman & 0.51 @ L16 & 0.36 @ L17 & 1 \\
+Llama-3.1-8B & Greek & 0.17 @ L5  & 0.27 @ \textbf{L0}  & (artifact) \\
+Gemma-4-E4B  & Roman & 0.54 @ L4  & 0.61 @ L18 & \textbf{14} \\
+Gemma-4-31B  & Roman & 0.49 @ L11 & 0.64 @ L31 & \textbf{20} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Roman: a decomposed encoding, not a fused helix.}
+On Latin, PC1 and helix $R^2$ peak at the same mid-stack layer;
+magnitude and periodicity co-locate, and the trig basis literally fits
+a helix (line $\times$ circles). On Roman, PC1 and helix $R^2$ peak at
+\emph{different} layers---9 to 20 apart. Magnitude is present
+(PC1 $R^2$ climbs to 0.49--0.66, so the model does coarsely order
+Roman numerals), and so is periodic structure (Figure~\ref{fig:roman}
+shows clean FFT peaks at $T=10$ for the X-cycle and $T=5$ for the
+V-cycle), but they live in different parts of the residual stream.
+Geometrically, Roman is encoded as a \emph{number-line module} at one
+depth plus a \emph{letter-cycling module} at another, not as a fused
+helix. The PC1-vs-$a$ panel of Figure~\ref{fig:roman} is also
+informative: it is not a straight line but a staircase with
+discontinuities at the I/V, IX/X, XL/L, and XC/C boundaries---the
+underlying signal is piecewise linear, not linear, which is why the
+naive linear-fit $R^2 = 0.23$ understates the magnitude information
+that is present.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.85\linewidth]{EleutherAI__pythia-6.9b/roman/mean/fig2_fourier_pc1.png}
+\caption{Pythia-6.9B on Roman numerals. \textbf{Top}: FFT spectrum
+shows clean peaks at $T = 10$ (X cycle) and $T = 5$ (V cycle)---the
+visual periodicity of the additive system. \textbf{Bottom}: PC1 versus
+$a$ is a piecewise function with jumps at the Roman threshold values,
+not a line. The two components live in different layers
+(Table~\ref{tab:script-collapse}).}
+\label{fig:roman}
+\end{figure}
+
+\paragraph{Greek: no quantitative representation at all.}
+PC1 $R^2$ peaks at $0.10$--$0.21$ on every model; the linear axis
+never appears. Helix $R^2$ peaks at layer $0$ on three of four
+models---i.e.\ at the output of the token embedding, before any
+transformer block has executed (Figure~\ref{fig:greek}). The FFT
+magnitudes are $\sim$0.20 (compare $\sim$30 for Latin); the apparent
+$T=10$ peak is a tokeniser artifact in which the second Greek letter
+cycles through $\alpha, \beta, \gamma, \dots, \theta$ every ten
+numbers. There is no number representation at any layer for the
+``helix collapse'' to collapse \emph{from}.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.85\linewidth]{EleutherAI__pythia-6.9b/greek/mean/fig2_fourier_pc1.png}
+\caption{Pythia-6.9B on Greek alphabetic numerals. The FFT magnitude
+is two orders of magnitude smaller than on Latin; the only periodic
+structure is a $T=10$ artifact at $L=0$ from the alphabetic
+construction $\kappa + \gamma = $ \(\kappa\gamma\). PC1 $R^2 = 0.004$:
+the model is not representing Greek numerals as quantities.}
+\label{fig:greek}
+\end{figure}
+
+The two non-positional collapses are not the same failure mode. Roman
+is encoded as a sum of separately-stored parts; Greek is not encoded
+quantitatively at all. The standard ``helix $R^2$'' metric averages
+over both modes and reports them as comparable; reading PC1 $R^2$ and
+its layer-of-peak alongside helix $R^2$ is what separates them.
+
+\subsection{2D PCA: cluster structure made visible (and the PC1-is-tokenization surprise)}
+\label{sec:pca2d}
+
+To probe non-periodic structure that the FFT and the trig-basis fit
+cannot see, we added a basis-free diagnostic to every cell: a 2D PCA
+scatter of $h(a)$ at the helix-peak layer, coloured by $a$, with each
+numeral labelled and consecutive integers connected by a faint
+trajectory line. Eight scripts $\times$ four models $=$ 32 panels at
+\texttt{out/<model>/<script>/mean/fig4\_pca\_2d.png}. Three findings
+fall out.
+
+\textbf{Roman: cluster-by-prefix is visible directly.} The 2D PCA
+for Pythia/Roman (Figure~\ref{fig:roman_pca}) shows distinct regions
+of representation space corresponding to the Roman-numeral prefix
+classes (I/V, X, L, XC), with the trajectory line zigzagging between
+clusters at the threshold integers ($4 \to 5$, $9 \to 10$,
+$49 \to 50$, $89 \to 90$). Roman's representation is not a manifold
+but a partitioning of representation space into prefix classes with
+crude ordering within each class.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.7\linewidth]{EleutherAI__pythia-6.9b/roman/mean/fig4_pca_2d.png}
+\caption{Pythia-6.9B on Roman numerals. 2D PCA at the helix-peak
+layer reveals discrete clusters by Roman-numeral prefix (I/V, X, L,
+XC), with the trajectory line zigzagging at threshold integers. The
+representation is a partition, not a continuous manifold.}
+\label{fig:roman_pca}
+\end{figure}
+
+\textbf{Greek: diffuse noise, confirming the no-representation
+reading.} PC1 + PC2 $= 15.5\%$ of total variance on Pythia/Greek (less
+than half of any other cell) and the points scatter without
+recognisable shape. There is no learned representation to find; the
+``helix collapse'' was a collapse of nothing.
+
+\textbf{The Gemma surprise: PC1 is not magnitude; it is token shape.}
+On Gemma-4-31B, helix/PCA $= 0.75$ and helix $R^2 = 0.70$ on Latin
+---strong by any measure. But PC1 captures \textbf{70.9\%} of variance
+(versus Pythia's 20.4\%) and that variance is along token-shape
+rather than magnitude (Figure~\ref{fig:gemma_latin_pca}). Single-digit
+numerals (0--9) form one cluster, two-digit numerals starting with
+``1'' (10--19) form another, and 20--99 fill a third dense region.
+The split is by digit count and leading-digit class. The helix lives
+in lower-variance directions; PC1 alone would not have found it.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.7\linewidth]{google__gemma-4-31B/latin/mean/fig4_pca_2d.png}
+\caption{Gemma-4-31B on Latin digits. PC1 captures 70.9\% of variance
+but separates the points by \emph{token shape} (single-digit
+vs.~teens vs.~20--99), not magnitude. Helix $R^2 = 0.70$ persists at
+this layer, in lower-variance directions PC1 does not reach.}
+\label{fig:gemma_latin_pca}
+\end{figure}
+
+The same pattern appears on Devanagari with PC1 $= 94.6\%$ (split
+between $०$--$९$ and $१०$--$९९$), and on Roman at PC1 $= 96.6\%$
+(split at the L threshold). In each case PC1 captures massive
+variance, but the variance is overwhelmingly tokenization features,
+not the number line. In Pythia, by contrast, PC1 $R^2$ and
+linearity-in-$a$ correspond cleanly: looking at PC1 is looking at
+magnitude.
+
+This carries one specific methodological warning: \textbf{a high PC1
+$R^2$ is not by itself evidence of a clean magnitude axis}---one must
+also inspect what PC1 separates. In larger or more multilingual
+models, tokenization features may dominate the first principal
+component while the helix occupies smaller-variance subspaces. This
+also partly explains the depth-variance finding of
+Section~\ref{sec:arch}: Gemma's helix shares residual-stream
+space with strong tokenization signals, so it appears as a sharper
+spike at a specific layer rather than a broad mid-stack plateau.
+
+\section{Babylonian: base 60 is there, once you measure properly}
+\label{sec:babylonian}
+
+Babylonian cuneiform is positional at base 60, additive within each
+sexagesimal column. The number 23 is \cuneinum{𒌋𒌋𒁹𒁹𒁹} (two tens
+plus three ones); 60 is \cuneinum{𒁹\,𒑊} (one in the 60s column, a
+late-period zero placeholder in the ones column); 599 is
+\cuneinum{𒁹𒁹𒁹𒁹𒁹𒁹𒁹𒁹𒁹\,𒌋𒌋𒌋𒌋𒌋𒁹𒁹𒁹𒁹𒁹𒁹𒁹𒁹𒁹}. The system has all the
+ingredients of positional notation, at base 60 instead of base 10.
+
+\subsection{The narrow-window measurement says ``no''---but cannot}
+Running the standard $n_{\max} = 100$ protocol with the paper's basis
+$T = \{2, 5, 10, 100\}$ gives Table~\ref{tab:bab-n100}.
+
+\begin{table}[h!]
+\centering
+\caption{Babylonian on the standard 0--99 window, paper basis.}
+\label{tab:bab-n100}
+\begin{tabular}{lccc}
+\toprule
+Model & PC1 $R^2$ & helix $R^2$ & helix/PCA \\
+\midrule
+Pythia-6.9B   & 0.06 & 0.71 & 0.74 \\
+Llama-3.1-8B  & 0.10 & 0.65 & 0.69 \\
+Gemma-4-E4B   & 0.40 & 0.75 & 0.77 \\
+Gemma-4-31B   & 0.51 & 0.76 & 0.77 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+A naive read is that Pythia and Llama have circles but no number-line
+(PC1 $R^2 \approx 0$), while Gemma has both. Inspecting the FFT
+(Figure~\ref{fig:bab-n100}) shows labelled peaks at $T = 10$ and
+$T = 100$, but \emph{no} $T = 60$. The PC1 panel shows two clusters
+with a hard step at 60---the wrap-boundary is encoded as a categorical
+state change, not as a rotation.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.85\linewidth]{google__gemma-4-31B/babylonian/mean/fig2_fourier_pc1.png}
+\caption{Gemma-4-31B on Babylonian at $n_{\max}=100$. Top FFT shows
+$T=10$ and $T=100$; \emph{no} $T=60$. PC1 (bottom) shows numbers
+0--59 versus 60--99 as two clusters with a step between them.}
+\label{fig:bab-n100}
+\end{figure}
+
+This is the measurement artifact: in $[0,99]$, base 60 wraps exactly
+\emph{once}, at $a = 60$. A single discontinuity is not a periodic
+signal an FFT can localise. ``No base-60 structure'' is, at this
+$n_{\max}$, indistinguishable from ``structure the window cannot
+resolve.''
+
+\subsection{Widening the window: $T \approx 60$ emerges in the FFT}
+
+At $n_{\max} = 600$---ten full sexagesimal wraps---the picture changes
+sharply (Table~\ref{tab:bab-n600}). Every model now has a real
+magnitude axis (PC1 $R^2 \approx 0.55$--$0.69$); Pythia's and Llama's
+previous PC1 $R^2 \approx 0$ was an artifact of one wrap.
+
+\begin{table}[h!]
+\centering
+\caption{Babylonian, $n_{\max}=100 \to 600$ (paper basis $T = \{2,5,10,100\}$).
+Both PC1 and FFT diagnostics improve; helix $R^2$ \emph{drops} because
+$T = 60$ is not in the basis.}
+\label{tab:bab-n600}
+\begin{tabular}{lccc}
+\toprule
+Model & PC1 $R^2$ ($100\!\to\!600$) & helix $R^2$ ($100\!\to\!600$) & helix/PCA \\
+\midrule
+Pythia-6.9B   & 0.06 $\to$ \textbf{0.55} & 0.71 $\to$ 0.66 & 0.74 $\to$ 0.69 \\
+Llama-3.1-8B  & 0.10 $\to$ \textbf{0.55} & 0.65 $\to$ 0.52 & 0.69 $\to$ 0.56 \\
+Gemma-4-E4B   & 0.40 $\to$ \textbf{0.69} & 0.75 $\to$ 0.61 & 0.77 $\to$ 0.64 \\
+Gemma-4-31B   & 0.51 $\to$ \textbf{0.64} & 0.76 $\to$ 0.50 & 0.77 $\to$ 0.52 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The FFT at $n_{\max}=600$ shows a clean labelled peak at $T \approx 60$
+(Figure~\ref{fig:bab-n600-pythia}). For Llama and Gemma-4-31B, base-60
+structure appears mostly via its second harmonic at $T = 30$
+(frequency $2/60 = 1/30$, Figure~\ref{fig:bab-n600-gemma}). A pure
+sinusoid at $T=60$ would have only the fundamental; the presence of
+strong even harmonics indicates a more sawtooth-like underlying
+signal, consistent with the per-column reset structure of cuneiform.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.85\linewidth]{EleutherAI__pythia-6.9b/babylonian/mean_n600/fig2_fourier_pc1.png}
+\caption{Pythia-6.9B on Babylonian at $n_{\max}=600$. A clean labelled
+peak at $T \approx 60$ appears alongside $T = 10$ and various
+harmonics. The PC1 panel shows the magnitude axis with a per-column
+sawtooth---the model resets into a new sexagesimal column every 60
+integers.}
+\label{fig:bab-n600-pythia}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.85\linewidth]{google__gemma-4-31B/babylonian/mean_n600/fig2_fourier_pc1.png}
+\caption{Gemma-4-31B on Babylonian at $n_{\max}=600$. Base-60 structure
+manifests primarily through its second harmonic at $T=30$, indicating
+a sawtooth-like signal rather than a pure sinusoid.}
+\label{fig:bab-n600-gemma}
+\end{figure}
+
+So the structure is \emph{present in the FFT}---but helix $R^2$ on the
+paper basis \emph{drops} (Table~\ref{tab:bab-n600}), because
+$T \in \{2, 5, 10, 100\}$ has no column against which to regress
+period-60 variance. The basis is blind to a frequency the data
+contains.
+
+\subsection{An extended basis recovers $7$--$13$ percentage points of
+variance, on every model}
+\label{sec:bab-extended}
+We re-ran the $n_{\max}=600$ sweep with $T = \{2, 5, 10, 60, 100\}$---a
+single additional period, two additional columns
+($\cos\frac{2\pi a}{60}, \sin\frac{2\pi a}{60}$).
+Table~\ref{tab:bab-extended} reports the result.
+
+\begin{table}[h!]
+\centering
+\caption{Babylonian at $n_{\max}=600$: paper basis $T=\{2,5,10,100\}$
+vs.\ extended basis $T=\{2,5,10,60,100\}$. Adding the single missing
+period recovers $7$--$13$ percentage points of variance on every model.}
+\label{tab:bab-extended}
+\begin{tabular}{lcc cc}
+\toprule
+Model & helix $R^2$ (paper $\to$ ext.) & $\Delta$ & helix/PCA (paper $\to$ ext.) & $\Delta$ \\
+\midrule
+Pythia-6.9B   & 0.661 $\to$ \textbf{0.747} & \textbf{+0.086} & 0.687 $\to$ 0.772 & +0.085 \\
+Llama-3.1-8B  & 0.515 $\to$ \textbf{0.622} & \textbf{+0.107} & 0.555 $\to$ 0.645 & +0.090 \\
+Gemma-4-E4B   & 0.611 $\to$ \textbf{0.698} & \textbf{+0.087} & 0.637 $\to$ 0.699 & +0.062 \\
+Gemma-4-31B   & 0.501 $\to$ \textbf{0.634} & \textbf{+0.133} & 0.523 $\to$ 0.636 & +0.113 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The two models whose FFT showed strongest second-harmonic content
+(Llama-3.1-8B and Gemma-4-31B) gain the most ($+0.107$ and $+0.133$).
+The regression cannot extract a non-sinusoidal signal from a basis
+that lacks its fundamental; providing $T=60$ anchors the phase and
+the model's sawtooth-like representation lands on it. PC1 $R^2$ is
+unchanged by the basis change, confirming that no other variable has
+shifted.
+
+The conclusion is unambiguous:
+\begin{quote}
+\textbf{Base-60 structure is present in the Babylonian representation
+on all four models, increasing in strength roughly as
+Pythia $<$ Gemma-4-E4B $<$ Llama $<$ Gemma-4-31B (by $\Delta$ helix
+$R^2$).}
+\end{quote}
+Both measurement adjustments (wider window, extended basis) point the
+same direction, which is the strongest evidence we have that the
+structure is real rather than an artifact of either change.
+
+\section{Method matters: two general lessons}
+\label{sec:method-matters}
+
+\paragraph{M1.\ The basis has bandwidth.}
+Helix $R^2$ is a fitted regression onto a fixed set of periods. It is
+sensitive only to structure at those periods; if a model encodes
+something at a period the basis omits, helix $R^2$ will be low even
+when the underlying structure is strong. The Babylonian result shows
+this concretely: same data, same model, $+0.13$ helix $R^2$ from
+adding one period (Table~\ref{tab:bab-extended}). The fix is to
+\emph{always cross-check a basis-fit metric against a basis-free one}.
+If the FFT shows a peak at a period not in the basis, helix $R^2$ is
+undermeasuring the structure; add the period and refit.
+
+\paragraph{M2.\ The window must wrap.}
+To detect a period $T$ via FFT, the input range must contain several
+wraps of $T$. One wrap is a single discontinuity, not a periodic
+signal. The 0--99 window is fine for $T \in \{2, 5, 10\}$ ($50$, $20$,
+$10$ wraps) and barely workable for $T = 100$ (one wrap, visible as a
+slow trend). It is \emph{not} workable for $T = 60$: one wrap, in a
+phase-misaligned position relative to the window's endpoints, produces
+noise rather than a trend. The rule is to set $n_{\max}$ to a large
+multiple of every candidate period.
+
+These two corrections compose: on Babylonian at $n_{\max}=100$ with
+the paper basis, both blind spots conspire in the same direction
+(``no base-60 here''). Fixing only one and not the other gives
+partial evidence; fixing both, and observing that the metrics move
+together and in the predicted direction, is what makes the inference
+robust.
+
+\section{Discussion and conclusion}
+\label{sec:discussion}
+
+Putting the threads together:
+\begin{itemize}
+  \item \textbf{Cross-architecture}: the helix appears on Gemma-4-E4B
+    and Gemma-4-31B---a new model family beyond the three (GPT-J,
+    Pythia, Llama) the original paper tested---and re-measurement on
+    Pythia and Llama under our wider protocol replicates the helix
+    at very different depths and with qualitatively different
+    layer-profiles. ``Read the middle layer'' is a Pythia/GPT-J
+    convention. Find-the-layer is a necessary step for every new model.
+  \item \textbf{Cross-script, positional}: the geometric encoding
+    transfers across glyph systems for any positional base-10 script
+    the model has been trained on. Multilingual models reproduce the
+    helix on Devanagari and Arabic-Indic; English-heavy models do
+    not. The encoding is built per-script in pre-training;
+    positional structure is necessary but not sufficient.
+  \item \textbf{Cross-script, non-positional}: Greek and Roman both
+    collapse the helix metric, but for different reasons. Roman
+    splits into a number-line module and a letter-cycling module
+    living in different layers; Greek never forms a quantitative
+    representation at all (the only periodic structure in the FFT
+    is a tokeniser artifact at $L=0$). The two failure modes are
+    distinguishable only by reading PC1 $R^2$ and its layer-of-peak
+    alongside helix $R^2$. The 2-D PCA scatter
+    (Section~\ref{sec:pca2d}) further reveals that Roman is encoded
+    as discrete prefix-class clusters with crude ordering within each,
+    and surfaces the most surprising finding of the script axis:
+    on Gemma the first principal component of the residual stream
+    captures up to $96.6\%$ of variance but represents
+    \emph{tokenisation} (digit-count, leading-digit class), not
+    magnitude. High PC1 $R^2$ is not by itself evidence of a
+    magnitude axis; the helix in Gemma lives in lower-variance
+    directions.
+  \item \textbf{Cross-script, sexagesimal}: Babylonian cuneiform's
+    base 60 is represented on all four models---a stronger
+    generalisation than the paper makes, lying entirely outside the
+    representational space its measurement protocol can resolve.
+    Recovering it required widening the window past one wrap and
+    adding $T=60$ to the trig basis.
+\end{itemize}
+
+We started this work expecting the helix to be a property of one
+model's training. What appears truer now is that the helix is a
+property of how transformers encode anything they represent as a
+quantity, parameterised by which scripts the model has seen and which
+periods are natural to those scripts. Different models pick up
+different periods at different depths; the geometric strategy is the
+same. Whether the helix subspace is also \emph{the representation that
+downstream computation reads} is a causal question this paper does not
+answer; the natural intervention sits at the answer position rather
+than the operand position, and we leave it to follow-up work.
+
+\subsection{Follow-ups}
+
+The natural next experiments are causal:
+
+\begin{enumerate}
+  \item \textbf{Helix-subspace patching at the answer position.}
+    The original paper's strongest causal claim is that on
+    Pythia/Latin, patching only the helix-basis subspace
+    ($\sim$9 directions of several thousand) at the position whose
+    hidden state produces the answer is sufficient to control the
+    answer. Replicating that on Pythia and extending to Llama,
+    Gemma-4-E4B and Gemma-4-31B---and to the non-Latin positional
+    scripts where the geometric helix is present in this paper---is
+    the most direct causal follow-up to the work reported here.
+  \item \textbf{Wider basis.} The helix basis used here is the paper's
+    $T \in \{2,5,10,100\}$. Extending to the basis that recovers the
+    Babylonian base-60 finding ($T \in \{2,5,10,60,100\}$), or to a
+    \emph{learned} subspace whose rank is set by cumulative
+    explained-variance rather than by a prescribed period list, is the
+    natural follow-up if a four-period helix-subspace intervention
+    leaves a large unexplained fraction of the causal effect.
+  \item \textbf{Sexagesimal rotation.} On Gemma-4-31B's Babylonian
+    representation at $n_{\max}=600$, rotating only the
+    $(\cos 2\pi a/60, \sin 2\pi a/60)$ direction pair should shift the
+    answer-token logit distribution by exactly~$60$ if the model uses
+    the base-60 axis computationally. This is the cleanest test of
+    representation-vs-use for a non-base-10 period.
+  \item \textbf{Cross-layer units-digit rescue.} For the E4B/Latin
+    dissociation: project residual at $L_{5}$ onto
+    $(\cos 2\pi a/10, \sin 2\pi a/10)$ and inject the projection at a
+    later layer to see whether the units-digit information is
+    discarded by downstream layers or remains accessible.
+\end{enumerate}
+
+Secondary follow-ups suggested by the descriptive work but not
+addressed here: Greek alphabetic numerals plausibly form $9$ clusters
+of $10$, one per tens-letter, visible only via 2-D PCA scatter (the
+diagnostic is included but cluster analysis is left for future work);
+Roman's encoding looks like a piecewise-linear staircase with
+discontinuities at glyph thresholds, which an additive regression
+$h(a) \approx \sum_{\text{symbol}} \text{count(symbol)} \cdot u_{\text{symbol}}$
+would test directly; and the layer at which the Babylonian base-60
+representation peaks, and how it differs from the Latin base-10 peak
+in the same model, is unaddressed in this paper and worth dedicated
+analysis.
+
+\section*{Reproducibility}
+
+All code, configuration, and figures are in the public repository
+accompanying this paper. Each experiment lives in its own driver
+script with PEP 723 inline metadata, runnable via \texttt{uv run}; each
+has an accompanying \texttt{./run\_*.sh} bash wrapper that loops over
+the four models and is idempotent (each combination is skipped if its
+expected output file already exists).
+
+\paragraph{Representational sweep (Sections~\ref{sec:arch}--\ref{sec:babylonian}).}
+\texttt{./run.sh} drives 40 combinations across 4 models, 8 scripts, 2
+windows ($n_{\max} \in \{100, 600\}$), 2 bases ($T = \{2,5,10,100\}$
+and $T = \{2,5,10,60,100\}$):
+\begin{verbatim}
+# Default: Pythia-6.9B, Latin digits, paper basis, n=100
+uv run main.py
+
+# Cross-script
+uv run main.py --model meta-llama/Llama-3.1-8B --script devanagari
+uv run main.py --model google/gemma-4-31B --script babylonian --sweep
+
+# Wider window
+uv run main.py --script babylonian --n_max 600 --sweep
+
+# Extended basis with T = 60
+uv run main.py --script babylonian --n_max 600 \
+               --periods 2,5,10,60,100 --sweep
+\end{verbatim}
+
+Hardware: Apple M5 Max, 128\,GB unified memory (MPS); falls back to
+CUDA, then CPU. Total wall-time for the representational sweep:
+$\sim$8 hours.
+
+\begin{thebibliography}{9}
+\bibitem{kantamneni2025helix}
+S.\ Kantamneni and M.\ Tegmark.
+\newblock Language Models Use Trigonometry to Do Addition.
+\newblock \emph{arXiv preprint} arXiv:2502.00873, 2025.
+
+\bibitem{nanda2023progress}
+N.\ Nanda, L.\ Chan, T.\ Lieberum, J.\ Smith, and J.\ Steinhardt.
+\newblock Progress Measures for Grokking via Mechanistic Interpretability.
+\newblock In \emph{International Conference on Learning Representations (ICLR)}, 2023.
+\newblock arXiv:2301.05217.
+
+\bibitem{power2022grokking}
+A.\ Power, Y.\ Burda, H.\ Edwards, I.\ Babuschkin, and V.\ Misra.
+\newblock Grokking: Generalization Beyond Overfitting on Small Algorithmic Datasets.
+\newblock \emph{arXiv preprint} arXiv:2201.02177, 2022.
+\end{thebibliography}
+
+\end{document}

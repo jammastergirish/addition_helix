@@ -3,26 +3,34 @@
 An extension of Kantamneni & Tegmark,
 [*Language Models Use Trigonometry to Do Addition*](https://arxiv.org/abs/2502.00873)
 (2025), across four models and eight numeral systems. The paper
-showed the helix in Pythia-6.9B and GPT-J-6B on Latin digits 0–99
-with a four-period trig basis. The questions here are: does it
-extend to other architecture families (yes, at different depths);
-does it survive non-Latin scripts (only on multilingual models);
-and does it show up in *Babylonian cuneiform* — a positional base-60
-system — once you use the right measurement window and basis (yes,
-on all four models).
+showed the helix in GPT-J-6B, Pythia-6.9B, and Llama-3.1-8B on Latin
+digits 0–99 with a four-period trig basis — itself the LLM-scale
+follow-up to [Nanda et al. (2023)](https://arxiv.org/abs/2301.05217),
+who first reverse-engineered the same trig basis in a small
+transformer trained from scratch on modular addition (the original
+"grokking" task of [Power et al. (2022)](https://arxiv.org/abs/2201.02177),
+where a small network trained on modular arithmetic was famously left
+running long past memorisation and suddenly generalised). The
+questions here are: does the helix extend to a new architecture
+family (yes — Gemma 4); does it survive non-Latin scripts (only on
+multilingual models); and does it show up in *Babylonian cuneiform* —
+a positional base-60 system — once you use the right measurement
+window and basis (yes, on all four models).
 
 ## The findings, up front
 
-1. **The helix appears in two more architecture families (Llama,
-   Gemma), but at radically different depths.** The paper already
-   showed Pythia-6.9B and GPT-J-6B form the same helix; we add
-   Llama-3.1-8B, Gemma-4-E4B and Gemma-4-31B. All four converge on
-   the same geometric encoding on Latin — but the *layer* where it
-   peaks varies wildly (Gemma-4-31B's helix is a sharp spike at L29
-   of 61, with helix R² essentially flat everywhere else). The
-   paper's "read the middle layer" recipe is a Pythia/GPT-J
-   convention, not a universal one; for any new model, a layer
-   sweep is mandatory.
+1. **The helix appears in a new architecture family (Gemma), and
+   re-measurement on Pythia and Llama places it at radically
+   different depths.** The paper already covered Pythia-6.9B,
+   GPT-J-6B, and Llama-3.1-8B on Latin/0–99; we substitute the Gemma
+   family (Gemma-4-E4B and Gemma-4-31B) for GPT-J in the panel and
+   re-measure Pythia and Llama under a wider cross-script/cross-window
+   protocol. All four converge on the same geometric encoding on
+   Latin — but the *layer* where it peaks varies wildly (Gemma-4-31B's
+   helix is a sharp spike at L29 of 61, with helix R² essentially
+   flat everywhere else). The paper's "read the middle layer" recipe
+   is a Pythia/GPT-J convention, not a universal one; for any new
+   model, a layer sweep is mandatory.
 
 2. **The helix generalises to other positional numeral systems, but
    only on models that were trained on them.** Devanagari `२३`,
@@ -96,13 +104,16 @@ rise via PC1. A third diagnostic — fitting the trig basis as a
 regression target — is **basis-dependent**. We'll come back to that;
 it's where the methodology gets interesting.
 
-## Finding 1 — Two more architecture families form the helix, at very different depths
+## Finding 1 — A new architecture family forms the helix, and re-measurement spreads it across very different depths
 
-The paper already showed the helix in Pythia-6.9B and GPT-J-6B —
-both decoder-only transformers in the same broad family. The natural
-next question is whether different architecture lineages (Llama,
-Gemma) do the same thing, and where in the stack. They do, and the
-depths are surprising:
+The paper showed the helix in Pythia-6.9B, GPT-J-6B, and
+Llama-3.1-8B — three decoder-only transformers in the same broad
+lineage, all read at the middle layer on Latin/0–99. The natural
+next question is whether a structurally different family (Gemma 4)
+does the same thing, and where in the stack — and, while we're at
+it, whether the Pythia/Llama helix survives a wider measurement
+protocol (cross-script, wider windows, extended basis). They do,
+and the depths are surprising:
 
 | model | helix R² | helix/PCA ratio | peak layer | total layers |
 |---|---|---|---|---|
@@ -144,8 +155,36 @@ stack to find it, because middle-layer-reading is family-specific."**
 
 The cross-script result is where I expected the cleanest story and got
 the most interesting one. I rendered every integer in eight different
-numeral systems and re-ran the analysis. They split into three
-families:
+numeral systems and re-ran the analysis.
+
+### A quick tour of the eight scripts
+
+For readers who haven't met all of these before:
+
+- **Arabic-Indic** (`٠١٢٣٤٥٦٧٨٩`) and **Persian** (`۰۱۲۳۴۵۶۷۸۹`) are
+  positional base-10, identical in structure to Latin — different
+  glyphs only. Persian is a visual variant of Arabic-Indic. Numbers
+  are written most-significant-first despite Arabic script flowing
+  right-to-left.
+- **Devanagari** (`०१२३४५६७८९`) is also positional base-10, used
+  across Indian languages — Hindi, Sanskrit, Marathi, and others.
+- **Positional Chinese** uses the digit characters
+  `零一二三四五六七八九` in the same place-value layout as Latin
+  (`二三` = 23). Classical Chinese also admits a non-positional form
+  (`二十三`, literally "two-tens-three"); we don't use that here.
+- **Greek alphabetic (Milesian)** is additive: each letter carries a
+  fixed value (α=1…θ=9, ι=10, κ=20, …π=80, ϟ=90, ρ=100…). 23 is
+  `κγ` = 20+3. There is no shared "ones digit" between 13, 23, 33.
+- **Roman** is additive with subtractive shortcuts at 4, 9, 40, 90,
+  etc.: I=1, V=5, X=10, L=50, C=100. 23 = `XXIII`. Glyphs shift at
+  4↔5, 9↔10, 49↔50, 89↔90 — those transitions show up later as
+  staircase jumps in the PC1 panel.
+- **Babylonian cuneiform** is positional at base 60, additive within
+  each sexagesimal column. Two glyphs combine inside a column:
+  `𒁹` (one) and `𒌋` (ten). 23 is `𒌋𒌋𒁹𒁹𒁹` — two tens plus
+  three ones, all in one column. 60 opens a new column to the left.
+
+With those in hand, the eight systems split into three families:
 
 - **Positional base-10**: Latin `23`, Arabic-Indic `٢٣`, Persian `۲۳`,
   Devanagari `२३`, positional Chinese `二三`. Different glyphs, same
@@ -283,8 +322,88 @@ discontinuities at glyph thresholds**, and Greek's might be **9
 clusters of 10, one per tens-letter**. Neither shows up as a Fourier
 peak. Surfacing them needs different diagnostics — 2D PCA scatters
 to find clusters, additive regression `h(a) ≈ Σ count(symbol) ·
-u_symbol` to test the tree hypothesis. Those are in scope for
-follow-up work.
+u_symbol` to test the tree hypothesis.
+
+### What 2D PCA actually shows (and the PC1-is-tokenization surprise)
+
+We added a basis-free diagnostic to every cell: a 2D PCA scatter of
+the residual stream at the helix-peak layer, colored by `a`, with
+each numeral labelled and consecutive integers connected by a faint
+trajectory line. Eight scripts × four models = 32 panels. Reading
+them together turned up something none of the previous diagnostics
+caught.
+
+**Roman: cluster-by-prefix is visible directly.** The trajectory
+forms distinct regions of representation space corresponding to the
+Roman-numeral prefix classes (I/V, X, L, XC), with discontinuities
+right at the threshold integers:
+
+![Pythia-6.9B Roman — clusters by first-letter prefix](out/EleutherAI__pythia-6.9b/roman/mean/fig4_pca_2d.png)
+
+The labels make the discontinuities concrete: numerals starting with
+the same prefix cluster together; the trajectory line zigzags
+between clusters as the prefix changes at 4→5, 9→10, 49→50, 89→90.
+Roman's representation isn't a manifold; it's a partitioning of
+representation space into prefix classes with crude ordering within
+each class. The FFT couldn't see this — there's nothing periodic to
+detect — but the 2D PCA shows it directly.
+
+**Greek: confirmed noise.** Pythia/Greek hits PC1 + PC2 = 15.5% of
+total variance, less than half of any other cell. The points scatter
+diffusely with no recognisable shape. **There is no learned
+representation to find.** Whatever periodic structure the FFT picked
+up at layer 0 was a tokenizer artifact.
+
+**The Gemma surprise: PC1 isn't magnitude — it's *token shape*.**
+
+The most striking result is what 2D PCA shows for Gemma-4-31B. On
+Latin, helix/PCA = 0.75 and helix R² = 0.70 — strong by any measure.
+But PC1 doesn't pick up the magnitude axis. PC1 picks up the
+**tokenization structure**:
+
+![Gemma-4-31B Latin — PC1 is tokenization, not magnitude](out/google__gemma-4-31B/latin/mean/fig4_pca_2d.png)
+
+PC1 captures **70.9% of variance** here — much more than Pythia's
+20.4% — but it separates the points into three regions: single-digit
+numerals (`0`–`9`, far left), two-digit teens (`10`–`19`, top middle),
+and the rest (`20`–`99`, dense cluster on the right). The split is
+along *digit count* and *leading-digit class*, not magnitude. The
+helix lives in lower-variance directions (PC4, PC5, etc.) — present
+in the activations but not the dominant variance.
+
+Same pattern on Devanagari, more extreme:
+
+![Gemma-4-31B Devanagari — PC1 = 94.6%, still tokenization](out/google__gemma-4-31B/devanagari/mean/fig4_pca_2d.png)
+
+PC1 captures **94.6% of variance** and it just splits single-digit
+(`०`–`९`, left blob) from two-digit (`१०`–`९९`, right blob). PC2 is
+2.1%. From PC1 alone you'd think Gemma's Devanagari representation
+is a binary token-count detector — but helix R² = 0.79 says the
+helix is *also* there, in much lower-variance directions.
+
+And on Roman it's even more dramatic — PC1 = 96.6% — splitting
+roughly at the L/XL boundary (50 vs everything-else).
+
+**What this tells us methodologically.** In Pythia, PC1 R² and the
+magnitude-vs-`a` linearity correspond cleanly — looking at PC1 is
+basically looking at the number-line. In Gemma, PC1 R² and
+linearity-in-`a` *come apart*: PC1 captures massive variance but
+that variance is overwhelmingly tokenization (digit count, leading
+digit class). The number-line still exists; it lives further down
+in the spectrum. **A high PC1 R² is not by itself evidence of a
+clean magnitude axis** — it's evidence that something accounts for
+most of the variance, and you have to look at *what* PC1 separates
+to know whether that something is magnitude.
+
+This also reframes the depth-variance finding: the reason Gemma's
+helix-peak layer differs so wildly from Pythia's is partly that
+Gemma's residual streams are more *token-shape-dominated* at any
+given layer — the helix shares space with strong tokenization
+features and has to be detected as a smaller-variance signal.
+
+The full set of 32 panels (`out/<model>/<script>/mean/fig4_pca_2d.png`)
+makes these regimes immediately legible at a glance and is the
+single most informative output we produced.
 
 ## Finding 3 — Babylonian: base 60 is there, but you have to look properly
 
@@ -495,6 +614,13 @@ which scripts they have seen and which periods are natural to those
 scripts. Different models pick up different periods at different
 depths, but the geometric strategy is the same.
 
+The causal question — *whether the helix subspace is in fact the
+representation downstream computation reads* — is not what this post
+sets out to answer. That is the natural follow-up, and it requires
+careful intervention at the position the model reads to produce the
+answer (the `=` position), not at the operand position. We leave it
+to a follow-up.
+
 ## Reproducing
 
 ```bash
@@ -529,5 +655,20 @@ then CPU. Total wall-time for the full sweep: ~6–8 hours.
   author = {Kantamneni, Subhash and Tegmark, Max},
   journal= {arXiv preprint arXiv:2502.00873},
   year   = {2025}
+}
+
+@inproceedings{nanda2023progress,
+  title     = {Progress Measures for Grokking via Mechanistic Interpretability},
+  author    = {Nanda, Neel and Chan, Lawrence and Lieberum, Tom and Smith, Jess and Steinhardt, Jacob},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2023},
+  eprint    = {2301.05217}
+}
+
+@article{power2022grokking,
+  title  = {Grokking: Generalization Beyond Overfitting on Small Algorithmic Datasets},
+  author = {Power, Alethea and Burda, Yuri and Edwards, Harri and Babuschkin, Igor and Misra, Vedant},
+  journal= {arXiv preprint arXiv:2201.02177},
+  year   = {2022}
 }
 ```

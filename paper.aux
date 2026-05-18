@@ -1,0 +1,90 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand*\HyPL@Entry[1]{}
+\citation{kantamneni2025helix}
+\citation{nanda2023progress}
+\citation{power2022grokking}
+\citation{power2022grokking}
+\citation{nanda2023progress}
+\citation{kantamneni2025helix}
+\HyPL@Entry{0<</S/D>>}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\newlabel{sec:introduction}{{1}{1}{Introduction}{section.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Methods}{2}{section.2}\protected@file@percent }
+\newlabel{sec:methods}{{2}{2}{Methods}{section.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Setup}{2}{subsection.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}The helix basis}{2}{subsection.2.2}\protected@file@percent }
+\newlabel{eq:helix}{{1}{2}{The helix basis}{equation.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Three diagnostics}{2}{subsection.2.3}\protected@file@percent }
+\newlabel{sec:diagnostics}{{2.3}{2}{Three diagnostics}{subsection.2.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Fourier diagnostic.}{3}{section*.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{PC1 diagnostic.}{3}{section*.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Eckart--Young upper bound.}{3}{section*.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Layer sweep}{3}{subsection.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}2-D PCA scatter}{3}{subsection.2.5}\protected@file@percent }
+\newlabel{sec:pca2d-method}{{2.5}{3}{2-D PCA scatter}{subsection.2.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Architecture: the helix is consistent, the layer is not}{3}{section.3}\protected@file@percent }
+\newlabel{sec:arch}{{3}{3}{Architecture: the helix is consistent, the layer is not}{section.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Latin helix metrics at the peak layer of each model. ``helix/PCA'' is the ratio of helix $R^2$ to the $9$-D PCA upper bound (values $\gtrsim \!0.8$ indicate the trig basis dominates the $9$-D subspace).}}{3}{table.caption.4}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{tab:arch}{{1}{3}{Latin helix metrics at the peak layer of each model. ``helix/PCA'' is the ratio of helix $R^2$ to the $9$-D PCA upper bound (values $\gtrsim \!0.8$ indicate the trig basis dominates the $9$-D subspace)}{table.caption.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces PC1 $R^2$, helix $R^2$ and helix/PCA ratio plotted against layer index, for each of the four models (Latin digits 0--99). Pythia and Llama rise into the back half of the stack and stay high. Gemma-4-E4B peaks early and decays. Gemma-4-31B is nearly flat at $\sim $0.5 with a sharp spike at $L\!=\!29$ that reads as ``no helix'' if one samples at $L \!=\! 30 = N/2$.}}{4}{figure.caption.5}\protected@file@percent }
+\newlabel{fig:layer-sweep}{{1}{4}{PC1 $R^2$, helix $R^2$ and helix/PCA ratio plotted against layer index, for each of the four models (Latin digits 0--99). Pythia and Llama rise into the back half of the stack and stay high. Gemma-4-E4B peaks early and decays. Gemma-4-31B is nearly flat at $\sim $0.5 with a sharp spike at $L\!=\!29$ that reads as ``no helix'' if one samples at $L \!=\! 30 = N/2$}{figure.caption.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Script: positional structure is necessary, training exposure is what makes the helix appear}{5}{section.4}\protected@file@percent }
+\newlabel{sec:script}{{4}{5}{Script: positional structure is necessary, training exposure is what makes the helix appear}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}The numeral systems at a glance}{5}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Setup}{5}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Helix/PCA across scripts}{5}{subsection.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Non-positional scripts collapse uniformly.}{5}{section*.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Latin is uniform.}{5}{section*.9}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Numeral systems tested. The Babylonian column is the most interesting and is treated separately in Section~\ref {sec:babylonian}.}}{6}{table.caption.6}\protected@file@percent }
+\newlabel{tab:scripts}{{2}{6}{Numeral systems tested. The Babylonian column is the most interesting and is treated separately in Section~\ref {sec:babylonian}}{table.caption.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Helix/PCA ratio at each model's peak layer, by script (mean pooling). Bold = highest score per model.}}{6}{table.caption.7}\protected@file@percent }
+\newlabel{tab:script-results}{{3}{6}{Helix/PCA ratio at each model's peak layer, by script (mean pooling). Bold = highest score per model}{table.caption.7}{}}
+\@writefile{toc}{\contentsline {paragraph}{Non-Latin positional cells split by training data.}{6}{section*.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Two qualitatively distinct collapses on non-positional scripts}{6}{subsection.4.4}\protected@file@percent }
+\newlabel{sec:script-collapse}{{4.4}{6}{Two qualitatively distinct collapses on non-positional scripts}{subsection.4.4}{}}
+\@writefile{toc}{\contentsline {paragraph}{Roman: a decomposed encoding, not a fused helix.}{6}{section*.12}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Layer of peak PC1 and helix $R^2$ on Latin, Roman, Greek. Latin: both peak at the same layer (a single helix). Roman: peaks are 9--20 layers apart (decomposed parallel modules). Greek: helix $R^2$ peaks at $L=0$ (tokeniser artifact at the embedding).}}{7}{table.caption.11}\protected@file@percent }
+\newlabel{tab:script-collapse}{{4}{7}{Layer of peak PC1 and helix $R^2$ on Latin, Roman, Greek. Latin: both peak at the same layer (a single helix). Roman: peaks are 9--20 layers apart (decomposed parallel modules). Greek: helix $R^2$ peaks at $L=0$ (tokeniser artifact at the embedding)}{table.caption.11}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Pythia-6.9B on Roman numerals. \textbf  {Top}: FFT spectrum shows clean peaks at $T = 10$ (X cycle) and $T = 5$ (V cycle)---the visual periodicity of the additive system. \textbf  {Bottom}: PC1 versus $a$ is a piecewise function with jumps at the Roman threshold values, not a line. The two components live in different layers (Table~\ref {tab:script-collapse}).}}{7}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:roman}{{2}{7}{Pythia-6.9B on Roman numerals. \textbf {Top}: FFT spectrum shows clean peaks at $T = 10$ (X cycle) and $T = 5$ (V cycle)---the visual periodicity of the additive system. \textbf {Bottom}: PC1 versus $a$ is a piecewise function with jumps at the Roman threshold values, not a line. The two components live in different layers (Table~\ref {tab:script-collapse})}{figure.caption.13}{}}
+\@writefile{toc}{\contentsline {paragraph}{Greek: no quantitative representation at all.}{7}{section*.14}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Pythia-6.9B on Greek alphabetic numerals. The FFT magnitude is two orders of magnitude smaller than on Latin; the only periodic structure is a $T=10$ artifact at $L=0$ from the alphabetic construction $\kappa + \gamma = $ \(\kappa \gamma \). PC1 $R^2 = 0.004$: the model is not representing Greek numerals as quantities.}}{8}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:greek}{{3}{8}{Pythia-6.9B on Greek alphabetic numerals. The FFT magnitude is two orders of magnitude smaller than on Latin; the only periodic structure is a $T=10$ artifact at $L=0$ from the alphabetic construction $\kappa + \gamma = $ \(\kappa \gamma \). PC1 $R^2 = 0.004$: the model is not representing Greek numerals as quantities}{figure.caption.15}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}2D PCA: cluster structure made visible (and the PC1-is-tokenization surprise)}{8}{subsection.4.5}\protected@file@percent }
+\newlabel{sec:pca2d}{{4.5}{8}{2D PCA: cluster structure made visible (and the PC1-is-tokenization surprise)}{subsection.4.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Pythia-6.9B on Roman numerals. 2D PCA at the helix-peak layer reveals discrete clusters by Roman-numeral prefix (I/V, X, L, XC), with the trajectory line zigzagging at threshold integers. The representation is a partition, not a continuous manifold.}}{9}{figure.caption.16}\protected@file@percent }
+\newlabel{fig:roman_pca}{{4}{9}{Pythia-6.9B on Roman numerals. 2D PCA at the helix-peak layer reveals discrete clusters by Roman-numeral prefix (I/V, X, L, XC), with the trajectory line zigzagging at threshold integers. The representation is a partition, not a continuous manifold}{figure.caption.16}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Babylonian: base 60 is there, once you measure properly}{9}{section.5}\protected@file@percent }
+\newlabel{sec:babylonian}{{5}{9}{Babylonian: base 60 is there, once you measure properly}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}The narrow-window measurement says ``no''---but cannot}{9}{subsection.5.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Gemma-4-31B on Latin digits. PC1 captures 70.9\% of variance but separates the points by \emph  {token shape} (single-digit vs.~teens vs.~20--99), not magnitude. Helix $R^2 = 0.70$ persists at this layer, in lower-variance directions PC1 does not reach.}}{10}{figure.caption.17}\protected@file@percent }
+\newlabel{fig:gemma_latin_pca}{{5}{10}{Gemma-4-31B on Latin digits. PC1 captures 70.9\% of variance but separates the points by \emph {token shape} (single-digit vs.~teens vs.~20--99), not magnitude. Helix $R^2 = 0.70$ persists at this layer, in lower-variance directions PC1 does not reach}{figure.caption.17}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Babylonian on the standard 0--99 window, paper basis.}}{10}{table.caption.18}\protected@file@percent }
+\newlabel{tab:bab-n100}{{5}{10}{Babylonian on the standard 0--99 window, paper basis}{table.caption.18}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Widening the window: $T \approx 60$ emerges in the FFT}{10}{subsection.5.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Gemma-4-31B on Babylonian at $n_{\max }=100$. Top FFT shows $T=10$ and $T=100$; \emph  {no} $T=60$. PC1 (bottom) shows numbers 0--59 versus 60--99 as two clusters with a step between them.}}{11}{figure.caption.19}\protected@file@percent }
+\newlabel{fig:bab-n100}{{6}{11}{Gemma-4-31B on Babylonian at $n_{\max }=100$. Top FFT shows $T=10$ and $T=100$; \emph {no} $T=60$. PC1 (bottom) shows numbers 0--59 versus 60--99 as two clusters with a step between them}{figure.caption.19}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Babylonian, $n_{\max }=100 \to 600$ (paper basis $T = \{2,5,10,100\}$). Both PC1 and FFT diagnostics improve; helix $R^2$ \emph  {drops} because $T = 60$ is not in the basis.}}{11}{table.caption.20}\protected@file@percent }
+\newlabel{tab:bab-n600}{{6}{11}{Babylonian, $n_{\max }=100 \to 600$ (paper basis $T = \{2,5,10,100\}$). Both PC1 and FFT diagnostics improve; helix $R^2$ \emph {drops} because $T = 60$ is not in the basis}{table.caption.20}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}An extended basis recovers $7$--$13$ percentage points of variance, on every model}{11}{subsection.5.3}\protected@file@percent }
+\newlabel{sec:bab-extended}{{5.3}{11}{An extended basis recovers $7$--$13$ percentage points of variance, on every model}{subsection.5.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Pythia-6.9B on Babylonian at $n_{\max }=600$. A clean labelled peak at $T \approx 60$ appears alongside $T = 10$ and various harmonics. The PC1 panel shows the magnitude axis with a per-column sawtooth---the model resets into a new sexagesimal column every 60 integers.}}{12}{figure.caption.21}\protected@file@percent }
+\newlabel{fig:bab-n600-pythia}{{7}{12}{Pythia-6.9B on Babylonian at $n_{\max }=600$. A clean labelled peak at $T \approx 60$ appears alongside $T = 10$ and various harmonics. The PC1 panel shows the magnitude axis with a per-column sawtooth---the model resets into a new sexagesimal column every 60 integers}{figure.caption.21}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Babylonian at $n_{\max }=600$: paper basis $T=\{2,5,10,100\}$ vs.\ extended basis $T=\{2,5,10,60,100\}$. Adding the single missing period recovers $7$--$13$ percentage points of variance on every model.}}{12}{table.caption.23}\protected@file@percent }
+\newlabel{tab:bab-extended}{{7}{12}{Babylonian at $n_{\max }=600$: paper basis $T=\{2,5,10,100\}$ vs.\ extended basis $T=\{2,5,10,60,100\}$. Adding the single missing period recovers $7$--$13$ percentage points of variance on every model}{table.caption.23}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Method matters: two general lessons}{12}{section.6}\protected@file@percent }
+\newlabel{sec:method-matters}{{6}{12}{Method matters: two general lessons}{section.6}{}}
+\@writefile{toc}{\contentsline {paragraph}{M1.\ The basis has bandwidth.}{12}{section*.24}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Gemma-4-31B on Babylonian at $n_{\max }=600$. Base-60 structure manifests primarily through its second harmonic at $T=30$, indicating a sawtooth-like signal rather than a pure sinusoid.}}{13}{figure.caption.22}\protected@file@percent }
+\newlabel{fig:bab-n600-gemma}{{8}{13}{Gemma-4-31B on Babylonian at $n_{\max }=600$. Base-60 structure manifests primarily through its second harmonic at $T=30$, indicating a sawtooth-like signal rather than a pure sinusoid}{figure.caption.22}{}}
+\@writefile{toc}{\contentsline {paragraph}{M2.\ The window must wrap.}{13}{section*.25}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Discussion and conclusion}{13}{section.7}\protected@file@percent }
+\newlabel{sec:discussion}{{7}{13}{Discussion and conclusion}{section.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Follow-ups}{14}{subsection.7.1}\protected@file@percent }
+\bibcite{kantamneni2025helix}{1}
+\bibcite{nanda2023progress}{2}
+\bibcite{power2022grokking}{3}
+\@writefile{toc}{\contentsline {paragraph}{Representational sweep (Sections~\ref {sec:arch}--\ref {sec:babylonian}).}{15}{section*.27}\protected@file@percent }
+\gdef \@abspage@last{15}
