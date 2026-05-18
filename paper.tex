@@ -57,11 +57,13 @@ analogue of Nanda~et al.~\cite{nanda2023progress}, who reverse-engineered
 the same trig solution in a small transformer trained from scratch on
 modular addition---the canonical grokking task of
 Power~et al.~\cite{power2022grokking}. We extend the LLM result along
-three orthogonal axes. \textbf{Architecture}: we add a new model
-family (Gemma~4, at E4B and 31B) and re-measure Pythia and Llama under
-a wider protocol, recovering the helix on all four models but at
-radically different depths---Pythia/Llama mid-stack, Gemma-4-E4B at
-$L\!=\!5$ of $30$, Gemma-4-31B as a sharp spike at $L\!=\!29$ of $61$. \textbf{Script}: across eight numeral
+three orthogonal axes. \textbf{Architecture}: we add two new model
+families (Gemma~4 at E4B and 31B; OLMo-3 at 32\,B) and re-measure
+Pythia and Llama under a wider protocol, recovering the helix on all
+five models but at radically different depths---Pythia/Llama
+mid-stack, Gemma-4-E4B at $L\!=\!5$ of $34$, Gemma-4-31B as a sharp
+spike at $L\!=\!29$ of $61$, OLMo-3-32B at $L\!=\!23$ of $64$ with a
+separate early helix/PCA peak at $L\!=\!4$. \textbf{Script}: across eight numeral
 systems we find a three-way split---positional base-10 scripts the
 model has been trained on (Latin, Devanagari, Arabic-Indic, Persian,
 positional Chinese) reproduce the helix on multilingual models;
@@ -69,17 +71,28 @@ additive systems (Roman, Greek alphabetic) collapse it in two
 qualitatively distinct ways distinguishable only by inspecting where
 PC1 and helix $R^2$ peak in layer-space; and Babylonian cuneiform, a
 positional base-60 system, encodes its native period~60 on
-\emph{all four models}, provided we widen the input window past one
+\emph{all five models}, provided we widen the input window past one
 base-60 wrap and add $T=60$ to the trig basis (adding the single
 missing period recovers $7\!-\!13$ percentage points of variance
-uniformly across the four models). 2-D PCA scatters of the residual
-stream further reveal that on Gemma the first principal component is
-not magnitude but \emph{tokenisation} (PC1 captures up to $96.6\%$ of
-variance but separates points by digit count, not value).
+uniformly across the five models). 2-D PCA scatters of the residual
+stream further reveal that on both Gemma and OLMo the first principal
+component is not magnitude but \emph{tokenisation} (PC1 captures up to
+$96.6\%$ of variance but separates points by digit count, not value),
+a pattern absent only on Pythia.
 We extract two methodological lessons: (M1) any basis-dependent metric
 must be cross-checked against a basis-free FFT and against a 2-D PCA
 scatter; (M2) the input range must contain several wraps of every
-candidate period.
+candidate period. A third diagnostic shifts the headline reading
+substantially: comparing helix $R^2$ at the embedding layer ($L\!=\!0$,
+before any transformer block) to its peak across all layers reveals
+that most non-Latin and all Babylonian cells in our matrix already
+carry their reported helix at $L\!=\!0$---the transformer adds little.
+Only Pythia/Latin, Llama/Latin (the original paper's cells) and the
+Gemma cells on Devanagari, Persian, and Roman show transformer blocks
+doing the majority of the representational work. The cross-script and
+Babylonian generalisations are therefore most honestly read as
+tokenisation + mean-pooling artifacts rather than learned arithmetic
+representations.
 \end{abstract}
 
 \section{Introduction}
@@ -110,9 +123,10 @@ along two independent axes:
 \begin{enumerate}
   \item \textbf{Architecture}: does the helix extend beyond the
     decoder-only lineage Kantamneni and Tegmark studied? We add
-    Gemma~4 (E4B and 31B---different tokeniser, different training
-    mix, different depth) and re-measure Pythia and Llama under a
-    wider protocol. If the helix is there, at what depth?
+    Gemma~4 (E4B and 31B) and OLMo-3-32B (AllenAI's fully-open
+    32\,B)---each with a different tokeniser, training mix, and
+    depth---and re-measure Pythia and Llama under a wider protocol.
+    If the helix is there, at what depth?
   \item \textbf{Script}: when the model reads ``\arabicnum{٢٣}'',
     ``\devnum{२३}'', ``\cuneinum{𒌋𒌋𒁹𒁹𒁹}'', does it represent
     these as numbers in the same helical way, or as ordinary
@@ -123,13 +137,19 @@ Both axes turn out to matter, and both surface methodological
 subtleties that are easy to miss if one runs only the paper's exact
 measurement recipe. Section~\ref{sec:methods} reviews the helix
 construction and our two basis-free diagnostics. Section~\ref{sec:arch}
-reports the layer-depth findings across four models.
+reports the layer-depth findings across five models.
 Section~\ref{sec:script} compares eight numeral systems, and analyses
 the two qualitatively distinct ways the helix collapses on
 non-positional scripts. Section~\ref{sec:babylonian} contains the
 main scientific surprise: Babylonian cuneiform is represented at its
 native base 60 on every model we tested, once the measurement window
 is widened past a single wrap and the basis is extended with $T=60$.
+Section~\ref{sec:l0} introduces our third diagnostic---the ratio of
+helix $R^2$ at $L\!=\!0$ to its peak---which reveals that on most
+non-Latin cells, the helix is already there before the transformer
+runs, and substantially revises which of the cross-script results
+should be read as ``the model represents this'' versus ``the tokeniser
+plus pooling produce a helix-fittable shape.''
 Section~\ref{sec:method-matters} distills the two
 generalisable methodological lessons.
 
@@ -217,12 +237,13 @@ tokenisation-dominated PC1; Section~\ref{sec:pca2d}).
 \section{Architecture: the helix is consistent, the layer is not}
 \label{sec:arch}
 
-We test four base (non-instruction-tuned) models:
-Pythia-6.9B, Llama-3.1-8B, Gemma-4-E4B (efficient $\sim$4\,B), and
-Gemma-4-31B. All four converge on the same geometric encoding on
-Latin digits 0--99 (Table~\ref{tab:arch}), but the depth at which the
-helix peaks varies dramatically, and so does the shape of the
-depth profile (Figure~\ref{fig:layer-sweep}).
+We test five base (non-instruction-tuned) models:
+Pythia-6.9B, Llama-3.1-8B, Gemma-4-E4B (efficient $\sim$4\,B),
+Gemma-4-31B, and OLMo-3-32B (AllenAI's fully-open 32\,B). All five
+converge on the same geometric encoding on Latin digits 0--99
+(Table~\ref{tab:arch}), but the depth at which the helix peaks varies
+dramatically, and so does the shape of the depth profile
+(Figure~\ref{fig:layer-sweep}).
 
 \begin{table}[h!]
 \centering
@@ -237,25 +258,29 @@ Model & helix $R^2$ & helix/PCA & peak layer & total layers \\
 \midrule
 Pythia-6.9B   & 0.53 & 0.85 & 15 & 32 \\
 Llama-3.1-8B  & 0.63 & 0.85 & 14 & 32 \\
-Gemma-4-E4B   & 0.50 & 0.77 & 5  & $\sim$30 \\
+Gemma-4-E4B   & 0.50 & 0.77 & 5  & 34 \\
 Gemma-4-31B   & \textbf{0.70} & 0.75 & 29 & 61 \\
+OLMo-3-32B    & 0.42 & 0.83 & 23 & 64 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width=0.95\linewidth]{_compare/fig_latin_sweep_4models.png}
+\includegraphics[width=0.95\linewidth]{_compare/fig_latin_sweep_5models.png}
 \caption{PC1 $R^2$, helix $R^2$ and helix/PCA ratio plotted against
-layer index, for each of the four models (Latin digits 0--99). Pythia
+layer index, for each of the five models (Latin digits 0--99). Pythia
 and Llama rise into the back half of the stack and stay high.
 Gemma-4-E4B peaks early and decays. Gemma-4-31B is nearly flat at
 $\sim$0.5 with a sharp spike at $L\!=\!29$ that reads as ``no helix''
-if one samples at $L \!=\! 30 = N/2$.}
+if one samples at $L \!=\! 30 = N/2$. OLMo-3-32B rises gradually to a
+mid-stack helix at $L\!=\!23$, with a separate early peak in the
+helix/PCA ratio at $L\!=\!4$ that mirrors the Gemma-4-E4B early-helix
+pattern.}
 \label{fig:layer-sweep}
 \end{figure}
 
-Three depth regimes emerge:
+Four depth regimes emerge:
 \begin{itemize}
   \item \textbf{Pythia and Llama}: helix forms in the back half of the
     stack and remains until at least $L = N-1$. Either $L = N/2$ or
@@ -267,6 +292,11 @@ Three depth regimes emerge:
     $\sim$0.5 across the whole stack, with a single sharp peak of 0.70
     at $L = 29$. The default $L = N/2 = 30$ misses the peak by exactly
     one layer.
+  \item \textbf{OLMo-3-32B}: helix $R^2$ rises gradually to a mid-stack
+    peak at $L = 23$ of $64$ (helix $R^2 = 0.42$, helix/PCA $= 0.83$),
+    with a second very-early peak in the helix/PCA ratio at $L = 4$
+    that resembles the Gemma-4-E4B early-helix profile. Two different
+    geometric regimes coexist within the same stack.
 \end{itemize}
 We initially concluded ``Gemma-4-31B does not form a helix'' from a
 default-layer reading---a conclusion wrong by a single layer. The
@@ -371,7 +401,7 @@ the numeral system has a tens column. Roman \texttt{IV} versus
 \texttt{V} is not the kind of transition a fixed-period circle can
 align to.
 
-\paragraph{Latin is uniform.} All four models clear 0.75 on Latin. The
+\paragraph{Latin is uniform.} Four of the five models clear 0.75 on Latin (OLMo-3-32B sits lower at helix/PCA $0.83$ with absolute helix $R^2 = 0.42$). The
 shape itself is not model-specific.
 
 \paragraph{Non-Latin positional cells split by training data.} Pythia
@@ -449,9 +479,10 @@ not a line. The two components live in different layers
 
 \paragraph{Greek: no quantitative representation at all.}
 PC1 $R^2$ peaks at $0.10$--$0.21$ on every model; the linear axis
-never appears. Helix $R^2$ peaks at layer $0$ on three of four
-models---i.e.\ at the output of the token embedding, before any
-transformer block has executed (Figure~\ref{fig:greek}). The FFT
+never appears. Helix $R^2$ peaks at layer $0$ on four of the five
+models (OLMo-3-32B included)---i.e.\ at the output of the token
+embedding, before any transformer block has executed
+(Figure~\ref{fig:greek}). The FFT
 magnitudes are $\sim$0.20 (compare $\sim$30 for Latin); the apparent
 $T=10$ peak is a tokeniser artifact in which the second Greek letter
 cycles through $\alpha, \beta, \gamma, \dots, \theta$ every ten
@@ -482,7 +513,7 @@ To probe non-periodic structure that the FFT and the trig-basis fit
 cannot see, we added a basis-free diagnostic to every cell: a 2D PCA
 scatter of $h(a)$ at the helix-peak layer, coloured by $a$, with each
 numeral labelled and consecutive integers connected by a faint
-trajectory line. Eight scripts $\times$ four models $=$ 32 panels at
+trajectory line. Eight scripts $\times$ five models $=$ 40 panels at
 \texttt{out/<model>/<script>/mean/fig4\_pca\_2d.png}. Three findings
 fall out.
 
@@ -575,6 +606,7 @@ Pythia-6.9B   & 0.06 & 0.71 & 0.74 \\
 Llama-3.1-8B  & 0.10 & 0.65 & 0.69 \\
 Gemma-4-E4B   & 0.40 & 0.75 & 0.77 \\
 Gemma-4-31B   & 0.51 & 0.76 & 0.77 \\
+OLMo-3-32B    & 0.18 & 0.73 & 0.75 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -622,6 +654,7 @@ Pythia-6.9B   & 0.06 $\to$ \textbf{0.55} & 0.71 $\to$ 0.66 & 0.74 $\to$ 0.69 \\
 Llama-3.1-8B  & 0.10 $\to$ \textbf{0.55} & 0.65 $\to$ 0.52 & 0.69 $\to$ 0.56 \\
 Gemma-4-E4B   & 0.40 $\to$ \textbf{0.69} & 0.75 $\to$ 0.61 & 0.77 $\to$ 0.64 \\
 Gemma-4-31B   & 0.51 $\to$ \textbf{0.64} & 0.76 $\to$ 0.50 & 0.77 $\to$ 0.52 \\
+OLMo-3-32B    & 0.18 $\to$ \textbf{0.62} & 0.73 $\to$ 0.53 & 0.75 $\to$ 0.56 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -682,6 +715,7 @@ Pythia-6.9B   & 0.661 $\to$ \textbf{0.747} & \textbf{+0.086} & 0.687 $\to$ 0.772
 Llama-3.1-8B  & 0.515 $\to$ \textbf{0.622} & \textbf{+0.107} & 0.555 $\to$ 0.645 & +0.090 \\
 Gemma-4-E4B   & 0.611 $\to$ \textbf{0.698} & \textbf{+0.087} & 0.637 $\to$ 0.699 & +0.062 \\
 Gemma-4-31B   & 0.501 $\to$ \textbf{0.634} & \textbf{+0.133} & 0.523 $\to$ 0.636 & +0.113 \\
+OLMo-3-32B    & 0.532 $\to$ \textbf{0.619} & \textbf{+0.087} & 0.559 $\to$ 0.645 & +0.086 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -697,13 +731,126 @@ shifted.
 The conclusion is unambiguous:
 \begin{quote}
 \textbf{Base-60 structure is present in the Babylonian representation
-on all four models, increasing in strength roughly as
-Pythia $<$ Gemma-4-E4B $<$ Llama $<$ Gemma-4-31B (by $\Delta$ helix
-$R^2$).}
+on all five models, with OLMo-3-32B at $\Delta$ helix $R^2 \approx
+0.09$ from adding $T=60$ to the basis---inside the
+$7\!-\!13$\,pp band the other four models exhibit.}
 \end{quote}
 Both measurement adjustments (wider window, extended basis) point the
 same direction, which is the strongest evidence we have that the
 structure is real rather than an artifact of either change.
+
+\section{Where is the helix built? $L\!=\!0$ vs.\ the peak layer}
+\label{sec:l0}
+
+A helix $R^2$ value at a model's peak layer is the headline number, but
+it conflates two very different things: structure that the model
+\emph{computes} through its transformer blocks, and structure that the
+tokeniser + our mean-pooling protocol \emph{already provide} before any
+block has executed. For every numeral $a$, the residual stream at
+$L\!=\!0$ is the mean of the embedding vectors of $a$'s sub-tokens.
+For an additive numeral system---one wedge per unit, or one Roman
+letter per stroke---this mean is approximately a linear function of
+the per-symbol counts. The trig basis can then fit it directly,
+\emph{independently} of what the transformer does on top.
+
+The clean diagnostic is the ratio $\rho_{L0} \mathrel{:=}
+\mathrm{helix}\,R^2(L\!=\!0) / \max_L \mathrm{helix}\,R^2(L)$. $\rho_{L0}
+\!\approx\! 1$ means the transformer adds essentially nothing to the
+helix fit: depth's role is at most to preserve, not build, the
+geometry. $\rho_{L0}$ small means the transformer is doing real
+representational work. We compute $\rho_{L0}$ for all $5 \times 8 = 40$
+cells of our matrix; the result (Table~\ref{tab:l0-share}) is more
+revealing than any single per-cell helix $R^2$.
+
+\begin{table}[h!]
+\centering
+\caption{The ratio $\rho_{L0} = $ helix $R^2$ at $L\!=\!0$ divided by
+helix $R^2$ at the peak layer, for every (model, script) cell. Values
+near $1$ mean the helix is already present in the embedding-layer
+output; values near $0$ mean the transformer blocks build it.}
+\label{tab:l0-share}
+\begin{tabular}{lccccc}
+\toprule
+script & Pythia & Llama & E4B & 31B & OLMo \\
+\midrule
+\textbf{latin}      & \textbf{0.34} & \textbf{0.39} & 0.89 & 0.79 & 0.63 \\
+arabic              & 1.00 & 1.00 & 0.80 & 0.74 & 0.92 \\
+persian             & 1.00 & 0.73 & 0.63 & 0.61 & 0.98 \\
+devanagari          & 0.99 & 1.00 & \textbf{0.49} & \textbf{0.44} & 0.85 \\
+chinese             & 0.95 & 0.99 & 0.96 & 0.88 & 1.00 \\
+greek               & 1.00 & 1.00 & 0.56 & 0.55 & 1.00 \\
+roman               & 0.78 & 0.73 & 0.55 & \textbf{0.48} & 0.65 \\
+babylonian          & 0.86 & 0.87 & 0.89 & 0.88 & 0.82 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Several patterns matter:
+
+\paragraph{Pythia/Latin and Llama/Latin are the cells where depth
+genuinely builds the helix.} $\rho_{L0} = 0.34$ and $0.39$
+respectively---i.e.\ the transformer blocks contribute the majority of
+the helix fit, with the embedding layer providing less than half. These
+are the exact cells the original
+paper~\cite{kantamneni2025helix} studies, and our $\rho_{L0}$ analysis
+confirms that on those cells the helix is a genuinely computed
+representation, not a tokeniser artifact.
+
+\paragraph{The cross-script extension on Pythia and Llama is largely a
+tokeniser artifact.} Every non-Latin positional script on Pythia and
+Llama has $\rho_{L0} \in [0.73, 1.00]$. Arabic-Indic and Greek on both
+models hit $1.00$ exactly: the helix-$R^2$ peak \emph{is} the
+embedding layer. The transformer never adds anything. What our Finding
+in Section~\ref{sec:script} initially called ``the helix transfers
+to other positional scripts on multilingual models'' becomes, more
+honestly: \emph{the tokeniser preserves enough digit-level structure
+that mean-pooling produces a helix-fittable representation, regardless
+of whether the model uses it for anything}. Pythia is not multilingual;
+its Arabic ``helix'' R$^2$ of $0.44$ at $L\!=\!0$ comes from the
+tokeniser splitting Arabic-Indic numerals into digit-level sub-tokens
+that the trig basis can then fit.
+
+\paragraph{Gemma builds the helix where it has been trained to.}
+Gemma-4-E4B and Gemma-4-31B have $\rho_{L0} \in [0.44, 0.63]$ on
+Devanagari, Persian, and Roman. Those are the cells where the
+transformer is doing the most representational work in our matrix.
+This is consistent with Gemma 4's heavy Indic-language and
+classical-language training mix: depth processes those scripts into a
+genuine quantitative encoding, while less-represented scripts (Chinese,
+Greek) remain tokeniser-driven. Gemma's high
+``$\mathrm{PC1} = $ tokenisation'' figures from Section~\ref{sec:pca2d}
+are the same phenomenon read along a different axis.
+
+\paragraph{OLMo sits between Pythia/Llama and Gemma.} OLMo's Latin
+$\rho_{L0} = 0.63$ is intermediate---some helix at $L\!=\!0$, but the
+transformer still does roughly a third of the work. Its
+\emph{multilingual} cells (Arabic $0.92$, Persian $0.98$, Devanagari
+$0.85$) are closer to the Pythia/Llama pattern: tokeniser-driven. OLMo
+exhibits the Gemma-style early tokenisation structure on Latin while
+treating non-Latin scripts more like Pythia and Llama treat them.
+
+\paragraph{Babylonian is universally tokeniser-driven.}
+$\rho_{L0} = 0.82$--$0.89$ across every model. The transformer
+contributes at most $\sim$15\,pp on top of what the wedge-token
+embeddings + mean-pooling already supply. The strong $\Delta$ helix
+$R^2$ from adding $T=60$ to the basis
+(Section~\ref{sec:bab-extended}) is then most honestly read as
+\emph{the trig basis fitting the tokeniser-pooled representation of
+cuneiform glyph counts}, not as the model having learned base-60
+arithmetic from its training corpus. The result is still nontrivial---
+the wedge-token embeddings must already carry value information for
+the pooling to produce this structure---but the cause is the
+embedding layer, not the transformer.
+
+\begin{quote}
+\textbf{Revised reading of the cross-script and Babylonian findings:}
+The cleanest evidence for ``the model represents numerals as a helix''
+is the Pythia/Latin and Llama/Latin cells of the original paper, plus
+the Gemma cells on Devanagari, Persian, and Roman, and the Gemma/Latin
+cell. Most other cells in our matrix---including all Babylonian
+cells---report a helix $R^2$ that is largely the tokeniser plus our
+pooling protocol.
+\end{quote}
 
 \section{Method matters: two general lessons}
 \label{sec:method-matters}
@@ -772,23 +919,38 @@ Putting the threads together:
     magnitude axis; the helix in Gemma lives in lower-variance
     directions.
   \item \textbf{Cross-script, sexagesimal}: Babylonian cuneiform's
-    base 60 is represented on all four models---a stronger
-    generalisation than the paper makes, lying entirely outside the
-    representational space its measurement protocol can resolve.
-    Recovering it required widening the window past one wrap and
-    adding $T=60$ to the trig basis.
+    base 60 is fittable by an extended trig basis on all five models,
+    with $\Delta$ helix $R^2$ from adding $T=60$ in the $+0.087$ to
+    $+0.133$ range. Recovering it required widening the window past
+    one wrap and adding $T=60$ to the trig basis.
+  \item \textbf{Where the helix is built}
+    (Section~\ref{sec:l0}): the L0-vs-peak diagnostic reveals that
+    most of our cross-script and Babylonian helices are already
+    present at the embedding layer, before any transformer block has
+    run ($\rho_{L0} = 0.82$--$1.00$ on every Babylonian cell and on
+    every Pythia/Llama non-Latin positional cell). The cells where
+    depth genuinely builds the helix are Pythia/Latin and Llama/Latin
+    ($\rho_{L0} = 0.34$, $0.39$) and the Gemma cells on Devanagari,
+    Persian, and Roman ($\rho_{L0} = 0.44$--$0.65$). The
+    cross-script and Babylonian generalisations are largely artifacts
+    of tokenisation + our mean-pooling protocol, not learned
+    arithmetic representations.
 \end{itemize}
 
 We started this work expecting the helix to be a property of one
-model's training. What appears truer now is that the helix is a
-property of how transformers encode anything they represent as a
-quantity, parameterised by which scripts the model has seen and which
-periods are natural to those scripts. Different models pick up
-different periods at different depths; the geometric strategy is the
-same. Whether the helix subspace is also \emph{the representation that
-downstream computation reads} is a causal question this paper does not
-answer; the natural intervention sits at the answer position rather
-than the operand position, and we leave it to follow-up work.
+model's training. What we found is sharper and less flattering: the
+helix is a property of how transformers \emph{can} encode quantity
+when there is one to encode, but on most cells in our matrix the
+``helix'' we measure is already in the tokeniser-pooled embeddings
+before any block has run. The original paper's Pythia/Latin cell is
+where depth genuinely builds the geometry; the cross-script extension
+on Pythia and Llama is largely the tokeniser; Gemma's Indic and
+classical scripts are the cells outside Latin where depth most
+clearly takes over. Whether the helix subspace is also \emph{the
+representation that downstream computation reads} is a causal
+question this paper does not answer; the natural intervention sits
+at the answer position rather than the operand position, and we
+leave it to follow-up work.
 
 \subsection{Follow-ups}
 
@@ -842,11 +1004,11 @@ All code, configuration, and figures are in the public repository
 accompanying this paper. Each experiment lives in its own driver
 script with PEP 723 inline metadata, runnable via \texttt{uv run}; each
 has an accompanying \texttt{./run\_*.sh} bash wrapper that loops over
-the four models and is idempotent (each combination is skipped if its
+the five models and is idempotent (each combination is skipped if its
 expected output file already exists).
 
 \paragraph{Representational sweep (Sections~\ref{sec:arch}--\ref{sec:babylonian}).}
-\texttt{./run.sh} drives 40 combinations across 4 models, 8 scripts, 2
+\texttt{./run.sh} drives 50 combinations across 5 models, 8 scripts, 2
 windows ($n_{\max} \in \{100, 600\}$), 2 bases ($T = \{2,5,10,100\}$
 and $T = \{2,5,10,60,100\}$):
 \begin{verbatim}

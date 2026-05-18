@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999998 (TeX Live 2026) (preloaded format=xelatex 2026.3.22)  17 MAY 2026 18:37
+This is XeTeX, Version 3.141592653-2.6-0.999998 (TeX Live 2026) (preloaded format=xelatex 2026.3.22)  18 MAY 2026 10:23
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -808,7 +808,7 @@ t;"
 
 ]
 LaTeX Font Info:    Font shape `TU/GeezaPro(0)/m/n' will be
-(Font)              scaled to size 9.85492pt on input line 116.
+(Font)              scaled to size 9.85492pt on input line 130.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `GeezaPro' (encoding: TU).
 (microtype)             For optimal results, create family-specific settings.
@@ -973,7 +973,7 @@ Package microtype Info: Character `\textgreater ' is missing
 (microtype)             in font `\TU/GeezaPro(0)/m/n/10.95'.
 (microtype)             Ignoring protrusion settings for this character.
 LaTeX Font Info:    Font shape `TU/DevanagariSangamMN(0)/m/n' will be
-(Font)              scaled to size 9.85492pt on input line 117.
+(Font)              scaled to size 9.85492pt on input line 131.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `DevanagariSangamMN' (encoding: TU).
 (microtype)             For optimal results, create family-specific settings.
@@ -1006,28 +1006,33 @@ Package microtype Info: Character `\textquestiondown ' is missing
 (microtype)             in font `\TU/DevanagariSangamMN(0)/m/n/10.95'.
 (microtype)             Ignoring protrusion settings for this character.
 LaTeX Font Info:    Font shape `TU/NotoSansCuneiform(0)/m/n' will be
-(Font)              scaled to size 9.85492pt on input line 117.
+(Font)              scaled to size 9.85492pt on input line 131.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `NotoSansCuneiform' (encoding: TU).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 
 [2]
-File: out/_compare/fig_latin_sweep_4models.png Graphic file (type bmp)
-<out/_compare/fig_latin_sweep_4models.png>
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+File: out/_compare/fig_latin_sweep_5models.png Graphic file (type bmp)
+<out/_compare/fig_latin_sweep_5models.png>
+
+LaTeX Warning: Float too large for page by 109.59505pt on input line 281.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[3] [4]
-Overfull \hbox (1.98135pt too wide) in paragraph at lines 298--303
+[3]
+Overfull \hbox (1.98135pt too wide) in paragraph at lines 328--333
 []\TU/lmr/bx/n/10.95 Greek alphabetic (Milesian) \TU/lmr/m/n/10.95 is additive:
  each letter carries a fixed value ($\OML/cmm/m/it/10.95 ^^K \OT1/cmr/m/n/10.95
  = 1\OML/cmm/m/it/10.95 ; [] ; ^^R \OT1/cmr/m/n/10.95 =
  []
 
 LaTeX Font Info:    Font shape `TU/GeezaPro(0)/m/n' will be
-(Font)              scaled to size 8.99994pt on input line 333.
+(Font)              scaled to size 8.99994pt on input line 363.
 Package microtype Info: Character `A' is missing
 (microtype)             in font `\TU/GeezaPro(0)/m/n/10'.
 (microtype)             Ignoring protrusion settings for this character.
@@ -1188,7 +1193,7 @@ Package microtype Info: Character `\textgreater ' is missing
 (microtype)             in font `\TU/GeezaPro(0)/m/n/10'.
 (microtype)             Ignoring protrusion settings for this character.
 LaTeX Font Info:    Font shape `TU/DevanagariSangamMN(0)/m/n' will be
-(Font)              scaled to size 8.99994pt on input line 335.
+(Font)              scaled to size 8.99994pt on input line 365.
 Package microtype Info: Character `\AE ' is missing
 (microtype)             in font `\TU/DevanagariSangamMN(0)/m/n/10'.
 (microtype)             Ignoring protrusion settings for this character.
@@ -1217,32 +1222,22 @@ Package microtype Info: Character `\textquestiondown ' is missing
 (microtype)             in font `\TU/DevanagariSangamMN(0)/m/n/10'.
 (microtype)             Ignoring protrusion settings for this character.
 LaTeX Font Info:    Font shape `TU/NotoSansCuneiform(0)/m/n' will be
-(Font)              scaled to size 8.99994pt on input line 339.
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[5]
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
+(Font)              scaled to size 8.99994pt on input line 369.
+[4] [5]
 File: out/EleutherAI__pythia-6.9b/roman/mean/fig2_fourier_pc1.png Graphic file 
 (type bmp)
 <out/EleutherAI__pythia-6.9b/roman/mean/fig2_fourier_pc1.png>
 
+
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[6]
 File: out/EleutherAI__pythia-6.9b/greek/mean/fig2_fourier_pc1.png Graphic file 
 (type bmp)
 <out/EleutherAI__pythia-6.9b/greek/mean/fig2_fourier_pc1.png>
 
-
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[7]
+[6]
 File: out/EleutherAI__pythia-6.9b/roman/mean/fig4_pca_2d.png Graphic file (type
  bmp)
 <out/EleutherAI__pythia-6.9b/roman/mean/fig4_pca_2d.png>
@@ -1268,11 +1263,7 @@ Missing character: There is no ९ (U+096F) in font [lmroman10-regular]:mapping=
 ex-text;!
 Missing character: There is no ९ (U+096F) in font [lmroman10-regular]:mapping=t
 ex-text;!
-[8]
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[9]
+[7]
 File: out/google__gemma-4-31B/babylonian/mean/fig2_fourier_pc1.png Graphic file
  (type bmp)
 <out/google__gemma-4-31B/babylonian/mean/fig2_fourier_pc1.png>
@@ -1282,24 +1273,19 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 604.
+(hyperref)                removing `math shift' on input line 636.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\approx' on input line 604.
+(hyperref)                removing `\approx' on input line 636.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 604.
+(hyperref)                removing `math shift' on input line 636.
 
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[10]
 File: out/EleutherAI__pythia-6.9b/babylonian/mean_n600/fig2_fourier_pc1.png Gra
 phic file (type bmp)
 <out/EleutherAI__pythia-6.9b/babylonian/mean_n600/fig2_fourier_pc1.png>
-
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
@@ -1311,25 +1297,56 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 664.
+(hyperref)                removing `math shift' on input line 697.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 664.
+(hyperref)                removing `math shift' on input line 697.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 664.
+(hyperref)                removing `math shift' on input line 697.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 664.
+(hyperref)                removing `math shift' on input line 697.
+
+[8]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 742.
 
 
-LaTeX Warning: `!h' float specifier changed to `!ht'.
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\leavevmode@ifvmode' on input line 742.
 
-[11] [12] [13] [14]
-Overfull \hbox (16.34727pt too wide) in paragraph at lines 849--852
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                \kern -1.82538pt
+(hyperref)                removed on input line 742.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\leavevmode@ifvmode' on input line 742.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                \kern -1.82538pt
+(hyperref)                removed on input line 742.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 742.
+
+[9]
+Overfull \hbox (13.77025pt too wide) in paragraph at lines 824--831
+ []\TU/lmr/bx/n/10.95 OLMo sits between Pythia/Llama and Gemma.[] \TU/lmr/m/n/1
+0.95 OLMo’s Latin $\OML/cmm/m/it/10.95 ^^Z[] \OT1/cmr/m/n/10.95 = 0\OML/cmm/m/i
+t/10.95 :\OT1/cmr/m/n/10.95 63$ \TU/lmr/m/n/10.95 is intermediate—
+ []
+
+[10] [11]
+Overfull \hbox (16.34727pt too wide) in paragraph at lines 1011--1014
 \TU/lmr/m/n/10.95 els, 8 scripts, 2 windows ($\OML/cmm/m/it/10.95 n[] \OMS/cmsy
 /m/n/10.95 2 f\OT1/cmr/m/n/10.95 100\OML/cmm/m/it/10.95 ; \OT1/cmr/m/n/10.95 60
 0\OMS/cmsy/m/n/10.95 g$\TU/lmr/m/n/10.95 ), 2 bases ($\OML/cmm/m/it/10.95 T \OT
@@ -1342,21 +1359,21 @@ L/cmm/m/it/10.95 T \OT1/cmr/m/n/10.95 = \OMS/cmsy/m/n/10.95 f\OT1/cmr/m/n/10.95
 mr/m/n/10.95 100\OMS/cmsy/m/n/10.95 g$\TU/lmr/m/n/10.95 ): 
  []
 
-[15] (./paper.aux)
+[12] [13] [14] [15] [16] [17] [18] [19] [20] (./paper.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2022/08/05>
  ***********
 Package rerunfilecheck Info: File `paper.out' has not changed.
-(rerunfilecheck)             Checksum: 81EDC4DFC4AA40532E7352A202EA846D;5006.
+(rerunfilecheck)             Checksum: DFC980549782853C1285454F6D75B388;5317.
  ) 
 Here is how much of TeX's memory you used:
- 17791 strings out of 468168
- 361616 string characters out of 5432815
- 851734 words of memory out of 5000000
- 46233 multiletter control sequences out of 15000+600000
- 638476 words of font info for 131 fonts, out of 8000000 for 9000
+ 17805 strings out of 468168
+ 361882 string characters out of 5432815
+ 856594 words of memory out of 5000000
+ 46247 multiletter control sequences out of 15000+600000
+ 640021 words of font info for 137 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 73i,11n,95p,1002b,540s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 73i,11n,95p,1002b,987s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on paper.pdf (15 pages).
+Output written on paper.pdf (20 pages).

@@ -2,10 +2,10 @@
 # requires-python = ">=3.10"
 # dependencies = ["pillow>=10"]
 # ///
-"""Stack the four Latin layer-sweep PNGs into one comparison image.
+"""Stack the per-model Latin layer-sweep PNGs into one comparison image.
 
 One row per model, with a labelled header strip above each row showing
-the model id and its total transformer-layer count. The four existing
+the model id and its total transformer-layer count. The existing
 fig_layer_sweep.png files (PC1 R², helix R², helix/PCA, vs layer) are
 pasted unchanged so the x-axes still reflect each model's true layer
 count -- which is the depth-variance story we want to see.
@@ -21,10 +21,11 @@ OUT_DIR = ROOT / "out" / "_compare"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 MODELS = [
-    ("EleutherAI__pythia-6.9b",   "Pythia-6.9B  (32 layers)"),
-    ("meta-llama__Llama-3.1-8B",  "Llama-3.1-8B  (32 layers)"),
-    ("google__gemma-4-E4B",       "Gemma-4-E4B  (~30 layers)"),
-    ("google__gemma-4-31B",       "Gemma-4-31B  (61 layers)"),
+    ("EleutherAI__pythia-6.9b",    "Pythia-6.9B  (32 layers)"),
+    ("meta-llama__Llama-3.1-8B",   "Llama-3.1-8B  (32 layers)"),
+    ("google__gemma-4-E4B",        "Gemma-4-E4B  (34 layers)"),
+    ("google__gemma-4-31B",        "Gemma-4-31B  (61 layers)"),
+    ("allenai__Olmo-3-1125-32B",   "OLMo-3-32B  (64 layers)"),
 ]
 
 HEADER_H = 70
@@ -72,7 +73,7 @@ def main() -> None:
         canvas.paste(im, (PAD + (w - im.width) // 2, y + HEADER_H))
         y += row_h
 
-    out_path = OUT_DIR / "fig_latin_sweep_4models.png"
+    out_path = OUT_DIR / f"fig_latin_sweep_{len(MODELS)}models.png"
     canvas.save(out_path, "PNG", optimize=True)
     print(f"wrote {out_path}")
 

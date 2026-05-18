@@ -58,6 +58,7 @@ MODELS=(
   "meta-llama/Llama-3.1-8B"
   "google/gemma-4-E4B"
   "google/gemma-4-31B"
+  "allenai/Olmo-3-1125-32B"
 )
 
 # Pass 1 -- paper-default range.
