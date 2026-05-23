@@ -28,7 +28,7 @@ export function Finding2Scripts({ index }: Props) {
       </h2>
 
       <p>
-        We rendered every integer 0–99 in eight numeral systems and re-ran
+        I rendered every integer 0–99 in eight numeral systems and re-ran
         the analysis. Helix / 9-d PCA ratio at each cell's peak layer:
       </p>
 

@@ -19,8 +19,8 @@ export function Conclusion() {
         representation downstream computation actually reads</em>, on the
         cells where depth genuinely builds it — requires causal intervention
         at the <code>=</code> position, not at the operand position. That's
-        the paper's "Clock" half of the argument, which we don't replicate
-        here. We leave that to a follow-up.
+        the paper's "Clock" half of the argument, which I don't replicate
+        here. I leave that to a follow-up.
       </p>
     </section>
   );

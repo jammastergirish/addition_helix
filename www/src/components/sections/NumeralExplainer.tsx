@@ -35,7 +35,7 @@ const POSITIONAL_BASE_10: SystemDef[] = [
   },
   {
     key: "chinese", name: "Chinese", structure: "positional · base 10",
-    blurb: <>CJK digit glyphs in place-value layout. Distinct from the additive <span className="font-mono">二十三</span> (= "two-tens-three"), which we don't use here.</>,
+    blurb: <>CJK digit glyphs in place-value layout. Distinct from the additive <span className="font-mono">二十三</span> (= "two-tens-three"), which I don't use here.</>,
     decompose: (n) => decimalDecomp(n),
   },
 ];
@@ -153,7 +153,7 @@ export function NumeralExplainer() {
     <section className="prose-body pt-12">
       <h2 className="section-heading">The eight numeral systems</h2>
       <p>
-        We test the helix across the eight systems below. Three families:
+        I test the helix across the eight systems below. Three families:
         five <strong>positional base-10</strong> systems (Latin, Arabic-Indic,
         Persian, Devanagari, positional Chinese), two{" "}
         <strong>additive</strong> systems (Greek alphabetic and Roman), and

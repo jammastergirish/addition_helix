@@ -1,5 +1,6 @@
+import { useMemo, useState } from "react";
 import type { IndexDoc, Helix3DDoc, FourierPC1Doc } from "../../lib/types";
-import { findCell } from "../../lib/data";
+import { findCell, MODEL_ORDER, MODEL_LABEL } from "../../lib/data";
 import { ChartFrame } from "../ChartFrame";
 import { HelixViewer3D } from "../charts/HelixViewer3D";
 import { FFTSpectrum } from "../charts/FFTSpectrum";
@@ -7,13 +8,17 @@ import { PC1Scatter } from "../charts/PC1Scatter";
 
 interface Props { index: IndexDoc | null; }
 
-const PYTHIA_LATIN = {
-  model: "EleutherAI/pythia-6.9b", script: "latin",
-  n_max: 100, periods: [2, 5, 10, 100],
-};
+const DEFAULT_MODEL = "EleutherAI/pythia-6.9b";
 
 export function WhatTheHelixIs({ index }: Props) {
-  const cell = index ? findCell(index.cells, PYTHIA_LATIN) : undefined;
+  const [model, setModel] = useState<string>(DEFAULT_MODEL);
+
+  const cell = useMemo(
+    () => index ? findCell(index.cells, {
+      model, script: "latin", n_max: 100, periods: [2, 5, 10, 100],
+    }) : undefined,
+    [index, model],
+  );
 
   return (
     <section className="prose-body">
@@ -30,17 +35,31 @@ export function WhatTheHelixIs({ index }: Props) {
         rotating around the loops — the paper's "Clock" algorithm.
       </p>
 
+      <ModelPills value={model} onChange={setModel} />
+
       <ChartFrame<Helix3DDoc>
         src={cell?.paths.helix_3d}
         minHeight={500}
-        caption={<>Pythia-6.9B, layer 32 of 32. 3-D projection onto an orthonormal frame of (u<sub>cos(2π·a/10)</sub>, u<sub>sin(2π·a/10)</sub>, u<sub>lin</sub>). Drag to rotate; scroll to zoom.</>}
+        caption={
+          cell ? (
+            <>
+              <strong>{MODEL_LABEL[model]}</strong> on Latin digits 0–99,
+              read at layer {cell.peak_layer} of {cell.n_layers} (the layer
+              where helix R² peaks). 3-D projection onto an orthonormal
+              frame of (u<sub>cos(2π·a/10)</sub>, u<sub>sin(2π·a/10)</sub>,
+              u<sub>lin</sub>). Drag to rotate; scroll to zoom.
+            </>
+          ) : (
+            <>3-D helix. Drag to rotate; scroll to zoom.</>
+          )
+        }
       >
         {(data) => <HelixViewer3D data={data} height={500} />}
       </ChartFrame>
 
       <details className="my-6 rounded-md border border-ink/10 bg-paper-warm/40 px-4 py-3 text-[0.97rem] leading-relaxed text-ink-soft [&[open]>summary]:mb-2">
         <summary className="cursor-pointer select-none font-sans text-sm font-medium text-ink/80 hover:text-accent">
-          ▸ How we measure it
+          ▸ How I measure it
         </summary>
         <p>
           Two basis-free diagnostics. <strong>FFT each hidden dimension:</strong>{" "}
@@ -79,7 +98,7 @@ export function WhatTheHelixIs({ index }: Props) {
         </ChartFrame>
 
         <p className="mt-3">
-          Finally we fit a trig basis{" "}
+          Finally I fit a trig basis{" "}
           <span className="font-mono">B(a) = [a, cos(2πa/T), sin(2πa/T)]</span>{" "}
           for <span className="font-mono">T ∈ {"{"}2, 5, 10, 100{"}"}</span>{" "}
           (9 features) by least squares, and report <strong>helix R²</strong>{" "}
@@ -90,5 +109,32 @@ export function WhatTheHelixIs({ index }: Props) {
         </p>
       </details>
     </section>
+  );
+}
+
+/**
+ * Pills that switch which model's helix is shown above. Latin/peak-layer
+ * is held constant so the comparison is apples-to-apples: same script,
+ * each model read at its own helix-R² peak.
+ */
+function ModelPills({ value, onChange }: { value: string; onChange: (m: string) => void }) {
+  return (
+    <div className="mt-4 mb-1 flex flex-wrap items-center gap-2 text-xs">
+      <span className="text-ink-mute uppercase tracking-wider font-medium">model:</span>
+      {MODEL_ORDER.map((m) => (
+        <button
+          key={m}
+          onClick={() => onChange(m)}
+          className={[
+            "rounded-full border px-3 py-1 font-medium tracking-wide transition",
+            value === m
+              ? "border-accent bg-accent/10 text-accent"
+              : "border-ink/15 text-ink-mute hover:border-ink/30 hover:text-ink",
+          ].join(" ")}
+        >
+          {MODEL_LABEL[m]}
+        </button>
+      ))}
+    </div>
   );
 }

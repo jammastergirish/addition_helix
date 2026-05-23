@@ -7,14 +7,14 @@ export function Finding4L0({ index }: Props) {
   return (
     <section className="prose-body">
       <h2 className="section-heading">
-        But most of what we just reported is the tokeniser, not the model
+        But most of what I just reported is the tokeniser, not the model
       </h2>
 
       <p>
         Every numeral's residual stream at layer 0 — before any transformer
         block has run — is just <code>mean(embed(sub_tokens(a)))</code>:
         pure tokeniser plus pooling. If the trig basis already fits{" "}
-        <em>that</em>, the helix we report at the peak layer was mostly
+        <em>that</em>, the helix I report at the peak layer was mostly
         inherited from the embedding lookup, not built by depth.
       </p>
 
@@ -36,7 +36,7 @@ export function Finding4L0({ index }: Props) {
         </figcaption>
       </figure>
 
-      <p>This reframes most of what we just reported:</p>
+      <p>This reframes most of what I just reported:</p>
 
       <ul className="mt-4 space-y-3 list-disc pl-6">
         <li>
@@ -86,7 +86,7 @@ export function Finding4L0({ index }: Props) {
       <p>
         The L=0 vs peak check is the third of three places the paper's
         original measurement protocol can produce a result that's an
-        artifact of how we measured, not of what the model does. The other
+        artifact of how I measured, not of what the model does. The other
         two are visible elsewhere in this experiment:
       </p>
 
@@ -120,7 +120,7 @@ export function Finding4L0({ index }: Props) {
       </ol>
 
       <p className="mt-4">
-        The first two we addressed with explicit measurement fixes (and
+        The first two I addressed with explicit measurement fixes (and
         gained the Babylonian base-60 finding). The third is what reframes
         most of the rest.
       </p>

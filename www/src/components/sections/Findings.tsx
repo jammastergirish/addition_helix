@@ -21,9 +21,10 @@ export function Findings() {
           every model — once you stop measuring with a base-10 ruler.
         </Claim>
         <Claim n={4} emphasis>
-          But on most cells we tested, what we're measuring is the
-          tokeniser, not the transformer — the helix is already present in
-          the embeddings before any block has run.
+          But on most <em>cells</em> in my matrix — one cell = one model ×
+          one script, 40 in total — what I'm measuring is the tokeniser,
+          not the transformer; the helix is already present in the
+          embeddings before any block has run.
         </Claim>
       </ol>
     </section>
