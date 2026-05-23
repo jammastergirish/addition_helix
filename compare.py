@@ -5,13 +5,14 @@
 """Stack the per-model Latin layer-sweep PNGs into one comparison image.
 
 One row per model, with a labelled header strip above each row showing
-the model id and its total transformer-layer count. The existing
-fig_layer_sweep.png files (PC1 R², helix R², helix/PCA, vs layer) are
-pasted unchanged so the x-axes still reflect each model's true layer
-count -- which is the depth-variance story we want to see.
+the model id and its total transformer-layer count. Layer counts are
+read from each model's `fig_layer_sweep.json` (written by main.py) so
+they stay in sync with what the sweep actually saw — no stale hardcoded
+numbers.
 """
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
@@ -20,13 +21,28 @@ ROOT = Path(__file__).resolve().parent
 OUT_DIR = ROOT / "out" / "_compare"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
+# (output dir, display name) — layer count is appended at runtime.
 MODELS = [
-    ("EleutherAI__pythia-6.9b",    "Pythia-6.9B  (32 layers)"),
-    ("meta-llama__Llama-3.1-8B",   "Llama-3.1-8B  (32 layers)"),
-    ("google__gemma-4-E4B",        "Gemma-4-E4B  (34 layers)"),
-    ("google__gemma-4-31B",        "Gemma-4-31B  (61 layers)"),
-    ("allenai__Olmo-3-1125-32B",   "OLMo-3-32B  (64 layers)"),
+    ("EleutherAI__pythia-6.9b",    "Pythia-6.9B"),
+    ("meta-llama__Llama-3.1-8B",   "Llama-3.1-8B"),
+    ("google__gemma-4-E4B",        "Gemma-4-E4B"),
+    ("google__gemma-4-31B",        "Gemma-4-31B"),
+    ("allenai__Olmo-3-1125-32B",   "OLMo-3-32B"),
 ]
+
+
+def label_for(model_dir: str, base_name: str) -> str:
+    """Read n_layers out of the model's Latin layer-sweep JSON and tack
+    it onto the display name. Falls back to the bare name if the JSON
+    isn't present yet."""
+    sweep_json = ROOT / "out" / model_dir / "latin" / "mean" / "fig_layer_sweep.json"
+    if not sweep_json.exists():
+        return base_name
+    try:
+        meta = json.loads(sweep_json.read_text())["meta"]
+        return f"{base_name}  ({meta['n_layers']} layers)"
+    except (KeyError, json.JSONDecodeError):
+        return base_name
 
 HEADER_H = 70
 PAD = 12
@@ -47,11 +63,13 @@ def load_font(size: int) -> ImageFont.ImageFont:
 
 def main() -> None:
     panels = []
-    for model_dir, _label in MODELS:
+    labels = []
+    for model_dir, base_name in MODELS:
         p = ROOT / "out" / model_dir / "latin" / "mean" / "fig_layer_sweep.png"
         if not p.exists():
             raise FileNotFoundError(f"missing {p}")
         panels.append(Image.open(p))
+        labels.append(label_for(model_dir, base_name))
 
     w = max(im.width for im in panels)
     row_h = HEADER_H + max(im.height for im in panels) + PAD
@@ -62,7 +80,7 @@ def main() -> None:
     draw = ImageDraw.Draw(canvas)
 
     y = PAD
-    for (model_dir, label), im in zip(MODELS, panels):
+    for im, label in zip(panels, labels):
         # header strip
         draw.rectangle(
             [PAD, y, PAD + w, y + HEADER_H],

@@ -116,6 +116,8 @@ load_dotenv(Path(__file__).parent / ".env")
 # .env to fall back to the pure-Python downloader.
 os.environ.setdefault("HF_HUB_ENABLE_HF_TRANSFER", "1")
 
+import json  # noqa: E402
+
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 import torch  # noqa: E402
@@ -128,6 +130,66 @@ from transformers import AutoModelForCausalLM, AutoTokenizer  # noqa: E402
 
 warnings.filterwarnings("ignore", category=UserWarning)
 plt.rcParams.update({"figure.dpi": 110, "savefig.dpi": 150})
+
+
+# ----------------------------------------------------------------------------
+# JSON export: every plot also writes a sibling .json so the data behind the
+# figure is machine-readable. Used by the React site under www/. Numbers get
+# rounded to 6 decimals to keep files small without losing visual fidelity.
+# ----------------------------------------------------------------------------
+JSON_ROUND = 6
+
+
+def _round(v):
+    """Recursively round floats in nested lists/dicts to JSON_ROUND decimals."""
+    if isinstance(v, float):
+        # Drop NaN/Inf -> None so JSON parsers don't choke.
+        if not np.isfinite(v):
+            return None
+        return round(v, JSON_ROUND)
+    if isinstance(v, list):
+        return [_round(x) for x in v]
+    if isinstance(v, dict):
+        return {k: _round(x) for k, x in v.items()}
+    return v
+
+
+def _jsonable(o):
+    """Convert numpy types/arrays to plain Python so json.dump works."""
+    if isinstance(o, np.ndarray):
+        return _jsonable(o.tolist())
+    if isinstance(o, (np.floating,)):
+        return float(o)
+    if isinstance(o, (np.integer,)):
+        return int(o)
+    if isinstance(o, (np.bool_,)):
+        return bool(o)
+    if isinstance(o, dict):
+        return {str(k): _jsonable(v) for k, v in o.items()}
+    if isinstance(o, (list, tuple)):
+        return [_jsonable(x) for x in o]
+    return o
+
+
+def dump_json(path, obj):
+    """Write `obj` to `path` as a single-line JSON file. Numpy values are
+    converted to plain Python automatically; floats are rounded to
+    JSON_ROUND decimals to keep files small."""
+    payload = _round(_jsonable(obj))
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(payload, f, separators=(",", ":"), ensure_ascii=False)
+
+
+# Populated in main(); read by plot/sweep functions when they dump JSON so
+# every file carries enough provenance to be loaded standalone by the site.
+#
+# IMPORTANT: every dump_json call embeds RUN_META BY REFERENCE. _jsonable
+# walks the dict at serialise time and snapshots it then, so reading is
+# correct -- but any code path that mutates RUN_META between plot calls
+# will affect later dumps. main() updates RUN_META["layer"] before the
+# downstream plot calls so each fig JSON records the layer it was
+# computed at. Don't reorder those calls without re-thinking this.
+RUN_META: dict = {}
 
 
 def _configure_fonts() -> None:
@@ -582,7 +644,11 @@ def run_sweep_analysis(H_all, numbers, periods=PERIODS):
 
 
 def plot_layer_sweep(pc1_r2, helix_r2, pca_kd_r2, savepath, title, n_basis=9):
-    """Three side-by-side panels of per-layer R² metrics."""
+    """Three side-by-side panels of per-layer R² metrics.
+
+    Also writes a sibling JSON with the per-layer arrays + L=0 vs peak share
+    (`rho = helix_r2[0] / helix_r2.max()`), which the React site reads.
+    """
     fig, axes = plt.subplots(1, 3, figsize=(15, 4.5))
     xs = np.arange(len(pc1_r2))
     axes[0].plot(xs, pc1_r2, color="C0", lw=1.8)
@@ -599,7 +665,36 @@ def plot_layer_sweep(pc1_r2, helix_r2, pca_kd_r2, savepath, title, n_basis=9):
     fig.suptitle(title, fontsize=11)
     fig.tight_layout()
     fig.savefig(savepath)
+    plt.close(fig)
     print(f"  saved {savepath}")
+
+    helix_peak = float(np.nanmax(helix_r2))
+    helix_peak_layer = int(np.nanargmax(helix_r2))
+    rho = float(helix_r2[0] / helix_peak) if helix_peak > 0 else None
+    dump_json(
+        Path(savepath).with_suffix(".json"),
+        {
+            "kind": "layer_sweep",
+            "meta": RUN_META,
+            "n_basis": n_basis,
+            "layers": list(range(len(pc1_r2))),
+            "pc1_r2": pc1_r2,
+            "helix_r2": helix_r2,
+            "pca_kd_r2": pca_kd_r2,
+            "helix_over_pca": ratio,
+            "peaks": {
+                "pc1_r2":         {"value": float(np.nanmax(pc1_r2)),    "layer": int(np.nanargmax(pc1_r2))},
+                "helix_r2":       {"value": helix_peak,                  "layer": helix_peak_layer},
+                "helix_over_pca": {"value": float(np.nanmax(ratio)),     "layer": int(np.nanargmax(ratio))},
+            },
+            "l0_share": {
+                "helix_r2_l0":   float(helix_r2[0]),
+                "helix_r2_peak": helix_peak,
+                "peak_layer":    helix_peak_layer,
+                "rho":           rho,
+            },
+        },
+    )
 
 
 # ============================================================================
@@ -721,7 +816,40 @@ def plot_fourier_and_pc1(H, numbers, savepath, periods=PERIODS):
 
     fig.tight_layout()
     fig.savefig(savepath)
+    plt.close(fig)
     print(f"  saved {savepath}   (linear-fit R^2 on PC1 = {r2:.3f})")
+
+    auto_peaks = []
+    for i in peak_idx:
+        f = float(freqs[i])
+        if f <= 0:
+            continue
+        auto_peaks.append({
+            "freq": f,
+            "period": 1.0 / f,
+            "magnitude": float(avg_mag[i]),
+        })
+    dump_json(
+        Path(savepath).with_suffix(".json"),
+        {
+            "kind": "fourier_pc1",
+            "meta": RUN_META,
+            "periods_ref": periods,
+            "fft": {
+                "freqs":      freqs,
+                "magnitudes": avg_mag,
+                "auto_peaks": auto_peaks,
+            },
+            "pc1": {
+                "numbers":       numbers,
+                "values":        pc1,
+                "fit_slope":     float(slope),
+                "fit_intercept": float(intercept),
+                "r2":            float(r2),
+                "explained_variance_ratio": pca.explained_variance_ratio_[:5],
+            },
+        },
+    )
 
 
 def plot_circles_and_line(H, numbers, W, intercept, savepath,
@@ -738,6 +866,8 @@ def plot_circles_and_line(H, numbers, W, intercept, savepath,
     looks like a circle.
     """
     Hc = H - intercept
+    circles_json = []
+    labels = [format_number(int(n), script) for n in numbers]
 
     K = len(periods)
     fig = plt.figure(figsize=(max(3.5 * K, 8), 5))
@@ -749,6 +879,11 @@ def plot_circles_and_line(H, numbers, W, intercept, savepath,
         # Orthonormalise the (u_cos, u_sin) pair -> honest circle, not ellipse.
         Q, _ = np.linalg.qr(np.stack([u_cos, u_sin], axis=1))
         coords = Hc @ Q
+        circles_json.append({
+            "T": int(T),
+            "coords": coords,
+            "residues": (numbers % T).tolist(),
+        })
 
         ax = fig.add_subplot(gs[0, j])
         # Colour by (a mod T) for small T -- same residue class same colour.
@@ -788,7 +923,20 @@ def plot_circles_and_line(H, numbers, W, intercept, savepath,
     ax.set_xlabel("a   (projection on u_lin)")
 
     fig.savefig(savepath, bbox_inches="tight")
+    plt.close(fig)
     print(f"  saved {savepath}")
+
+    dump_json(
+        Path(savepath).with_suffix(".json"),
+        {
+            "kind": "circles_and_line",
+            "meta": RUN_META,
+            "numbers": numbers,
+            "labels":  labels,
+            "circles": circles_json,
+            "line": {"coords": lin},
+        },
+    )
 
 
 def plot_helix_3d(H, numbers, W, intercept, T, savepath,
@@ -823,7 +971,21 @@ def plot_helix_3d(H, numbers, W, intercept, T, savepath,
                  "(orthonormalised u_cos, u_sin, u_lin)")
     ax.set_xlabel("u_cos");  ax.set_ylabel("u_sin");  ax.set_zlabel("u_lin")
     fig.savefig(savepath, bbox_inches="tight")
+    plt.close(fig)
     print(f"  saved {savepath}")
+
+    dump_json(
+        Path(savepath).with_suffix(".json"),
+        {
+            "kind": "helix_3d",
+            "meta": RUN_META,
+            "T": int(T),
+            "numbers": numbers,
+            "labels":  [format_number(int(n), script) for n in numbers],
+            "coords":  coords,
+            "axes":    ["u_cos", "u_sin", "u_lin"],
+        },
+    )
 
 
 def plot_pca_2d(H, numbers, savepath, script="latin"):
@@ -867,8 +1029,21 @@ def plot_pca_2d(H, numbers, savepath, script="latin"):
                  "(basis-free: reveals non-periodic structure)")
     fig.colorbar(sc, ax=ax, label="a")
     fig.savefig(savepath, bbox_inches="tight")
+    plt.close(fig)
     print(f"  saved {savepath}   "
           f"(PC1: {var[0]:.1%}, PC2: {var[1]:.1%}, cumulative: {var.sum():.1%})")
+
+    dump_json(
+        Path(savepath).with_suffix(".json"),
+        {
+            "kind": "pca_2d",
+            "meta": RUN_META,
+            "numbers": numbers,
+            "labels":  [format_number(int(n), script) for n in numbers],
+            "coords":  coords,
+            "explained_variance_ratio": var,
+        },
+    )
 
 
 # ============================================================================
@@ -991,6 +1166,21 @@ def main():
     print(f"writing figures to {out_dir}")
     print(f"helix basis periods: {periods}  (1 + 2*{len(periods)} = {1+2*len(periods)} features)")
 
+    # Provenance attached to every JSON the plot/sweep functions write.
+    RUN_META.clear()
+    RUN_META.update({
+        "model":     args.model,
+        "script":    args.script,
+        "pool":      args.pool,
+        "pool_dir":  pool_dir,
+        "n_max":     int(args.n_max),
+        "periods":   periods,
+        "n_layers":  int(n_layers),
+        "layer":     int(layer),
+        "dtype":     args.dtype,
+        "sweep":     bool(args.sweep),
+    })
+
     if args.sweep:
         # ----- Optional: layer sweep -----
         # Capture every layer's residual stream in one pass per integer,
@@ -1020,6 +1210,9 @@ def main():
             layer = peak_layer
         else:
             print(f"  (keeping user-specified layer {args.layer} for standard figs)")
+        # Make sure every per-figure JSON written below records the layer it
+        # was actually computed at -- not the pre-sweep default.
+        RUN_META["layer"] = int(layer)
         # We already have the activations at this layer in H_all; slice them.
         H = H_all[:, layer, :]
     else:
@@ -1060,6 +1253,22 @@ def main():
     # structure (Roman staircase, Greek clusters, etc.).
     plot_pca_2d(H, numbers, out_dir / "fig4_pca_2d.png",
                 script=args.script)
+
+    # Final meta JSON: everything needed for the React site's summary cards
+    # without having to open every figure JSON. Updated to reflect the
+    # actually-used layer (which may differ from args.layer if --sweep
+    # auto-targeted the peak).
+    RUN_META["layer"] = int(layer)
+    dump_json(out_dir / "_meta.json", {
+        "kind": "meta",
+        "meta": RUN_META,
+        "helix_r2":      float(r2),
+        "pca_kd_r2":     float(r2_pca_kd),
+        "helix_over_pca": float(r2 / r2_pca_kd) if r2_pca_kd > 0 else None,
+        "n_basis":       n_basis,
+        "T_helix":       int(T_helix),
+        "n_numbers":     int(len(numbers)),
+    })
 
     print("\nall figures written to", out_dir)
 

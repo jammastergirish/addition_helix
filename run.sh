@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# Sweep the helix experiment across several models and all eight numeral
+# Sweep the helix experiment across all five models and all eight numeral
 # scripts.  Each run uses --pool mean (the honest default) and --sweep
 # (layer scan + auto-targeted standard figures at the helix-R² peak).
 #
 # Three passes:
-#   pass 1  -- 4 models x 8 scripts at n_max=100, basis=[2,5,10,100]
+#   pass 1  -- 5 models x 8 scripts at n_max=100, basis=[2,5,10,100]
 #              (paper-default range and basis)
-#   pass 2  -- 4 models x 1 script  (babylonian) at n_max=600,
+#   pass 2  -- 5 models x 1 script  (babylonian) at n_max=600,
 #              basis=[2,5,10,100] (paper basis -- demonstrates the basis
 #              is blind to T=60)
-#   pass 3  -- 4 models x 1 script  (babylonian) at n_max=600,
+#   pass 3  -- 5 models x 1 script  (babylonian) at n_max=600,
 #              basis=[2,5,10,60,100] (paper basis + T=60 -- shows how
 #              much variance T=60 actually captures)
 #
@@ -20,7 +20,7 @@
 # Pass 3 then quantifies how much of the structure the T=60 dimension
 # captures, against the paper-default basis used in pass 2.
 #
-# Both passes are idempotent: any combination whose fig_layer_sweep.png
+# All passes are idempotent: any combination whose fig_layer_sweep.json
 # already exists is skipped. To force a fresh run, delete the relevant
 # subdirectory inside out/.
 #
@@ -92,10 +92,14 @@ matches_filter() {
   [[ -z "${filter}" || "${model}" == *"${filter}"* ]]
 }
 
-# Marker = the per-combo layer-sweep PNG. n_max != 100 lands in a
+# Marker = the per-combo layer-sweep JSON. n_max != 100 lands in a
 # `_n<n_max>` suffix, and a non-default `--periods` lands in a `_p<...>`
 # suffix, so each pass has its own marker file that doesn't collide
 # with the others. Must mirror the suffix logic inside main.py.
+#
+# We use the JSON (not the PNG) as the marker so that any cells produced
+# by the pre-JSON-export version of main.py get re-run automatically:
+# the PNG alone is no longer a complete output.
 marker_for() {
   local model="$1"
   local script="$2"
@@ -110,7 +114,7 @@ marker_for() {
     local pstr="${periods//,/-}"
     pool="${pool}_p${pstr}"
   fi
-  echo "out/${model_dir}/${script}/${pool}/fig_layer_sweep.png"
+  echo "out/${model_dir}/${script}/${pool}/fig_layer_sweep.json"
 }
 
 # ----- Plan: count total and todo so the user sees the work ahead -----
@@ -238,5 +242,5 @@ if (( failed > 0 )); then
   printf "    - %s\n" "${failed_list[@]}"
 fi
 echo
-echo "  fig_layer_sweep.png locations:"
-find out -name "fig_layer_sweep.png" 2>/dev/null | sort | sed 's/^/    /'
+echo "  fig_layer_sweep locations:"
+find out -name "fig_layer_sweep.json" 2>/dev/null | sort | sed 's/^/    /'

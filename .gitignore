@@ -1,3 +1,22 @@
 out/
 .claude
 .env
+
+# Python
+__pycache__/
+*.py[cod]
+
+# LaTeX build artifacts (only paper.pdf and paper.tex should be tracked)
+paper.aux
+paper.log
+paper.out
+paper.toc
+paper.fls
+paper.fdb_latexmk
+paper.synctex.gz
+
+# Node / Vite (www/)
+www/node_modules/
+www/dist/
+www/.vite/
+.DS_Store
