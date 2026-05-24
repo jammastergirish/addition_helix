@@ -24,6 +24,7 @@ OUT_DIR.mkdir(parents=True, exist_ok=True)
 # (output dir, display name) — layer count is appended at runtime.
 MODELS = [
     ("EleutherAI__pythia-6.9b",    "Pythia-6.9B"),
+    ("EleutherAI__gpt-j-6b",       "GPT-J-6B"),
     ("meta-llama__Llama-3.1-8B",   "Llama-3.1-8B"),
     ("google__gemma-4-E4B",        "Gemma-4-E4B"),
     ("google__gemma-4-31B",        "Gemma-4-31B"),

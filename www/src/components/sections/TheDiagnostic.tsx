@@ -80,7 +80,7 @@ export function TheDiagnostic({ index }: Props) {
       </p>
 
       <p className="mt-4">
-        The 7-model × 8-script matrix below is the test bed. It exists to
+        The 8-model × 8-script matrix below is the test bed. It exists to
         surface the three modes, not to publish "the helix generalises to
         eight numeral systems!" — that would have been the headline from a
         naive read, and ρ is what stops you writing it.
@@ -126,7 +126,7 @@ export function TheDiagnostic({ index }: Props) {
             chosen numeral system (see "The eight numeral systems" above).
           </li>
           <li>
-            Tokenize with the model's own tokenizer (BPE for all seven
+            Tokenize with the model's own tokenizer (BPE for all eight
             models tested), without prompt scaffolding.
           </li>
           <li>
@@ -202,11 +202,20 @@ export function TheDiagnostic({ index }: Props) {
         </p>
 
         <p className="mt-3">
+          <strong>Subspace alignment (CKA).</strong> Linear CKA between
+          H[L=0] and H[peak_layer], and between their projections onto
+          the fitted helix basis (B · W). Distinguishes "depth preserves"
+          from "depth rebuilds" when ρ alone is ambiguous. Currently run
+          on Latin × all 8 models; see Finding 5. Implemented in{" "}
+          <span className="font-mono">subspace_align.py</span>.
+        </p>
+
+        <p className="mt-3">
           <strong>What's <em>not</em> here.</strong> No causal
-          intervention; no subspace-alignment metric (CKA / Procrustes
-          between L=0 and peak fitted directions); no held-out
-          cross-validation of the basis fit; only one prompt template per
-          script.
+          intervention; no held-out cross-validation of the basis fit;
+          only one prompt template per script; subspace alignment run
+          only on Latin (extension to non-Latin cells is straightforward
+          but requires re-running each model).
         </p>
       </details>
     </section>

@@ -10,6 +10,7 @@ import { Finding1Layers }    from "./components/sections/Finding1Layers";
 import { Finding2Scripts }   from "./components/sections/Finding2Scripts";
 import { Finding3Babylon }   from "./components/sections/Finding3Babylon";
 import { Finding4L0 }        from "./components/sections/Finding4L0";
+import { Finding5CKA }       from "./components/sections/Finding5CKA";
 import { Conclusion }        from "./components/sections/Conclusion";
 import { Reproducing }       from "./components/sections/Reproducing";
 
@@ -45,6 +46,7 @@ export default function App() {
         <Finding2Scripts index={index} />
         <Finding3Babylon index={index} />
         <Finding4L0 index={index} />
+        <Finding5CKA />
         <Conclusion />
         <Reproducing />
       </main>

@@ -8,20 +8,47 @@ export function Conclusion() {
         standard helix-R² protocol has three failure modes that can make
         it answer the wrong question — two hide real structure (basis
         bandwidth, window wrap), one misattributes pre-transformer
-        structure to depth (ρ). Applied to a wide enough matrix, ρ
-        separates the cells where the helix is substantially constructed
-        by depth (Pythia/Latin, Llama/Latin, Gemma on Devanagari and a
-        few related scripts) from the cells where it's already present
-        before any block runs (everywhere else, including Qwen 2.5 — even
-        on Latin). Without ρ, the cross-script and Babylonian measurements
-        read as confirmation of the original paper's central claim; with
-        ρ, they read as evidence that the tokenizer/embedding front end
-        absorbs enough numeric structure that the same trig basis fits
-        whether or not the transformer is doing anything downstream with
-        it. Qwen 2.5/Latin is the sharpest existence proof: helix R² ≈ 0.54,
-        but ρ = 0.89–1.00 — a cell that would publish as "the helix
-        replicates on Qwen" without the diagnostic is in fact the
-        cleanest case of pre-transformer inheritance in the matrix.
+        structure to depth (ρ). Add the CKA extension and a fourth
+        nuance appears: high ρ doesn't always mean inheritance — it can
+        also mean "depth rebuilds a similar-score helix at a different
+        subspace." Putting all four together (basis, window, ρ, CKA)
+        across 56 cells gives this picture:
+      </p>
+
+      <ul className="mt-3 space-y-2 list-disc pl-6">
+        <li>
+          <strong>Pass-through cells</strong> (high ρ AND high CKA — the
+          tokenizer/embedding front end supplies the helix and depth
+          doesn't touch it): Qwen-32B/Latin, OLMo/Latin, most
+          Pythia/Llama non-Latin positional cells, Qwen on Chinese/Greek.
+          The clearest existence proof of pre-transformer inheritance.
+        </li>
+        <li>
+          <strong>Depth-amplification cells</strong> (low-to-moderate ρ
+          AND high CKA — the L=0 helix is real and depth refines it in
+          the same directions): Pythia/Latin, Llama/Latin, Roman on
+          almost every model.
+        </li>
+        <li>
+          <strong>Rebuild cells</strong> (high ρ but LOW CKA — depth
+          produces a similar-score helix at a different subspace,
+          flattening to "inherited" under ρ alone): the whole Gemma
+          family on most scripts, Babylonian on Pythia/Llama/OLMo, Qwen
+          on Devanagari. The presence of these cells is the single
+          biggest reason ρ alone is insufficient.
+        </li>
+      </ul>
+
+      <p className="mt-4">
+        Without these diagnostics, the cross-script and Babylonian
+        measurements would read as confirmation of the original paper's
+        central claim. With them, "the helix replicates on script S in
+        model M" splits into at least four mechanistically distinct
+        statements, only some of which support the "transformer
+        represents number geometrically" reading. Qwen 2.5/Latin is the
+        sharpest existence proof of pre-transformer inheritance: helix
+        R² ≈ 0.54, ρ ≈ 1, CKA ≈ 1. Gemma/Latin is the sharpest
+        existence proof of the rebuild regime: ρ ≈ 0.85, CKA ≈ 0.34.
       </p>
 
       <p className="mt-4">

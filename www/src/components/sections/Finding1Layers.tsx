@@ -24,7 +24,7 @@ export function Finding1Layers({ index }: Props) {
     const cells = MODEL_ORDER.map((m) =>
       findCell(index.cells, { model: m, ...LATIN_DEFAULT }),
     );
-    const colors = ["#0369a1", "#c2410c", "#15803d", "#7c3aed", "#be185d", "#0891b2", "#a16207"];
+    const colors = ["#0369a1", "#4338ca", "#c2410c", "#15803d", "#7c3aed", "#be185d", "#0891b2", "#a16207"];
     Promise.all(
       cells.map(async (c, i) => c?.paths.layer_sweep
         ? { label: MODEL_LABEL[c.model], color: colors[i],
@@ -37,15 +37,16 @@ export function Finding1Layers({ index }: Props) {
   return (
     <section className="prose-body">
       <h2 className="section-heading">
-        Demo: seven architectures, very different depths
+        Demo: eight architectures, very different depths
       </h2>
 
       <p>
         First test of the diagnostic: does it confirm that on the paper's
         own cells, the helix is genuinely there? Yes — the original
         finding survives a wider model panel. The paper studies
-        Pythia-6.9B, GPT-J-6B, and Llama-3.1-8B; substituting Gemma 4 for
-        GPT-J and adding OLMo-3-32B and Qwen 2.5 (7B and 32B), all seven
+        Pythia-6.9B, GPT-J-6B, and Llama-3.1-8B; I keep all three and add
+        Gemma 4 (E4B and 31B), OLMo-3-32B, and Qwen 2.5 (7B and 32B), so
+        the matrix is a true superset of the paper's model set. All eight
         converge on the same Latin-digit geometry:
       </p>
 
@@ -78,21 +79,23 @@ export function Finding1Layers({ index }: Props) {
       <p className="mt-6">
         But <em>where</em> the helix lives in the stack varies dramatically
         across models. <strong>Pythia</strong> rises monotonically and peaks
-        at the literal final layer (L32 of 32). <strong>Llama</strong> peaks
-        mid-stack at L15 of 32. <strong>Gemma-4-E4B</strong> shows two
-        regimes: strong early structure at L0-L5, a dip around L6-L7, then a
-        broad peak at L17 of 42. <strong>Gemma-4-31B</strong> sits around
-        0.5 across most of its 60-layer stack with a sharp lift to 0.70 at
-        L29 before falling back. <strong>OLMo-3-32B</strong> rises
-        gradually through its mid-stack to a peak at L23 of 64.{" "}
-        <strong>Qwen 2.5</strong> is the most extreme: both sizes peak in
-        the first few layers — Qwen-7B at <strong>L0</strong> (the literal
-        embedding output, before any block has run), Qwen-32B at L3 of 64
-        — and gently decay through the rest of the stack. On Pythia and
-        Llama, depth has to <em>build</em> the helix from a low L0; on
-        Qwen, the helix is essentially complete at the embedding lookup.
-        Across seven models the only invariant is that there is no
-        invariant.{" "}
+        at the literal final layer (L32 of 32). <strong>GPT-J</strong> —
+        the paper's third model, restored here — slots in at a similar
+        size (28 layers, 6B params); profile in the chart below.{" "}
+        <strong>Llama</strong> peaks mid-stack at L15 of 32.{" "}
+        <strong>Gemma-4-E4B</strong> shows two regimes: strong early
+        structure at L0-L5, a dip around L6-L7, then a broad peak at L17
+        of 42. <strong>Gemma-4-31B</strong> sits around 0.5 across most of
+        its 60-layer stack with a sharp lift to 0.70 at L29 before falling
+        back. <strong>OLMo-3-32B</strong> rises gradually through its
+        mid-stack to a peak at L23 of 64. <strong>Qwen 2.5</strong> is the
+        most extreme: both sizes peak in the first few layers — Qwen-7B
+        at <strong>L0</strong> (the literal embedding output, before any
+        block has run), Qwen-32B at L3 of 64 — and gently decay through
+        the rest of the stack. On Pythia and Llama, depth has to{" "}
+        <em>build</em> the helix from a low L0; on Qwen, the helix is
+        essentially complete at the embedding lookup. Across eight models
+        the only invariant is that there is no invariant.{" "}
         <strong>"Read the middle layer" is a Pythia-ism; for any new model,
         a layer sweep is mandatory.</strong> The layer sweep is also what
         makes the ρ diagnostic possible — without identifying each model's

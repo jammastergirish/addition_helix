@@ -53,6 +53,14 @@ export function Findings() {
           warning for probe work, SAE work, and any "the model represents
           X as a manifold" claim that doesn't include a provenance check.
         </Claim>
+        <Claim n={6}>
+          Subspace-alignment (CKA) refines the picture further:{" "}
+          "high ρ" can mean either true pass-through (Qwen-32B/Latin:
+          CKA ≈ 0.9 — depth touches nothing) or rebuild-with-same-score
+          (Gemma/Latin: CKA ≈ 0.35 — depth produces a similar-quality
+          helix at a substantially different subspace). Mechanistically
+          distinct cases ρ alone would conflate.
+        </Claim>
       </ol>
     </section>
   );

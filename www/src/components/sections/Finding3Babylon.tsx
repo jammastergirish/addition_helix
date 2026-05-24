@@ -39,7 +39,7 @@ export function Finding3Babylon({ index }: Props) {
         Fix both — extend the window to <span className="font-mono">n=600</span>{" "}
         (ten wraps of T=60) and add T=60 to the basis — and helix R² jumps
         by <strong>8–16 percentage points</strong> uniformly across all
-        seven models, with the largest gain on Qwen-7B (+0.16). The
+        eight models, with the largest gain on Qwen-7B (+0.16). The
         basis-free FFT below confirms peaks at multiples of 1/60 once the
         window is wide enough to detect them:
       </p>
@@ -100,7 +100,7 @@ export function Finding3Babylon({ index }: Props) {
         embedding vector with a random vector of matched scale
         (<span className="font-mono">N(0, 1/√d)</span>) and recomputing
         the L=0 helix R² leaves the base-60 helix essentially unchanged
-        across all seven models:
+        across all eight models:
       </p>
 
       <table className="article-table mt-4">
@@ -155,9 +155,19 @@ export function Finding3Babylon({ index }: Props) {
         residual stream "encodes" a quantity, the encoding can come from
         arithmetic done in the renderer before the model has read the
         tokens. Provenance analysis needs to extend below L=0 — to the
-        rendering pipeline itself. (Whether the transformer reads the
-        cuneiform helix downstream is a separate, causal question; see
-        the Conclusion.)
+        rendering pipeline itself.
+      </p>
+
+      <p>
+        One twist (foreshadowing Finding 5): even though Babylonian's
+        L=0 helix is mechanical, the subspace-alignment check shows that
+        Pythia, Llama, and OLMo then <em>rebuild</em> the cuneiform helix
+        at a substantially different subspace by the peak layer
+        (CKA = 0.25–0.53). The peak Babylonian helix is not the
+        mechanical L=0 helix passed through — it's a depth-built object,
+        just one whose <em>score</em> happens to match the mechanical
+        starting point. What that rebuilt helix is doing computationally
+        is a separate, causal question.
       </p>
 
       <h3 className="section-subheading">Is the effect Babylonian-specific?</h3>

@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# Sweep the helix experiment across all seven models and all eight numeral
+# Sweep the helix experiment across all eight models and all eight numeral
 # scripts.  Each run uses --pool mean (the honest default) and --sweep
 # (layer scan + auto-targeted standard figures at the helix-R² peak).
 #
 # Three passes:
-#   pass 1  -- 7 models x 8 scripts at n_max=100, basis=[2,5,10,100]
+#   pass 1  -- 8 models x 8 scripts at n_max=100, basis=[2,5,10,100]
 #              (paper-default range and basis)
-#   pass 2  -- 7 models x 1 script  (babylonian) at n_max=600,
+#   pass 2  -- 8 models x 1 script  (babylonian) at n_max=600,
 #              basis=[2,5,10,100] (paper basis -- demonstrates the basis
 #              is blind to T=60)
-#   pass 3  -- 7 models x 1 script  (babylonian) at n_max=600,
+#   pass 3  -- 8 models x 1 script  (babylonian) at n_max=600,
 #              basis=[2,5,10,60,100] (paper basis + T=60 -- shows how
 #              much variance T=60 actually captures)
 #
@@ -55,6 +55,7 @@ mkdir -p "${LOG_DIR}"
 
 MODELS=(
   "EleutherAI/pythia-6.9b"
+  "EleutherAI/gpt-j-6b"
   "meta-llama/Llama-3.1-8B"
   "google/gemma-4-E4B"
   "google/gemma-4-31B"
@@ -255,7 +256,7 @@ echo "==================================================================="
 EMBED_ARGS=()
 if [[ -n "${FILTER}" ]]; then
   # Best-effort: pass through the same filter. If the filter doesn't
-  # match a real HF id, embed_control.py will run all 7 models.
+  # match a real HF id, embed_control.py will run all 8 models.
   for model in "${MODELS[@]}"; do
     if matches_filter "${model}"; then
       EMBED_ARGS+=("--model" "${model}")

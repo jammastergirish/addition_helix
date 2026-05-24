@@ -138,14 +138,15 @@ export function LayerSweep({ docs, metric = "helix_r2", height = 280 }: Props) {
 }
 
 function defaultColor(i: number): string {
-  // 7 nicely-distinct colours for the 7-model overlay.
+  // 8 nicely-distinct colours for the 8-model overlay.
   return [
-    "#0369a1", // sky-700  (Pythia)
+    "#0369a1", // sky-700    (Pythia)
+    "#4338ca", // indigo-700 (GPT-J)
     "#c2410c", // orange-700 (Llama)
-    "#15803d", // green-700 (Gemma-E4B)
+    "#15803d", // green-700  (Gemma-E4B)
     "#7c3aed", // violet-600 (Gemma-31B)
-    "#be185d", // pink-700  (OLMo)
-    "#0891b2", // cyan-600  (Qwen-7B)
-    "#a16207", // amber-700 (Qwen-32B)
-  ][i % 7];
+    "#be185d", // pink-700   (OLMo)
+    "#0891b2", // cyan-600   (Qwen-7B)
+    "#a16207", // amber-700  (Qwen-32B)
+  ][i % 8];
 }

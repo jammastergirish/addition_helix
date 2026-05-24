@@ -32,7 +32,7 @@ Writes out/_random_embed_control.json. Run as the last pass after the
 main sweep + aggregate.
 
 Usage:
-    uv run embed_control.py                       # all 7 models, all 8 scripts
+    uv run embed_control.py                       # all 8 models, all 8 scripts
     uv run embed_control.py --model X --script Y  # one combo
 """
 from __future__ import annotations
@@ -153,6 +153,7 @@ def format_number(n: int, script: str) -> str:
 
 ALL_MODELS = [
     "EleutherAI/pythia-6.9b",
+    "EleutherAI/gpt-j-6b",
     "meta-llama/Llama-3.1-8B",
     "google/gemma-4-E4B",
     "google/gemma-4-31B",
@@ -260,7 +261,7 @@ def run_model(model: str, combos, seed: int) -> list[dict]:
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawTextHelpFormatter)
-    ap.add_argument("--model",  default=None, help="single HF id; default = all 7.")
+    ap.add_argument("--model",  default=None, help="single HF id; default = all 8.")
     ap.add_argument("--script", default=None, help="single script; default = all 8.")
     ap.add_argument("--seed",   type=int, default=0)
     args = ap.parse_args()

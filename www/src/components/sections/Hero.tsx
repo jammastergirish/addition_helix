@@ -28,7 +28,7 @@ export function Hero() {
         underlying structure. I introduce a provenance diagnostic{" "}
         <span className="font-mono">ρ = R²(L=0) / max_L R²(L)</span> and
         apply it, alongside two basis/window checks and a random-embedding
-        control, across <strong>seven models</strong> from five architecture
+        control, across <strong>eight models</strong> from six architecture
         families and <strong>eight numeral systems</strong> — Latin,
         Arabic-Indic, Persian, Devanagari, positional Chinese (CJK digit
         strings), Greek alphabetic, Roman, and Babylonian cuneiform. The
@@ -43,7 +43,7 @@ export function Hero() {
         <strong className="text-accent">The cleanest single result.</strong>{" "}
         On Babylonian cuneiform, replacing every learned embedding with a
         random vector leaves the L=0 base-60 helix essentially unchanged
-        across all seven models{" "}
+        across all eight models{" "}
         <span className="text-ink-mute">(|ΔR²| ≤ 0.007)</span>. The
         apparent Fourier geometry of cuneiform numerals is not learned
         numerical representation — it's an emergent property of additive
@@ -77,6 +77,8 @@ export function Hero() {
 
       <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-ink-mute">
         <span>Pythia-6.9B</span>
+        <span className="text-ink/20">·</span>
+        <span>GPT-J-6B</span>
         <span className="text-ink/20">·</span>
         <span>Llama-3.1-8B</span>
         <span className="text-ink/20">·</span>

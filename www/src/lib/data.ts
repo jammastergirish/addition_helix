@@ -48,6 +48,7 @@ export function findCell(
 // Order groups by family: EleutherAI, Meta, Google, AI2, Alibaba.
 export const MODEL_ORDER = [
   "EleutherAI/pythia-6.9b",
+  "EleutherAI/gpt-j-6b",
   "meta-llama/Llama-3.1-8B",
   "google/gemma-4-E4B",
   "google/gemma-4-31B",
@@ -58,6 +59,7 @@ export const MODEL_ORDER = [
 
 export const MODEL_LABEL: Record<string, string> = {
   "EleutherAI/pythia-6.9b":    "Pythia-6.9B",
+  "EleutherAI/gpt-j-6b":       "GPT-J-6B",
   "meta-llama/Llama-3.1-8B":   "Llama-3.1-8B",
   "google/gemma-4-E4B":        "Gemma-4-E4B",
   "google/gemma-4-31B":        "Gemma-4-31B",
