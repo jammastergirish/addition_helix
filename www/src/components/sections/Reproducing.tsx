@@ -15,7 +15,7 @@ uv run main.py --script babylonian --n_max 600 --sweep
 # Extended basis with T=60
 uv run main.py --script babylonian --n_max 600 --periods 2,5,10,60,100 --sweep
 
-# Full sweep: 5 models x 8 scripts x 2 windows x 2 bases.
+# Full sweep: 7 models x 8 scripts x 2 windows x 2 bases.
 # Idempotent -- each combo is skipped if its fig_layer_sweep.json exists.
 ./run.sh
 uv run aggregate.py    # refreshes _index.json + _l0_share.csv`}</code></pre>

@@ -8,8 +8,9 @@ export function Findings() {
       <h2 className="section-heading">What this shows</h2>
       <ol className="mt-4 space-y-3 list-none pl-0 text-ink-soft">
         <Claim n={1}>
-          The helix is real and replicates in two new architecture families
-          — but where it lives in the stack varies wildly across models.
+          The helix is real and replicates in three new architecture families
+          (Gemma 4, OLMo 3, Qwen 2.5) — but where it lives in the stack
+          varies wildly across models.
         </Claim>
         <Claim n={2}>
           It generalises across positional numeral scripts (Devanagari,
@@ -22,7 +23,7 @@ export function Findings() {
         </Claim>
         <Claim n={4} emphasis>
           But on most <em>cells</em> in my matrix — one cell = one model ×
-          one script, 40 in total — what I'm measuring is the tokeniser,
+          one script, 56 in total — what I'm measuring is the tokeniser,
           not the transformer; the helix is already present in the
           embeddings before any block has run.
         </Claim>

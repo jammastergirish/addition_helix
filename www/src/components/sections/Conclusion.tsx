@@ -30,7 +30,7 @@ export function Conclusion() {
         </a>,{" "}
         <em>Arithmetic in the Wild: Llama uses Base-10 Addition to Reason
         About Cyclic Concepts</em>, May 2026) published exactly that
-        follow-up on Llama 3.1 8B — one of the five models tested here.
+        follow-up on Llama 3.1 8B — one of the seven models tested here.
         Their headline finding is sharper than "the circles are used":
         Llama uses <strong>base-10 Fourier features</strong> (periods 2,
         5, 10, 20, 50, 100) to compute even for tasks with natural
@@ -51,7 +51,7 @@ export function Conclusion() {
           base-10 Fourier features really are the substrate Llama uses
           for arithmetic, and for arithmetic-like reasoning over months,
           weekdays, and hours. Strong vindication that this geometry is a
-          real computational object on at least one of my five models.
+          real computational object on at least one of my seven models.
         </li>
         <li>
           <strong>Where their result tightens the framing for mine.</strong>{" "}

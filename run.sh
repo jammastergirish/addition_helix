@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# Sweep the helix experiment across all five models and all eight numeral
+# Sweep the helix experiment across all seven models and all eight numeral
 # scripts.  Each run uses --pool mean (the honest default) and --sweep
 # (layer scan + auto-targeted standard figures at the helix-R² peak).
 #
 # Three passes:
-#   pass 1  -- 5 models x 8 scripts at n_max=100, basis=[2,5,10,100]
+#   pass 1  -- 7 models x 8 scripts at n_max=100, basis=[2,5,10,100]
 #              (paper-default range and basis)
-#   pass 2  -- 5 models x 1 script  (babylonian) at n_max=600,
+#   pass 2  -- 7 models x 1 script  (babylonian) at n_max=600,
 #              basis=[2,5,10,100] (paper basis -- demonstrates the basis
 #              is blind to T=60)
-#   pass 3  -- 5 models x 1 script  (babylonian) at n_max=600,
+#   pass 3  -- 7 models x 1 script  (babylonian) at n_max=600,
 #              basis=[2,5,10,60,100] (paper basis + T=60 -- shows how
 #              much variance T=60 actually captures)
 #
@@ -59,6 +59,8 @@ MODELS=(
   "google/gemma-4-E4B"
   "google/gemma-4-31B"
   "allenai/Olmo-3-1125-32B"
+  "Qwen/Qwen2.5-7B"
+  "Qwen/Qwen2.5-32B"
 )
 
 # Pass 1 -- paper-default range.

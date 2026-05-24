@@ -28,6 +28,8 @@ MODELS = [
     ("google__gemma-4-E4B",        "Gemma-4-E4B"),
     ("google__gemma-4-31B",        "Gemma-4-31B"),
     ("allenai__Olmo-3-1125-32B",   "OLMo-3-32B"),
+    ("Qwen__Qwen2.5-7B",           "Qwen2.5-7B"),
+    ("Qwen__Qwen2.5-32B",          "Qwen2.5-32B"),
 ]
 
 

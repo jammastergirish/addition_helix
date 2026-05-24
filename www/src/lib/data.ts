@@ -45,12 +45,15 @@ export function findCell(
 }
 
 // Stable model and script orderings, used by selectors and the rho matrix.
+// Order groups by family: EleutherAI, Meta, Google, AI2, Alibaba.
 export const MODEL_ORDER = [
   "EleutherAI/pythia-6.9b",
   "meta-llama/Llama-3.1-8B",
   "google/gemma-4-E4B",
   "google/gemma-4-31B",
   "allenai/Olmo-3-1125-32B",
+  "Qwen/Qwen2.5-7B",
+  "Qwen/Qwen2.5-32B",
 ];
 
 export const MODEL_LABEL: Record<string, string> = {
@@ -59,6 +62,8 @@ export const MODEL_LABEL: Record<string, string> = {
   "google/gemma-4-E4B":        "Gemma-4-E4B",
   "google/gemma-4-31B":        "Gemma-4-31B",
   "allenai/Olmo-3-1125-32B":   "OLMo-3-32B",
+  "Qwen/Qwen2.5-7B":           "Qwen2.5-7B",
+  "Qwen/Qwen2.5-32B":          "Qwen2.5-32B",
 };
 
 export const SCRIPT_ORDER = [

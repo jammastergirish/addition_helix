@@ -62,7 +62,7 @@ export function Finding2Scripts({ index }: Props) {
       </table>
 
       <p className="mt-6">
-        Three patterns. <strong>Latin is uniform</strong> across all five
+        Three patterns. <strong>Latin is uniform</strong> across all seven
         models (≥ 0.75). <strong>Non-positional scripts (Greek, Roman)
         uniformly collapse</strong> the ratio to 0.55–0.65 — a helix with a
         tens loop only buys you anything if the numeral system has a tens

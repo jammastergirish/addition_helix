@@ -24,7 +24,7 @@ export function Finding1Layers({ index }: Props) {
     const cells = MODEL_ORDER.map((m) =>
       findCell(index.cells, { model: m, ...LATIN_DEFAULT }),
     );
-    const colors = ["#0369a1", "#c2410c", "#15803d", "#7c3aed", "#be185d"];
+    const colors = ["#0369a1", "#c2410c", "#15803d", "#7c3aed", "#be185d", "#0891b2", "#a16207"];
     Promise.all(
       cells.map(async (c, i) => c?.paths.layer_sweep
         ? { label: MODEL_LABEL[c.model], color: colors[i],
@@ -37,14 +37,15 @@ export function Finding1Layers({ index }: Props) {
   return (
     <section className="prose-body">
       <h2 className="section-heading">
-        It replicates in five architectures, at very different depths
+        It replicates in seven architectures, at very different depths
       </h2>
 
       <p>
         The paper studies Pythia-6.9B, GPT-J-6B, and Llama-3.1-8B — three
         decoder-only transformers in the same broad lineage, all read at the
         middle layer on Latin/0–99. Substituting Gemma 4 for GPT-J and adding
-        OLMo-3-32B, all five converge on the same Latin-digit geometry:
+        OLMo-3-32B and Qwen 2.5 (7B and 32B), all seven converge on the same
+        Latin-digit geometry:
       </p>
 
       <table className="article-table mt-6">
@@ -75,15 +76,17 @@ export function Finding1Layers({ index }: Props) {
 
       <p className="mt-6">
         But <em>where</em> the helix lives in the stack varies dramatically
-        — five models, five distinct profiles. <strong>Pythia</strong> rises
-        monotonically and peaks at the literal final layer (L32 of 32).{" "}
-        <strong>Llama</strong> peaks mid-stack at L15 of 32.{" "}
-        <strong>Gemma-4-E4B</strong> shows two regimes: strong early
-        structure at L0-L5, a dip around L6-L7, then a broad peak at L17
-        of 42. <strong>Gemma-4-31B</strong> sits around 0.5 across most of
-        its 60-layer stack with a sharp lift to 0.70 at L29 before falling
-        back. <strong>OLMo-3-32B</strong> rises gradually through its
-        mid-stack to a peak at L23 of 64.{" "}
+        across models. <strong>Pythia</strong> rises monotonically and peaks
+        at the literal final layer (L32 of 32). <strong>Llama</strong> peaks
+        mid-stack at L15 of 32. <strong>Gemma-4-E4B</strong> shows two
+        regimes: strong early structure at L0-L5, a dip around L6-L7, then a
+        broad peak at L17 of 42. <strong>Gemma-4-31B</strong> sits around
+        0.5 across most of its 60-layer stack with a sharp lift to 0.70 at
+        L29 before falling back. <strong>OLMo-3-32B</strong> rises
+        gradually through its mid-stack to a peak at L23 of 64.{" "}
+        <strong>Qwen 2.5 (7B and 32B)</strong> add two more depth profiles
+        to the matrix — see the chart below for the live shape. Across
+        seven models the only invariant is that there is no invariant.{" "}
         <strong>"Read the middle layer" is a Pythia-ism; for any new model,
         a layer sweep is mandatory.</strong>
       </p>
