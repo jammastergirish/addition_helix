@@ -193,11 +193,19 @@ run_combo() {
     extra_args+=("--periods" "${periods}")
   fi
 
-  if uv run main.py --model "${model}" --script "${script}" \
-       --n_max "${n_max}" --sweep "${extra_args[@]}" \
-       > "${log_file}" 2>&1; then
-    grep -E "(PC1 R²|helix R²|helix/PCA|using peak layer|basis periods)" "${log_file}" \
-      | sed 's/^/         /'
+  # Run inside a pseudo-terminal via script(1). Three benefits:
+  #   1. main.py's stderr looks like a real TTY -> tqdm uses live \r
+  #      refresh instead of getting buffered into oblivion by `tee`.
+  #   2. HuggingFace's "Loading checkpoint shards" bar also shows live,
+  #      so the multi-minute model load isn't silent.
+  #   3. script(1) records the session to ${log_file} AND displays it on
+  #      the user's terminal in one go -- no buffering acrobatics needed.
+  # The log file contains a few ANSI escape codes from tqdm; grep -a
+  # treats it as text, and the post-run summary still works.
+  if script -q "${log_file}" uv run main.py --model "${model}" \
+       --script "${script}" --n_max "${n_max}" --sweep "${extra_args[@]}"; then
+    grep -aE "(PC1 R²|helix R²|helix/PCA|using peak layer|basis periods)" \
+      "${log_file}" | sed 's/^/         /'
     ran=$((ran + 1))
   else
     echo "         !! FAILED  (see ${log_file})"

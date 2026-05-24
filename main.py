@@ -131,6 +131,14 @@ from transformers import AutoModelForCausalLM, AutoTokenizer  # noqa: E402
 warnings.filterwarnings("ignore", category=UserWarning)
 plt.rcParams.update({"figure.dpi": 110, "savefig.dpi": 150})
 
+# Write tqdm progress to the controlling terminal directly, so the bar
+# stays visible when run.sh redirects stdout/stderr into a per-combo log
+# file. Falls back to stderr when no tty is attached (e.g. CI).
+try:
+    _TQDM_OUT = open("/dev/tty", "w")
+except OSError:
+    _TQDM_OUT = sys.stderr
+
 
 # ----------------------------------------------------------------------------
 # JSON export: every plot also writes a sibling .json so the data behind the
@@ -532,7 +540,7 @@ def collect_activations(model, tokenizer, numbers, layer, device,
         bos = tokenizer.eos_token_id
 
     activations = []
-    for n in tqdm(numbers, desc="forward passes"):
+    for n in tqdm(numbers, desc="forward passes", file=_TQDM_OUT):
         text = f" {format_number(int(n), script)}"
         # Tokenize the numeral WITHOUT BOS so we know how many tokens it
         # occupies. Then prepend BOS for the forward pass.
@@ -582,7 +590,7 @@ def collect_activations_all_layers(model, tokenizer, numbers, device,
         bos = tokenizer.eos_token_id
 
     all_acts = []
-    for n in tqdm(numbers, desc="forward passes"):
+    for n in tqdm(numbers, desc="forward passes", file=_TQDM_OUT):
         text = f" {format_number(int(n), script)}"
         numeral_ids = tokenizer(text, add_special_tokens=False,
                                  return_tensors="pt")["input_ids"]
