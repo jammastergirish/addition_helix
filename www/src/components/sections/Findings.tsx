@@ -1,31 +1,39 @@
 /**
- * Top-of-page summary. Four claims, one sentence each. The fourth is the
- * tease for the section that overturns the first three.
+ * Top-of-page summary, diagnostic-first. The contribution is the
+ * measurement framework; the matrix is what was built to demonstrate
+ * it. Each bullet is one claim.
  */
 export function Findings() {
   return (
     <section className="pt-12 prose-body">
       <h2 className="section-heading">What this shows</h2>
       <ol className="mt-4 space-y-3 list-none pl-0 text-ink-soft">
-        <Claim n={1}>
-          The helix is real and replicates in three new architecture families
-          (Gemma 4, OLMo 3, Qwen 2.5) — but where it lives in the stack
-          varies wildly across models.
+        <Claim n={1} emphasis>
+          The standard "fit a helix R²" protocol has <em>three</em> failure
+          modes that systematically inflate the reported result — basis
+          bandwidth, window wrap, and (most consequentially) tokeniser
+          inheritance via the L=0 / peak ratio ρ.
         </Claim>
         <Claim n={2}>
-          It generalises across positional numeral scripts (Devanagari,
-          Arabic-Indic, Chinese) — but only on models that were actually
-          trained on them.
+          I built a <strong>7 models × 8 numeral systems</strong> matrix —
+          56 cells — to surface them. Of the 56, only ~5 are cleanly
+          depth-built helices: Pythia/Latin, Llama/Latin, and Gemma on the
+          scripts it was heavily trained on.
         </Claim>
         <Claim n={3}>
-          Even Babylonian cuneiform encodes clean base-60 structure, on
-          every model — once you stop measuring with a base-10 ruler.
+          A naive read of the matrix would have given the headline "the
+          helix generalises across positional scripts (Devanagari,
+          Arabic-Indic, Chinese) and even to base-60 Babylonian on every
+          model." The ρ diagnostic shows almost all of that is the
+          tokeniser absorbing numeric semantics during pre-training, not
+          the transformer computing with it.
         </Claim>
-        <Claim n={4} emphasis>
-          But on most <em>cells</em> in my matrix — one cell = one model ×
-          one script, 56 in total — what I'm measuring is the tokeniser,
-          not the transformer; the helix is already present in the
-          embeddings before any block has run.
+        <Claim n={4}>
+          Feucht &amp; Haklay (May 2026) recently confirmed the helix{" "}
+          <em>is</em> causally read on Llama/Latin — exactly the cell ρ
+          marks as depth-built. The matrix tells them which cells are
+          worth that causal investigation. Two halves of the same
+          diagnostic kit.
         </Claim>
       </ol>
     </section>

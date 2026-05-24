@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
- * Copy every *.json and *.csv (and the small *.png assets the site
- * references) from ../out/ into dist/data/. Runs after `vite build`
- * via the `build` script in package.json, so a single `npm run build`
- * produces a fully deployable dist/ with all chart data baked in.
+ * Copy every *.json, *.csv, and the small comparison-image PNGs under
+ * out/_compare/ into dist/data/. Runs after `vite build` via the
+ * `build` script in package.json, so a single `npm run build` produces
+ * a fully deployable dist/ with all chart data baked in.
  *
- * Skips anything else (the bulky PNG figures, log files, model weights)
- * — the React site only ever fetches .json and the rho heatmap pulls
- * from _index.json, so .csv is just for direct-link convenience.
+ * Skips per-cell PNGs (those are the matplotlib figures that the React
+ * site re-renders interactively from the JSON), log files, and model
+ * weights.
  */
 import { promises as fs } from "node:fs";
 import path from "node:path";
@@ -19,6 +19,10 @@ const DEST = path.resolve(__dirname, "..", "dist", "data");
 
 const KEEP_EXT = new Set([".json", ".csv"]);
 const SKIP_DIRS = new Set(["_logs"]);
+// PNGs are only kept inside the _compare/ directory (the cross-model
+// comparison images). Per-cell figure PNGs are skipped — the React
+// charts re-render them from the JSON.
+const KEEP_PNG_DIR = "_compare";
 
 async function* walk(dir) {
   let entries;
@@ -33,8 +37,13 @@ async function* walk(dir) {
     if (e.isDirectory()) {
       if (SKIP_DIRS.has(e.name)) continue;
       yield* walk(p);
-    } else if (e.isFile() && KEEP_EXT.has(path.extname(e.name))) {
-      yield p;
+    } else if (e.isFile()) {
+      const ext = path.extname(e.name);
+      if (KEEP_EXT.has(ext)) {
+        yield p;
+      } else if (ext === ".png" && dir.split(path.sep).includes(KEEP_PNG_DIR)) {
+        yield p;
+      }
     }
   }
 }

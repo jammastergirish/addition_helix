@@ -10,7 +10,7 @@ export function Hero() {
 
       <h1 className="font-sans text-3xl md:text-5xl font-semibold tracking-tight leading-[1.1]">
         From Latin Digits to Babylonian Cuneiform:{" "}
-        <span className="text-accent">Helical Number Representations in LLMs</span>
+        <span className="text-accent">Provenance and Measurement in Numerical Geometry of LLMs</span>
       </h1>
       <p className="mt-2 font-sans text-base md:text-lg text-ink-mute">
         Girish Gupta
@@ -20,13 +20,19 @@ export function Hero() {
       <p className="mt-8 text-lg leading-relaxed text-ink-soft">
         Large language models encode integers in their residual stream as a{" "}
         <em>generalised helix</em> — one linear "number-line" axis plus
-        modular circles at period 2, 5, 10, and 100. I re-test this
-        geometry across <strong>seven models</strong> from five
-        architecture families, and <strong>eight numeral systems</strong> — Latin, Arabic-Indic,
+        modular circles at period 2, 5, 10, and 100. The standard "fit a
+        helix R²" measurement protocol has three failure modes that
+        systematically inflate the reported result; the most consequential
+        is <strong>tokeniser inheritance</strong> — the helix R² at the
+        peak layer can be entirely supplied by the L=0 embeddings and read
+        identically to one the transformer built. To surface this, I
+        applied the protocol with a new diagnostic across{" "}
+        <strong>seven models</strong> from five architecture families and{" "}
+        <strong>eight numeral systems</strong> — Latin, Arabic-Indic,
         Persian, Devanagari, positional Chinese, Greek alphabetic, Roman,
-        and Babylonian cuneiform — and ask the question the original paper
-        didn't: how much of what I'm measuring is the model, and how
-        much is the tokeniser?
+        and Babylonian cuneiform. Of 56 cells, only ~5 are cleanly
+        depth-built helices. Most of what reads as cross-script
+        generalisation is the tokeniser, not the transformer.
       </p>
 
       <p className="mt-4 text-sm leading-relaxed text-ink-mute">

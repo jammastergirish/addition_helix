@@ -37,15 +37,16 @@ export function Finding1Layers({ index }: Props) {
   return (
     <section className="prose-body">
       <h2 className="section-heading">
-        It replicates in seven architectures, at very different depths
+        Demo: seven architectures, very different depths
       </h2>
 
       <p>
-        The paper studies Pythia-6.9B, GPT-J-6B, and Llama-3.1-8B — three
-        decoder-only transformers in the same broad lineage, all read at the
-        middle layer on Latin/0–99. Substituting Gemma 4 for GPT-J and adding
-        OLMo-3-32B and Qwen 2.5 (7B and 32B), all seven converge on the same
-        Latin-digit geometry:
+        First test of the diagnostic: does it confirm that on the paper's
+        own cells, the helix is genuinely there? Yes — the original
+        finding survives a wider model panel. The paper studies
+        Pythia-6.9B, GPT-J-6B, and Llama-3.1-8B; substituting Gemma 4 for
+        GPT-J and adding OLMo-3-32B and Qwen 2.5 (7B and 32B), all seven
+        converge on the same Latin-digit geometry:
       </p>
 
       <table className="article-table mt-6">
@@ -84,11 +85,18 @@ export function Finding1Layers({ index }: Props) {
         0.5 across most of its 60-layer stack with a sharp lift to 0.70 at
         L29 before falling back. <strong>OLMo-3-32B</strong> rises
         gradually through its mid-stack to a peak at L23 of 64.{" "}
-        <strong>Qwen 2.5 (7B and 32B)</strong> add two more depth profiles
-        to the matrix — see the chart below for the live shape. Across
-        seven models the only invariant is that there is no invariant.{" "}
+        <strong>Qwen 2.5</strong> is the most extreme: both sizes peak in
+        the first few layers — Qwen-7B at <strong>L0</strong> (the literal
+        embedding output, before any block has run), Qwen-32B at L3 of 64
+        — and gently decay through the rest of the stack. On Pythia and
+        Llama, depth has to <em>build</em> the helix from a low L0; on
+        Qwen, the helix is essentially complete at the embedding lookup.
+        Across seven models the only invariant is that there is no
+        invariant.{" "}
         <strong>"Read the middle layer" is a Pythia-ism; for any new model,
-        a layer sweep is mandatory.</strong>
+        a layer sweep is mandatory.</strong> The layer sweep is also what
+        makes the ρ diagnostic possible — without identifying each model's
+        peak layer, there's no peak to ratio L=0 against.
       </p>
 
       <div className="my-6 rounded-lg border border-ink/10 bg-white p-4">

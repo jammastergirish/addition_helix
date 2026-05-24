@@ -24,12 +24,16 @@ export function Finding2Scripts({ index }: Props) {
   return (
     <section className="prose-body">
       <h2 className="section-heading">
-        It generalises across positional scripts, but only on models trained on them
+        Cross-script: where mode 3 starts to bite
       </h2>
 
       <p>
-        I rendered every integer 0–99 in eight numeral systems and re-ran
-        the analysis. Helix / 9-d PCA ratio at each cell's peak layer:
+        Apply the protocol to all eight numeral systems and at first glance
+        it looks like a clean generalisation — every positional script
+        gives a high helix / 9-d PCA ratio on every model. The next
+        section will show that's exactly where mode 3 (tokeniser
+        inheritance) kicks in. For now, the raw ratio at each cell's
+        peak layer:
       </p>
 
       <table className="article-table mt-4">
@@ -71,6 +75,14 @@ export function Finding2Scripts({ index }: Props) {
         from Pythia on Greek; Gemma-4-31B on Devanagari hits 0.79, matching
         its own Latin. Positional structure is necessary for the helix, but
         training exposure to the specific script is what makes it appear.
+      </p>
+
+      <p>
+        This is the table a naive read of the protocol would publish as
+        "the helix generalises across positional numeral systems." The
+        ρ heatmap below (Finding 4) shows that's mostly the tokeniser,
+        not the transformer — but first, the cleanest single illustration
+        of all three failure modes interacting: Babylonian.
       </p>
 
       <h3 className="section-subheading">Inspect any cell</h3>

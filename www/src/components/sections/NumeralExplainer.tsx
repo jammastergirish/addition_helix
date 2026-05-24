@@ -153,16 +153,20 @@ export function NumeralExplainer() {
     <section className="prose-body pt-12">
       <h2 className="section-heading">The eight numeral systems</h2>
       <p>
-        I test the helix across the eight systems below. Three families:
+        I test the helix across eight systems in three families:
         five <strong>positional base-10</strong> systems (Latin, Arabic-Indic,
         Persian, Devanagari, positional Chinese), two{" "}
         <strong>additive</strong> systems (Greek alphabetic and Roman), and
         Babylonian cuneiform — a <strong>hybrid</strong> that is positional
-        at base 60 but additive within each sexagesimal column. Pick a
-        number to see how each renders it.
+        at base 60 but additive within each sexagesimal column.
       </p>
 
-      <div className="my-6 rounded-lg border border-ink/15 bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+      <details className="my-6 rounded-md border border-ink/10 bg-paper-warm/40 px-4 py-3 text-[0.97rem] leading-relaxed text-ink-soft [&[open]>summary]:mb-3">
+        <summary className="cursor-pointer select-none font-sans text-sm font-medium text-ink/80 hover:text-accent">
+          ▸ Pick a number and see how each system renders it
+        </summary>
+
+      <div className="my-2 rounded-lg border border-ink/15 bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
         <div className="flex flex-wrap items-center gap-3">
           <label className="text-xs font-medium uppercase tracking-wider text-ink-mute">
             number
@@ -207,6 +211,7 @@ export function NumeralExplainer() {
         <Group title="Additive (non-positional)" systems={ADDITIVE} n={n} />
         <Group title="Mixed: positional base-60, additive within each column" systems={MIXED} n={n} />
       </div>
+      </details>
     </section>
   );
 }
