@@ -95,16 +95,119 @@ export function Finding3Babylon({ index }: Props) {
       </p>
 
       <p>
-        The interesting reading: even for a script pre-training has barely
-        seen, the tokeniser's per-wedge embeddings absorb enough{" "}
-        <em>"<span className="font-mono">𒁹</span> means one,{" "}
-        <span className="font-mono">𒌋</span> means ten"</em> from sparse
-        text to encode base-60 structure that the trig basis can fit.
-        Modern tokenisers, by themselves, are doing more numeric work
-        than the literature has been crediting them with. Whether the
-        transformer is reading the cuneiform helix for anything
-        downstream is a separate question — and one the ρ measurement
-        alone can't answer.
+        A random-embedding control reveals that the L=0 Babylonian
+        helix is almost entirely mechanical. Replacing every learned
+        embedding vector with a random vector of matched scale
+        (<span className="font-mono">N(0, 1/√d)</span>) and recomputing
+        the L=0 helix R² leaves the base-60 helix essentially unchanged
+        across all seven models:
+      </p>
+
+      <table className="article-table mt-4">
+        <thead>
+          <tr>
+            <th>model</th>
+            <th className="text-right">learned L=0 R²</th>
+            <th className="text-right">random L=0 R²</th>
+            <th className="text-right">Δ (learned − random)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Pythia-6.9B</td><td className="numeric text-right">0.569</td><td className="numeric text-right">0.568</td><td className="numeric text-right text-ink-mute">+0.001</td></tr>
+          <tr><td>Llama-3.1-8B</td><td className="numeric text-right">0.517</td><td className="numeric text-right">0.513</td><td className="numeric text-right text-ink-mute">+0.003</td></tr>
+          <tr><td>Gemma-4-E4B</td><td className="numeric text-right">0.623</td><td className="numeric text-right">0.620</td><td className="numeric text-right text-ink-mute">+0.002</td></tr>
+          <tr><td>Gemma-4-31B</td><td className="numeric text-right">0.621</td><td className="numeric text-right">0.621</td><td className="numeric text-right text-ink-mute">−0.001</td></tr>
+          <tr><td>OLMo-3-32B</td><td className="numeric text-right">0.545</td><td className="numeric text-right">0.552</td><td className="numeric text-right text-ink-mute">−0.007</td></tr>
+          <tr><td>Qwen2.5-7B</td><td className="numeric text-right">0.588</td><td className="numeric text-right">0.590</td><td className="numeric text-right text-ink-mute">−0.002</td></tr>
+          <tr><td>Qwen2.5-32B</td><td className="numeric text-right">0.587</td><td className="numeric text-right">0.592</td><td className="numeric text-right text-ink-mute">−0.004</td></tr>
+        </tbody>
+      </table>
+
+      <p className="mt-4">
+        <strong>The learned-vs-random gap is essentially zero on every
+        model</strong> (|Δ| ≤ 0.007 across the extended basis). The
+        structure arises from additive rendering plus pooling alone:
+        the renderer for{" "}
+        <span className="font-mono">n=23</span> literally writes two
+        ten-wedges and three one-wedges, so
+      </p>
+
+      <p className="my-2 ml-6 font-mono text-sm text-ink/80">
+        h(23) ≈ (2 · e<sub>𒌋</sub> + 3 · e<sub>𒁹</sub>) / 5
+      </p>
+
+      <p>
+        and even when{" "}
+        <span className="font-mono">e<sub>𒌋</sub>, e<sub>𒁹</sub></span>{" "}
+        are random vectors, the result varies smoothly with{" "}
+        <span className="font-mono">a</span>, neighbouring numbers
+        differ predictably, multiples of 10 form regular shifts, mod-60
+        periodicity emerges, and the Fourier basis fits naturally. No
+        learned semantics required. The wedge embeddings <em>have not</em>{" "}
+        absorbed "𒁹 means one" from cuneiform text; they don't need to
+        have.
+      </p>
+
+      <p>
+        This is the cleanest single result in the paper, and it makes a
+        sharper general point: <strong>some apparent neural geometry
+        can arise from rendering statistics alone</strong>. When a
+        residual stream "encodes" a quantity, the encoding can come from
+        arithmetic done in the renderer before the model has read the
+        tokens. Provenance analysis needs to extend below L=0 — to the
+        rendering pipeline itself. (Whether the transformer reads the
+        cuneiform helix downstream is a separate, causal question; see
+        the Conclusion.)
+      </p>
+
+      <h3 className="section-subheading">Is the effect Babylonian-specific?</h3>
+
+      <p>
+        To verify the mechanical reading isn't a general property of
+        random embeddings + mean-pooling, I ran the same control across
+        every (model, script) cell. The comparison sharpens the story:
+      </p>
+
+      <table className="article-table mt-4">
+        <thead>
+          <tr>
+            <th>model</th>
+            <th className="text-right">Latin Δ</th>
+            <th className="text-right">Babylonian Δ <span className="text-ink-mute font-normal">(n=600, ext. basis)</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Pythia-6.9B</td><td className="numeric text-right text-accent">+0.10</td><td className="numeric text-right text-ink-mute">+0.001</td></tr>
+          <tr><td>Llama-3.1-8B</td><td className="numeric text-right text-accent">+0.15</td><td className="numeric text-right text-ink-mute">+0.003</td></tr>
+          <tr><td>Gemma-4-E4B</td><td className="numeric text-right text-accent">+0.12</td><td className="numeric text-right text-ink-mute">+0.002</td></tr>
+          <tr><td>Gemma-4-31B</td><td className="numeric text-right text-accent">+0.12</td><td className="numeric text-right text-ink-mute">−0.001</td></tr>
+          <tr><td>OLMo-3-32B</td><td className="numeric text-right text-accent">+0.18</td><td className="numeric text-right text-ink-mute">−0.007</td></tr>
+          <tr><td>Qwen2.5-7B</td><td className="numeric text-right text-accent">+0.11</td><td className="numeric text-right text-ink-mute">−0.002</td></tr>
+          <tr><td>Qwen2.5-32B</td><td className="numeric text-right">+0.03</td><td className="numeric text-right text-ink-mute">−0.004</td></tr>
+        </tbody>
+      </table>
+
+      <p className="mt-4">
+        On <strong>Latin</strong>, every model's learned-vs-random Δ is
+        positive and substantial — learned digit embeddings carry numeric
+        structure that random embeddings don't. On Pythia/Llama/OLMo the
+        random R² is ~0.08 (essentially chance), so the learned helix
+        score at L=0 (0.18–0.26) is overwhelmingly learned semantics. On
+        <strong> Babylonian</strong>, every model's Δ is ~zero. The
+        mechanical effect is real and specific to Babylonian's additive
+        within-column rendering.
+      </p>
+
+      <p>
+        One side observation: Gemma and Qwen have substantially higher
+        random R² across <em>every</em> script (~0.4 on positional cells
+        vs ~0.08 for Pythia/Llama/OLMo). Their tokenizers split numerals
+        more granularly, so even random embeddings, mean-pooled over
+        more sub-tokens, produce a vector with non-trivial count
+        structure. This doesn't break ρ — Δ between learned and random
+        is still meaningfully positive on Latin for Gemma/Qwen — but it
+        means the "noise floor" of the protocol is tokenizer-dependent,
+        which is itself a useful diagnostic.
       </p>
     </section>
   );

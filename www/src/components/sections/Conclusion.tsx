@@ -5,21 +5,23 @@ export function Conclusion() {
 
       <p>
         The contribution is the diagnostic kit, not the matrix. The
-        standard helix-R² protocol has three failure modes that
-        systematically inflate the reported result, and applied to a wide
-        enough matrix, ρ separates the cells where the helix is genuinely
-        a learned representation (Pythia/Latin, Llama/Latin, Gemma on
-        Devanagari/Persian/Roman) from the cells where it's preserved
-        from the embeddings (everywhere else, including Qwen 2.5 — even
+        standard helix-R² protocol has three failure modes that can make
+        it answer the wrong question — two hide real structure (basis
+        bandwidth, window wrap), one misattributes pre-transformer
+        structure to depth (ρ). Applied to a wide enough matrix, ρ
+        separates the cells where the helix is substantially constructed
+        by depth (Pythia/Latin, Llama/Latin, Gemma on Devanagari and a
+        few related scripts) from the cells where it's already present
+        before any block runs (everywhere else, including Qwen 2.5 — even
         on Latin). Without ρ, the cross-script and Babylonian measurements
         read as confirmation of the original paper's central claim; with
-        ρ, they read as evidence that modern tokenisers have absorbed
-        enough numeric structure from pre-training that the same trig
-        basis fits whether or not the transformer is doing anything
-        downstream with it. Qwen 2.5/Latin is the sharpest existence
-        proof: helix R² ≈ 0.54, but ρ = 0.89–1.00 — a cell that would
-        publish as "the helix replicates on Qwen" without the diagnostic
-        is in fact the cleanest case of mode 3 in the matrix.
+        ρ, they read as evidence that the tokenizer/embedding front end
+        absorbs enough numeric structure that the same trig basis fits
+        whether or not the transformer is doing anything downstream with
+        it. Qwen 2.5/Latin is the sharpest existence proof: helix R² ≈ 0.54,
+        but ρ = 0.89–1.00 — a cell that would publish as "the helix
+        replicates on Qwen" without the diagnostic is in fact the
+        cleanest case of pre-transformer inheritance in the matrix.
       </p>
 
       <p className="mt-4">
@@ -37,7 +39,8 @@ export function Conclusion() {
 
       <p>
         Two halves of the same diagnostic kit. ρ tells you{" "}
-        <em>which cells are worth asking the causal question about</em>;
+        <em>which cells are most likely to distinguish depth-built
+        geometry from inherited geometry before doing causal work</em>;
         Feucht, Haklay et al. (
         <a className="text-accent underline" href="https://arxiv.org/abs/2605.01148">
           arXiv:2605.01148
@@ -77,16 +80,49 @@ export function Conclusion() {
         </li>
         <li>
           ρ measures <em>where the geometry is built</em>, not whether
-          it's used. On cells with ρ ≈ 1 (Pythia/Llama × non-Latin
-          positional, all Babylonian), the tokeniser-inherited circles
-          could still in principle be read by a downstream addition
-          module — many of those scripts (Arabic-Indic, Devanagari,
-          Chinese-positional) <em>are</em> base-10 and may tokenise
-          per-digit. ρ tells us the geometry-building work isn't
-          happening in the transformer; their toolkit is what would
-          answer whether the geometry is read regardless.
+          it's read. On cells with ρ ≈ 1 (Pythia/Llama × non-Latin
+          positional, all Babylonian), the inherited circles could
+          still in principle be read by a downstream addition module —
+          many of those scripts (Arabic-Indic, Devanagari, CJK
+          positional) <em>are</em> base-10 and may tokenize per-digit. ρ
+          tells us the geometry-building work isn't happening in the
+          transformer; their toolkit is what would answer whether the
+          geometry is read regardless of where it was built.
         </li>
       </ul>
+
+      <h3 className="section-subheading">The point</h3>
+      <p>
+        The lesson is not that helices are artifacts. The strongest
+        cells remain strong, and recent causal work shows that Fourier
+        number features can be real computational substrates. The
+        lesson is that representation geometry needs provenance
+        analysis. Before interpreting a manifold as a transformer
+        representation, we should ask where it first appears in the
+        forward pass, whether the measurement basis can see the
+        relevant periods, whether the window is long enough to identify
+        them, and whether the same structure is already present in the
+        tokenizer/embedding front end. For number helices, ρ plus the
+        two spectral checks is the cheapest version of that provenance
+        question. It is also the question every "the model represents X
+        as Y manifold" claim should be asked.
+      </p>
+
+      <p className="mt-4">
+        The Babylonian random-embedding control pushes that lesson one
+        layer deeper. <strong>Some apparent neural geometry doesn't even
+        need learned components</strong>: smooth, low-dimensional,
+        Fourier-fittable manifolds can emerge from the input pipeline
+        itself — additive symbolic rendering composed with mean-pooling
+        is sufficient to produce structure that the Fourier basis fits
+        and that an interpretability paper could publish as "the model
+        represents cuneiform numbers geometrically." Probe work, SAE
+        feature interpretation, and any "the model represents X as a
+        manifold" claim need to test rendering statistics before
+        attributing structure to learning — the same way differential
+        diagnosis needs to rule out the obvious before reaching for the
+        interesting.
+      </p>
 
       <p className="mt-4">
         The open question for either side: do the cells where depth

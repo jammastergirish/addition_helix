@@ -34,8 +34,8 @@ const POSITIONAL_BASE_10: SystemDef[] = [
     decompose: (n) => decimalDecomp(n),
   },
   {
-    key: "chinese", name: "Chinese", structure: "positional · base 10",
-    blurb: <>CJK digit glyphs in place-value layout. Distinct from the additive <span className="font-mono">二十三</span> (= "two-tens-three"), which I don't use here.</>,
+    key: "chinese", name: "CJK digit string", structure: "positional · base 10",
+    blurb: <>A digit-by-digit, place-value rendering using CJK numeral glyphs — <em>not</em> ordinary written Chinese number syntax (which would be <span className="font-mono">二十三</span>, "two-tens-three"). I use the positional form so this script stays comparable to Latin / Arabic-Indic / Devanagari.</>,
     decompose: (n) => decimalDecomp(n),
   },
 ];

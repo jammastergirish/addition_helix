@@ -28,12 +28,13 @@ export function Finding2Scripts({ index }: Props) {
       </h2>
 
       <p>
-        Apply the protocol to all eight numeral systems and at first glance
-        it looks like a clean generalisation — every positional script
-        gives a high helix / 9-d PCA ratio on every model. The next
-        section will show that's exactly where mode 3 (tokeniser
-        inheritance) kicks in. For now, the raw ratio at each cell's
-        peak layer:
+        Apply the protocol to all eight numeral systems and the raw
+        helix / 9-d PCA table tempts a broad generalisation: positional
+        scripts often score above the additive systems, and some
+        non-Latin cells approach Latin. But the ratio is uneven —
+        Pythia/Arabic-Indic is 0.55, Llama/Chinese is 0.58, OLMo/Chinese
+        is 0.51 — and the ρ heatmap in the next section will show that
+        much of the apparent generalisation is inherited at L=0:
       </p>
 
       <table className="article-table mt-4">
@@ -80,9 +81,9 @@ export function Finding2Scripts({ index }: Props) {
       <p>
         This is the table a naive read of the protocol would publish as
         "the helix generalises across positional numeral systems." The
-        ρ heatmap below (Finding 4) shows that's mostly the tokeniser,
-        not the transformer — but first, the cleanest single illustration
-        of all three failure modes interacting: Babylonian.
+        ρ heatmap below shows that's mostly the tokenizer/embedding
+        front end, not the transformer — but first, the cleanest single
+        illustration of all three failure modes interacting: Babylonian.
       </p>
 
       <h3 className="section-subheading">Inspect any cell</h3>

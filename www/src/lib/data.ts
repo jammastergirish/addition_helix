@@ -76,7 +76,7 @@ export const SCRIPT_LABEL: Record<string, string> = {
   arabic:      "Arabic-Indic",
   persian:     "Persian",
   devanagari:  "Devanagari",
-  chinese:     "Chinese (positional)",
+  chinese:     "CJK digit string",
   greek:       "Greek alphabetic",
   roman:       "Roman",
   babylonian:  "Babylonian cuneiform",

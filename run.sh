@@ -231,6 +231,36 @@ for model in "${MODELS[@]}"; do
   done
 done
 
+# ----- Pass 4: random-embedding control -----
+# Cheap (no model forward passes -- just tokenize + lookup random vectors
+# + mean-pool + fit basis). Runs across all (model, script, basis) combos
+# the main sweep produced; outputs out/_random_embed_control.json that
+# the React site (Finding 3) reads to display the learned-vs-random gap.
+#
+# Idempotent enough: re-running just overwrites the JSON. Skipped if the
+# user filtered to a specific model that doesn't match (controlled by
+# --model flag forwarded below).
+echo
+echo "==================================================================="
+echo "  pass 4: random-embedding control"
+echo "==================================================================="
+EMBED_ARGS=()
+if [[ -n "${FILTER}" ]]; then
+  # Best-effort: pass through the same filter. If the filter doesn't
+  # match a real HF id, embed_control.py will run all 7 models.
+  for model in "${MODELS[@]}"; do
+    if matches_filter "${model}"; then
+      EMBED_ARGS+=("--model" "${model}")
+      break  # embed_control.py only accepts one --model at a time
+    fi
+  done
+fi
+if uv run embed_control.py "${EMBED_ARGS[@]}" > "${LOG_DIR}/_embed_control.log" 2>&1; then
+  echo "  wrote out/_random_embed_control.json  (see ${LOG_DIR}/_embed_control.log)"
+else
+  echo "  !! random-embedding control FAILED (see ${LOG_DIR}/_embed_control.log)"
+fi
+
 # ----- Summary -----
 echo
 echo "==================================================================="
@@ -246,3 +276,5 @@ fi
 echo
 echo "  fig_layer_sweep locations:"
 find out -name "fig_layer_sweep.json" 2>/dev/null | sort | sed 's/^/    /'
+echo
+echo "  Don't forget:  uv run aggregate.py   # refresh _index.json + _l0_share.csv"

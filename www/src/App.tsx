@@ -40,7 +40,7 @@ export default function App() {
         <NumeralExplainer />
         <Findings />
         <WhatTheHelixIs index={index} />
-        <TheDiagnostic />
+        <TheDiagnostic index={index} />
         <Finding1Layers index={index} />
         <Finding2Scripts index={index} />
         <Finding3Babylon index={index} />
