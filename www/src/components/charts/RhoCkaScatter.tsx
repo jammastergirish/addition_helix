@@ -99,7 +99,7 @@ export function RhoCkaScatter({ height = 480 }: { height?: number }) {
           <text x={x(0.05)} y={y(0.04)} fontSize={11} fill="#64748b" fontWeight={600}>depth builds new</text>
           <text x={x(0.05)} y={y(0.09)} fontSize={9} fill="#475569" transform={`translate(0, -12)`}>low ρ · low CKA · rare in practice</text>
 
-          <text x={x(0.95)} y={y(0.04)} fontSize={11} fill="#b91c1c" fontWeight={600} textAnchor="end">rebuilds at new subspace</text>
+          <text x={x(0.95)} y={y(0.04)} fontSize={11} fill="#b91c1c" fontWeight={600} textAnchor="end">rebuilt geometry, same score</text>
           <text x={x(0.95)} y={y(0.09)} fontSize={9} fill="#7f1d1d" textAnchor="end" transform={`translate(0, -12)`}>high ρ · low CKA · "inherited" mislabel</text>
 
           {/* Quadrant divider lines */}

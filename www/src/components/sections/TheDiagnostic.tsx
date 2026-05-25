@@ -1,17 +1,10 @@
-import type { IndexDoc } from "../../lib/types";
-import { ClassificationGrid } from "../charts/ClassificationGrid";
-
-interface Props { index: IndexDoc | null; }
-
 /**
- * Slots between WhatTheHelixIs and Finding1Layers. Names the three
- * failure modes of the standard "fit a helix R²" protocol up front,
- * shows a preview classification grid against the 7×8 matrix, and
- * frames the sections that follow as applications of the diagnostic,
- * not standalone findings. Includes a collapsible methods box at the
- * bottom for the precise pipeline.
+ * Names the three failure modes of the standard "fit a helix R²"
+ * protocol up front, introduces ρ and CKA as the two main diagnostics,
+ * and includes a collapsible methods box at the bottom for the precise
+ * pipeline. The cell-by-cell visualisations live in Part 3.
  */
-export function TheDiagnostic({ index }: Props) {
+export function TheDiagnostic() {
   return (
     <section className="prose-body">
       <h2 className="section-heading">A diagnostic kit for helix R²</h2>
@@ -88,30 +81,22 @@ export function TheDiagnostic({ index }: Props) {
         a naive read, and ρ is what stops you writing it.
       </p>
 
-      <h3 className="section-subheading">Preview: the matrix, classified</h3>
+      <h3 className="section-subheading">A second check: representation alignment (CKA)</h3>
 
       <p>
-        Applying the joint criteria below (ρ + quality), here's what the
-        56 cells look like. The full ρ heatmap and cell-by-cell read are
-        in Finding 4 below; this is the headline:
+        ρ has a known blind spot: a high ρ can mean either the
+        transformer left the geometry alone (true pass-through){" "}
+        <em>or</em> the transformer produced a similar-quality helix
+        with a substantially different integer-to-integer pattern (a
+        rebuild). To separate those, I add <strong>CKA</strong>{" "}
+        (Centered Kernel Alignment) — a standard similarity metric for
+        neural representations that scores how much the pairwise
+        pattern of distances between integers at one layer matches the
+        pattern at another. CKA near 1 means the geometries are
+        essentially the same; near 0 means unrelated. Combining ρ and
+        CKA gives a four-way classification of every cell — see the ρ
+        heatmap, the classification grid, and the CKA scatter in Part 3.
       </p>
-
-      <figure className="my-6">
-        <div className="rounded-lg border border-ink/10 bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-          <ClassificationGrid index={index} />
-        </div>
-        <figcaption className="mx-auto mt-3 max-w-prose text-sm text-ink-mute leading-snug">
-          <strong>Depth-built</strong> = both ρ ≤ 0.55 and helix/PCA ≥ 0.70
-          (i.e. the helix is high-quality <em>and</em> substantially
-          constructed by transformer depth).{" "}
-          <strong>Inherited</strong> = high ρ (the helix score is already
-          present at L=0).{" "}
-          <strong>Weak</strong> = the trig basis fits little structure at
-          the peak. The "narrow truth" the post recovers is the small
-          number of teal cells: Pythia/Latin, Llama/Latin, Gemma on the
-          scripts it was trained on.
-        </figcaption>
-      </figure>
 
       <details className="mt-8 rounded-md border border-ink/10 bg-paper-warm/40 px-4 py-3 text-[0.97rem] leading-relaxed text-ink-soft [&[open]>summary]:mb-3">
         <summary className="cursor-pointer select-none font-sans text-sm font-medium text-ink/80 hover:text-accent">
@@ -139,10 +124,14 @@ export function TheDiagnostic({ index }: Props) {
           </li>
           <li>
             <strong>Pool</strong> the activations across the numeral's
-            tokens by taking the mean. (The alternative is reading only
-            the last sub-token, but for multi-digit scripts that bakes
-            in a per-digit cycle and produces fake helix peaks; mean is
-            the honest default across scripts.)
+            tokens by taking the mean. (The alternative — reading only
+            the last sub-token — bakes a per-digit cycle into the data
+            for multi-digit scripts, producing fake helix peaks; mean
+            is a more symmetric choice across scripts.{" "}
+            <em>That said, mean-pooling is itself part of the provenance
+            story: for additive renderings like Babylonian and binary,
+            it turns symbol counts into linear arithmetic on token
+            embeddings — see Findings 3 and the binary/hex section.</em>)
           </li>
           <li>
             Collect these per-integer vectors into a matrix per layer —
@@ -171,10 +160,55 @@ export function TheDiagnostic({ index }: Props) {
           to find the best linear approximation) and report the variance
           explained as helix R². As a comparison ceiling, I also compute
           the best possible 9-dimensional approximation of the same
-          data (a textbook result called the Eckart–Young theorem). If
-          the helix fit is close to this ceiling, the trig basis isn't
-          just a good 9-D fit — it <em>is</em> the 9-D structure of the
-          activations.
+          data (a textbook result called the Eckart–Young theorem) and
+          call it the <strong>9-d PCA upper bound</strong>. The{" "}
+          <strong>helix / PCA quality ratio</strong> is helix R² divided
+          by that ceiling; values near 1 mean the trig basis isn't just{" "}
+          a good 9-D fit — it <em>is</em> the 9-D structure of the
+          activations. This ratio is the "quality" axis in the
+          classification grid below.
+        </p>
+
+        <p className="mt-3">
+          <strong>Native bases for non-decimal scripts.</strong> The
+          paper-default basis [2, 5, 10, 100] catches only base-10
+          structure. For scripts whose natural period doesn't fit, I
+          additionally run a basis tuned to the script:
+        </p>
+        <ul className="mt-1 list-disc pl-6 space-y-1 text-[0.95rem]">
+          <li>
+            <strong>Babylonian</strong> (base 60): basis [2, 5, 10, 60,
+            100], n = 600 (ten wraps of T=60).
+          </li>
+          <li>
+            <strong>Binary</strong> (base 2): basis [2, 4, 8, 16, 32, 64],
+            n = 1024 (≥ 16 wraps of any period below 64).
+          </li>
+          <li>
+            <strong>Hexadecimal</strong> (base 16): basis [16, 32, 64,
+            256], n = 1024.
+          </li>
+        </ul>
+
+        <p className="mt-3">
+          <strong>Peak layer.</strong> The single layer (between 0 and
+          N) at which helix R² is highest for that cell, found by
+          sweeping the basis fit across every layer of the model. ρ
+          uses this as the denominator; CKA uses it as one of the two
+          endpoints to compare.
+        </p>
+
+        <p className="mt-3">
+          <strong>FFT and PCA as auxiliary tools.</strong> Two further
+          views appear in the body. The FFT panel shows the magnitude
+          of each periodic component in the residual stream — used as
+          a basis-free sanity check (does the basis include the periods
+          the model actually uses?). I also auto-label the top-5 peaks
+          by prominence to surface unexpected periodicities. The 2-D
+          PCA scatter is the first two principal components of the
+          residual-stream matrix at the peak layer — useful for
+          identifying non-helical structure (e.g., the staircase shape
+          of Roman, the tight letter-clusters of Greek alphabetic).
         </p>
 
         <p className="mt-3">
@@ -202,10 +236,24 @@ export function TheDiagnostic({ index }: Props) {
         <p>
           ρ near 1 means depth didn't improve the score (so the geometry
           was already there); ρ small means depth substantially built
-          it. For the cell-by-cell classification I use joint criteria:
-          a cell counts as <strong>depth-built / depth-amplified</strong>{" "}
-          if ρ ≤ 0.55 <em>and</em> the helix/PCA quality ratio is ≥ 0.70;
-          as <strong>inherited</strong> if ρ ≥ 0.80; otherwise ambiguous.
+          it. For the cell-by-cell classification I use mutually
+          exclusive joint criteria, ordered most-restrictive first:
+        </p>
+
+        <ul className="my-3 list-disc pl-6 space-y-1 text-[0.95rem]">
+          <li><strong>depth-built</strong>: ρ ≤ 0.55 and helix/PCA ≥ 0.70</li>
+          <li><strong>depth-amplified</strong>: 0.55 &lt; ρ ≤ 0.70 and helix/PCA ≥ 0.60</li>
+          <li><strong>inherited</strong>: ρ ≥ 0.80 and helix/PCA ≥ 0.55</li>
+          <li><strong>weak</strong>: helix/PCA &lt; 0.55 (basis fits little, regardless of ρ)</li>
+          <li><strong>ambiguous</strong>: everything else (e.g. 0.70 &lt; ρ &lt; 0.80)</li>
+        </ul>
+
+        <p>
+          These thresholds apply to the <em>paper-default</em> protocol
+          (n=100, basis [2,5,10,100]). For scripts where that protocol
+          is known to misfit (binary, hex, Babylonian), the meaningful ρ
+          comes from the native-basis run; the classification grid above
+          excludes them for that reason.
         </p>
 
         <p className="mt-3">
@@ -225,11 +273,15 @@ export function TheDiagnostic({ index }: Props) {
           layer-0 helix reflects learned numeric structure or just the
           mechanical effect of rendering + tokenization + averaging, I
           replace the model's learned embedding table with a fresh
-          random one (same shape, same scale) and re-run only the
-          tokenize-and-pool steps. If the random version produces the
-          same helix score as the real one, the structure was never in
-          the learned weights to begin with. Run on all 12 scripts × 8
-          models; see Finding 3 for the comparison. Implemented in{" "}
+          random one of the same shape (vocab × hidden), drawn from
+          <span className="font-mono"> N(0, 1/√d)</span> where{" "}
+          <span className="font-mono">d</span> is the model's hidden
+          dimension. I then re-run only the tokenize-and-pool steps.
+          If the random version produces the same helix score as the
+          real one, the structure was never in the learned weights to
+          begin with. Run on all 12 scripts × 8 models, and on the
+          native bases for binary/hex/Babylonian; see Finding 3 for the
+          comparison. Implemented in{" "}
           <span className="font-mono">embed_control.py</span>.
         </p>
 

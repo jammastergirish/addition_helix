@@ -7,12 +7,13 @@ import {
 
 interface Props { index: IndexDoc | null; }
 
-type Cls = "depth-built" | "depth-amplified" | "inherited" | "weak";
+type Cls = "depth-built" | "depth-amplified" | "inherited" | "ambiguous" | "weak";
 
 const CLS_COLOR: Record<Cls, string> = {
-  "depth-built":     "#0f766e", // teal-700  — depth builds the geometry
-  "depth-amplified": "#5eead4", // teal-300  — partial / amplification
-  "inherited":       "#fb923c", // orange-400 — embedding-inherited
+  "depth-built":     "#0f766e", // teal-700   — depth builds the geometry
+  "depth-amplified": "#5eead4", // teal-300   — partial / amplification
+  "inherited":       "#fb923c", // orange-400 — already present pre-transformer
+  "ambiguous":       "#fde68a", // amber-200  — between thresholds
   "weak":            "#e5e7eb", // gray-200   — basis fits little
 };
 
@@ -20,28 +21,38 @@ const CLS_LABEL: Record<Cls, string> = {
   "depth-built":     "depth-built",
   "depth-amplified": "depth-amplified",
   "inherited":       "inherited",
+  "ambiguous":       "ambiguous",
   "weak":            "weak",
 };
 
 /**
  * Classifies each (model, script) cell at paper defaults (n=100,
- * basis [2,5,10,100]) using joint ρ + helix/PCA thresholds:
+ * basis [2,5,10,100]) using mutually exclusive, joint ρ + helix/PCA
+ * thresholds:
  *
- *   weak              helix/PCA < 0.55                (basis fits little)
- *   depth-built       ρ ≤ 0.55  AND helix/PCA ≥ 0.70
- *   depth-amplified   0.55 < ρ ≤ 0.70  AND helix/PCA ≥ 0.60
- *   inherited         everything else (≈ high ρ)
+ *   weak             helix/PCA < 0.55                       (basis fits little)
+ *   depth-built      ρ ≤ 0.55  AND helix/PCA ≥ 0.70
+ *   depth-amplified  0.55 < ρ ≤ 0.70  AND helix/PCA ≥ 0.60
+ *   inherited        ρ ≥ 0.80  AND helix/PCA ≥ 0.55
+ *   ambiguous        everything else (e.g. 0.70 < ρ < 0.80)
  *
  * Companion to the ρ heatmap: ρ alone hides the quality dimension —
  * a low ρ in a cell where helix R² is barely above noise doesn't
  * indicate a depth-built helix, just that the basis fits nothing.
+ *
+ * IMPORTANT: these thresholds are tied to the paper-default protocol
+ * (n=100, basis [2,5,10,100]). Cells where the protocol is known to
+ * misfit (binary, hex, Babylonian) need their native-basis ρ for
+ * meaningful classification — see Findings 3 and the binary/hex
+ * section.
  */
 function classify(rho: number | null, qual: number | null): Cls {
   if (rho == null || qual == null) return "weak";
   if (qual < 0.55) return "weak";
   if (rho <= 0.55 && qual >= 0.70) return "depth-built";
-  if (rho <= 0.70 && qual >= 0.60) return "depth-amplified";
-  return "inherited";
+  if (rho > 0.55 && rho <= 0.70 && qual >= 0.60) return "depth-amplified";
+  if (rho >= 0.80 && qual >= 0.55) return "inherited";
+  return "ambiguous";
 }
 
 export function ClassificationGrid({ index }: Props) {
@@ -62,7 +73,10 @@ export function ClassificationGrid({ index }: Props) {
 
   // Summary counts for the legend
   const counts = useMemo(() => {
-    const c: Record<Cls, number> = { "depth-built": 0, "depth-amplified": 0, "inherited": 0, "weak": 0 };
+    const c: Record<Cls, number> = {
+      "depth-built": 0, "depth-amplified": 0, "inherited": 0,
+      "ambiguous": 0, "weak": 0,
+    };
     for (const v of grid.values()) c[v.cls]++;
     return c;
   }, [grid]);
@@ -126,7 +140,7 @@ export function ClassificationGrid({ index }: Props) {
 
         {/* Legend */}
         <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-[11px] text-ink-mute">
-          {(["depth-built", "depth-amplified", "inherited", "weak"] as Cls[]).map((cls) => (
+          {(["depth-built", "depth-amplified", "inherited", "ambiguous", "weak"] as Cls[]).map((cls) => (
             <span key={cls} className="inline-flex items-center gap-1.5">
               <span className="inline-block h-3 w-3 rounded-sm" style={{ background: CLS_COLOR[cls] }} />
               <span>{CLS_LABEL[cls]}</span>
@@ -136,10 +150,13 @@ export function ClassificationGrid({ index }: Props) {
         </div>
 
         <p className="mt-2 text-[11px] text-ink-mute">
-          Criteria: <span className="font-mono">depth-built</span> = ρ ≤ 0.55 ∧ helix/PCA ≥ 0.70;{" "}
-          <span className="font-mono">depth-amplified</span> = ρ ≤ 0.70 ∧ helix/PCA ≥ 0.60;{" "}
+          Criteria (mutually exclusive):{" "}
+          <span className="font-mono">depth-built</span> = ρ ≤ 0.55 ∧ helix/PCA ≥ 0.70;{" "}
+          <span className="font-mono">depth-amplified</span> = 0.55 &lt; ρ ≤ 0.70 ∧ helix/PCA ≥ 0.60;{" "}
+          <span className="font-mono">inherited</span> = ρ ≥ 0.80 ∧ helix/PCA ≥ 0.55;{" "}
           <span className="font-mono">weak</span> = helix/PCA &lt; 0.55;{" "}
-          <span className="font-mono">inherited</span> = remainder (high ρ).
+          <span className="font-mono">ambiguous</span> = everything else (e.g. 0.70 &lt; ρ &lt; 0.80).{" "}
+          <em>Paper-default protocol only</em> (n=100, basis [2,5,10,100]) — binary, hex, Babylonian need native-basis ρ for meaningful classification.
         </p>
       </div>
     </div>

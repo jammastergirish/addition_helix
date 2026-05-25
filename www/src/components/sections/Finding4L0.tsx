@@ -1,5 +1,6 @@
 import type { IndexDoc } from "../../lib/types";
 import { RhoHeatmap } from "../charts/RhoHeatmap";
+import { ClassificationGrid } from "../charts/ClassificationGrid";
 
 interface Props { index: IndexDoc | null; }
 
@@ -14,6 +15,17 @@ export function Finding4L0({ index }: Props) {
         ρ for every (model, script) at paper-default settings (n = 100,
         basis [2, 5, 10, 100]). Cool colours = depth substantially adds
         helix score. Warm colours = helix score was already present at L=0.
+      </p>
+
+      <p className="my-3 rounded border-l-4 border-amber-400 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <strong>Read this with care.</strong> This heatmap shows
+        <em> paper-default</em> ρ. Binary, hexadecimal, and Babylonian
+        are intentionally mismeasured here — their natural periods don't
+        fit the paper basis, and their windows are too short. Their
+        interpretable ρ values come from the native-basis runs in
+        Part 4 (the two case-study sections). Don't read the
+        binary/hex/Babylonian cells off this heatmap as a final
+        verdict.
       </p>
 
       <figure className="my-8">
@@ -37,7 +49,7 @@ export function Finding4L0({ index }: Props) {
         cell <strong>depth-built / depth-amplified</strong> if{" "}
         <span className="font-mono">ρ ≤ 0.55</span> and{" "}
         <span className="font-mono">helix/PCA ≥ 0.70</span> at the peak.
-        On that joint criterion only four cells of 56 qualify:
+        On that joint criterion only four cells of 96 qualify:
         Pythia/Latin, Llama/Latin, and Gemma's two Devanagari cells
         (E4B and 31B). Relaxing helix/PCA to 0.60 adds Gemma's Roman
         cells and Gemma-E4B/Persian; a few Qwen-Roman and Qwen-Devanagari
@@ -61,7 +73,7 @@ export function Finding4L0({ index }: Props) {
           64). Helix R² is healthy on both (~0.54) — the "helix
           replicates on Qwen" reading from Finding 1, read alongside ρ,
           is the cleanest case in the matrix of structure that's the
-          tokeniser, not the transformer.
+          tokenizer, not the transformer.
         </li>
         <li>
           <strong>The cross-script extension on Pythia, Llama, and Qwen is
@@ -75,11 +87,11 @@ export function Finding4L0({ index }: Props) {
         </li>
         <li>
           <strong>Gemma genuinely builds the helix on Devanagari, Persian,
-          and Roman</strong> (ρ = 0.44–0.65) — the scripts Gemma 4 was
-          heavily trained on. The cross-script generalisation that's real
-          is training-driven, not architecture-driven. Qwen sits between:
-          its only borderline depth-built cells are Roman (ρ ≈ 0.67–0.70)
-          and Devanagari on Qwen-32B (ρ ≈ 0.76).
+          and Roman</strong> (ρ = 0.44–0.65). These are scripts where
+          Gemma 4 plausibly had substantial training exposure, though
+          I don't measure pre-training distributions directly. Qwen
+          sits between: its only borderline depth-built cells are
+          Roman (ρ ≈ 0.67–0.70) and Devanagari on Qwen-32B (ρ ≈ 0.76).
         </li>
         <li>
           <strong>Babylonian is universally pre-transformer</strong>{" "}
@@ -93,19 +105,41 @@ export function Finding4L0({ index }: Props) {
           model that doesn't actively train on Greek). Greek alphabetic
           numerals are treated as ordinary short letter-sequences with no
           numeric semantics; what little structure the basis fits is a
-          tokenisation artifact at L=0.
+          tokenization artifact at L=0.
         </li>
       </ul>
 
       <p className="mt-6">
         <strong>The cells where depth genuinely builds the helix are
         narrower than the original headline suggests:</strong> the paper's
-        Pythia/Latin and Llama/Latin, plus Gemma's heavily-trained
-        scripts. Of 56 cells, 4–6 clear the joint ρ + quality bar
+        Pythia/Latin and Llama/Latin, plus Gemma's strong non-Latin
+        scripts. Of 96 cells, 4–6 clear the joint ρ + quality bar
         depending on threshold. Everywhere else, the helix framing
         borrows rhetorical strength from cells where depth did the work
         to talk about cells where it didn't.
       </p>
+
+      <h3 className="section-subheading">The classification grid</h3>
+
+      <p>
+        Applying the mutually exclusive criteria from the Diagnostic
+        kit (depth-built / depth-amplified / inherited / weak /
+        ambiguous), here's the same 96-cell matrix coloured by class:
+      </p>
+
+      <figure className="my-6">
+        <div className="rounded-lg border border-ink/10 bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+          <ClassificationGrid index={index} />
+        </div>
+        <figcaption className="mx-auto mt-3 max-w-prose text-sm text-ink-mute leading-snug">
+          <strong>Depth-built</strong> = ρ low AND helix high-quality.{" "}
+          <strong>Depth-amplified</strong> = partial depth contribution.{" "}
+          <strong>Inherited</strong> = high ρ at decent quality
+          (pre-transformer). <strong>Weak</strong> = the basis fits
+          little. <strong>Ambiguous</strong> = between thresholds. The
+          "narrow truth" of the post is the small number of teal cells.
+        </figcaption>
+      </figure>
     </section>
   );
 }

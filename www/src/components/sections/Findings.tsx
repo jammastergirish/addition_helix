@@ -34,8 +34,9 @@ export function Findings() {
           table suggests. Many non-Latin cells fit the trig basis
           non-trivially, but ρ shows the structure was already present
           before the transformer ran. Outside Latin, depth substantially
-          contributes only on Gemma's heavily-trained scripts
-          (Devanagari, Persian, Roman).
+          contributes only on Gemma's strong non-Latin cells
+          (Devanagari, Persian, Roman — plausibly correlated with
+          training exposure, though not directly tested here).
         </Claim>
         <Claim n={4}>
           Babylonian cuneiform is the cleanest case of pre-transformer
@@ -63,22 +64,24 @@ export function Findings() {
         </Claim>
         <Claim n={6} emphasis>
           The general lesson: <em>some apparent neural geometry can come
-          from rendering statistics alone</em>, before any learned model
-          component runs. Smooth, low-dimensional, easy-to-fit manifolds
+          from rendering statistics alone</em> — before learned
+          embeddings or transformer blocks are needed. Smooth,
+          low-dimensional, easy-to-fit manifolds
           can be artifacts of how you encode the input — a warning for
           probe work, sparse-autoencoder work, and any "the model
           represents X as a manifold" claim that doesn't include a
           provenance check.
         </Claim>
         <Claim n={7}>
-          A second check — <strong>CKA</strong> (how similar the geometry
-          at the first layer is to the geometry at the best layer) —
-          sharpens the picture further. "High ρ" can mean either real
-          pass-through (Qwen-32B/Latin: CKA ≈ 0.9, depth touches
-          nothing) or rebuild-with-same-score (Gemma/Latin: CKA ≈ 0.35,
-          depth produces a similar-quality helix in a substantially
-          different direction). Two mechanistically distinct cases ρ
-          alone would lump together.
+          A second check — <strong>CKA</strong> (how similar the
+          integer-to-integer geometry at the first layer is to the
+          geometry at the best layer) — sharpens the picture further.
+          "High ρ" can mean either real pass-through (Qwen-32B/Latin:
+          CKA ≈ 0.9, depth touches the geometry barely) or
+          rebuild-with-same-score (Gemma/Latin: CKA ≈ 0.35, depth
+          produces a similar-quality helix with a substantially
+          different integer-to-integer pattern). Two mechanistically
+          distinct cases ρ alone would lump together.
         </Claim>
       </ol>
     </section>

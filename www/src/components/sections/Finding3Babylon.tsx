@@ -86,12 +86,12 @@ export function Finding3Babylon({ index }: Props) {
         This is the moment to be careful. A naive read would conclude:
         "even a model that has barely seen cuneiform forms a base-60
         helix." But this is also exactly where{" "}
-        <strong>mode 3 (tokeniser inheritance)</strong> reasserts itself.
+        <strong>mode 3 (tokenizer inheritance)</strong> reasserts itself.
         ρ on Babylonian is <strong>0.82–0.93 on every model</strong> — the
         transformer adds at most ~18 percentage points on top of what the
         wedge-token embeddings supply at L=0. So the +8–16 R² gained from
         fixing modes 1+2 is real signal, but the underlying representation
-        is almost entirely tokeniser.
+        is almost entirely tokenizer.
       </p>
 
       <p>
@@ -114,6 +114,7 @@ export function Finding3Babylon({ index }: Props) {
         </thead>
         <tbody>
           <tr><td>Pythia-6.9B</td><td className="numeric text-right">0.569</td><td className="numeric text-right">0.568</td><td className="numeric text-right text-ink-mute">+0.001</td></tr>
+          <tr><td>GPT-J-6B</td><td className="numeric text-right">0.566</td><td className="numeric text-right">0.567</td><td className="numeric text-right text-ink-mute">−0.002</td></tr>
           <tr><td>Llama-3.1-8B</td><td className="numeric text-right">0.517</td><td className="numeric text-right">0.513</td><td className="numeric text-right text-ink-mute">+0.003</td></tr>
           <tr><td>Gemma-4-E4B</td><td className="numeric text-right">0.623</td><td className="numeric text-right">0.620</td><td className="numeric text-right text-ink-mute">+0.002</td></tr>
           <tr><td>Gemma-4-31B</td><td className="numeric text-right">0.621</td><td className="numeric text-right">0.621</td><td className="numeric text-right text-ink-mute">−0.001</td></tr>
@@ -126,10 +127,12 @@ export function Finding3Babylon({ index }: Props) {
       <p className="mt-4">
         <strong>The learned-vs-random gap is essentially zero on every
         model</strong> (|Δ| ≤ 0.007 across the extended basis). The
-        structure arises from additive rendering plus pooling alone:
-        the renderer for{" "}
-        <span className="font-mono">n=23</span> literally writes two
-        ten-wedges and three one-wedges, so
+        measurement provides no evidence that the wedge embeddings
+        learned "𒁹 means one" — the same score appears with random
+        embeddings. The structure arises mechanically from rendering,
+        tokenization, and pooling statistics. For{" "}
+        <span className="font-mono">n=23</span> the renderer writes two
+        ten-wedges and three one-wedges, so:
       </p>
 
       <p className="my-2 ml-6 font-mono text-sm text-ink/80">
@@ -141,11 +144,12 @@ export function Finding3Babylon({ index }: Props) {
         <span className="font-mono">e<sub>𒌋</sub>, e<sub>𒁹</sub></span>{" "}
         are random vectors, the result varies smoothly with{" "}
         <span className="font-mono">a</span>, neighbouring numbers
-        differ predictably, multiples of 10 form regular shifts, mod-60
-        periodicity emerges, and the Fourier basis fits naturally. No
-        learned semantics required. The wedge embeddings <em>have not</em>{" "}
-        absorbed "𒁹 means one" from cuneiform text; they don't need to
-        have.
+        differ predictably, and the Fourier basis fits the per-symbol
+        counts. (The story is a little more nuanced above n=59, where
+        wedges appear in multiple sexagesimal columns and pure
+        bag-of-wedges loses column position — but the rendering-pooling
+        statistics still carry enough structure for the helix score to
+        reproduce.)
       </p>
 
       <p>
@@ -160,14 +164,14 @@ export function Finding3Babylon({ index }: Props) {
 
       <p>
         One twist (foreshadowing Finding 5): even though Babylonian's
-        L=0 helix is mechanical, the subspace-alignment check shows that
-        Pythia, Llama, and OLMo then <em>rebuild</em> the cuneiform helix
-        at a substantially different subspace by the peak layer
+        L=0 helix is mechanical, the representation-alignment check
+        shows that Pythia, Llama, and OLMo end up with a substantially
+        different integer-to-integer geometry by the peak layer
         (CKA = 0.25–0.53). The peak Babylonian helix is not the
-        mechanical L=0 helix passed through — it's a depth-built object,
-        just one whose <em>score</em> happens to match the mechanical
-        starting point. What that rebuilt helix is doing computationally
-        is a separate, causal question.
+        mechanical L=0 helix passed through — it's a depth-built
+        object, just one whose <em>score</em> happens to match the
+        mechanical starting point. What that rebuilt helix is doing
+        computationally is a separate, causal question.
       </p>
 
       <h3 className="section-subheading">Is the effect Babylonian-specific?</h3>
@@ -188,6 +192,7 @@ export function Finding3Babylon({ index }: Props) {
         </thead>
         <tbody>
           <tr><td>Pythia-6.9B</td><td className="numeric text-right text-accent">+0.10</td><td className="numeric text-right text-ink-mute">+0.001</td></tr>
+          <tr><td>GPT-J-6B</td><td className="numeric text-right text-accent">+0.12</td><td className="numeric text-right text-ink-mute">−0.002</td></tr>
           <tr><td>Llama-3.1-8B</td><td className="numeric text-right text-accent">+0.15</td><td className="numeric text-right text-ink-mute">+0.003</td></tr>
           <tr><td>Gemma-4-E4B</td><td className="numeric text-right text-accent">+0.12</td><td className="numeric text-right text-ink-mute">+0.002</td></tr>
           <tr><td>Gemma-4-31B</td><td className="numeric text-right text-accent">+0.12</td><td className="numeric text-right text-ink-mute">−0.001</td></tr>

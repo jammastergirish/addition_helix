@@ -92,7 +92,7 @@ export function RhoHeatmap({ index }: Props) {
             background:
               "linear-gradient(to right, #0f766e, #5eead4, #f5f3ed, #fb923c, #9a3412)",
           }} />
-          <span>tokeniser preserves it</span>
+          <span>input pipeline supplies it</span>
           <span className="ml-4">ρ = helix R²(L=0) / helix R²(peak)</span>
         </div>
       </div>

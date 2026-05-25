@@ -128,12 +128,17 @@ export function FindingBases({ index }: Props) {
       </table>
 
       <p className="mt-4">
-        The mechanism is identical to Babylonian: "23 in binary" =
-        "10111" renders as four 1-tokens and one 0-token, so mean-pooling
-        per-bit embeddings — random <em>or</em> learned — gives a vector
-        whose components scale linearly with the bit count of <em>n</em>.
-        Binary's high R² on Qwen and Gemma is the tokenizer-renderer
-        composition, not learned bit semantics.
+        The mechanism here is rendering + tokenization + pooling
+        statistics — not pure bit-count, which alone would only give
+        Hamming weight and couldn't separate many distinct numbers.
+        Several rendering statistics carry information about{" "}
+        <em>n</em>: how many tokens the binary string occupies (length
+        scales with log<sub>2</sub> n), how the tokenizer chunks the
+        bit string (multi-bit BPE merges may split high vs low
+        positions differently), where the boundary tokens fall, and
+        any positional embedding the model adds at layer 0. Combined,
+        these recover enough structure for the trig basis to fit —
+        with random or learned embeddings, similarly.
       </p>
 
       <p>

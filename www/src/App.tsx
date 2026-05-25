@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { IndexDoc } from "./lib/types";
 import { loadIndex } from "./lib/data";
 import { Hero }              from "./components/sections/Hero";
+import { PartHeader }        from "./components/PartHeader";
 import { NumeralExplainer }  from "./components/sections/NumeralExplainer";
 import { Findings }          from "./components/sections/Findings";
 import { WhatTheHelixIs }    from "./components/sections/WhatTheHelixIs";
@@ -39,17 +40,28 @@ export default function App() {
           </div>
         )}
 
-        <NumeralExplainer />
         <Findings />
+
+        <PartHeader n={1} title="Setup" />
+        <NumeralExplainer />
         <WhatTheHelixIs index={index} />
-        <TheDiagnostic index={index} />
+
+        <PartHeader n={2} title="The diagnostic kit" />
+        <TheDiagnostic />
+
+        <PartHeader n={3} title="Reading the matrix" />
         <Finding1Layers index={index} />
         <Finding2Scripts index={index} />
-        <Finding3Babylon index={index} />
-        <FindingBases index={index} />
         <Finding4L0 index={index} />
         <Finding5CKA />
+
+        <PartHeader n={4} title="Case studies" />
+        <Finding3Babylon index={index} />
+        <FindingBases index={index} />
+
+        <PartHeader n={5} title="Implications" />
         <Conclusion />
+
         <Reproducing />
       </main>
 

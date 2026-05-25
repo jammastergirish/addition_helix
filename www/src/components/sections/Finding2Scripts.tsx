@@ -28,13 +28,15 @@ export function Finding2Scripts({ index }: Props) {
       </h2>
 
       <p>
-        Apply the protocol to all twelve numeral systems and the raw
-        helix / 9-d PCA table tempts a broad generalisation: positional
-        scripts often score above the additive systems, and some
-        non-Latin cells approach Latin. But the ratio is uneven —
+        Apply the protocol to the eleven non-Babylonian numeral systems
+        and the raw helix / 9-d PCA table tempts a broad generalisation:
+        positional scripts often score above the additive systems, and
+        some non-Latin cells approach Latin. But the ratio is uneven —
         Pythia/Arabic-Indic is 0.55, Llama/Chinese is 0.58, OLMo/Chinese
         is 0.51 — and the ρ heatmap in the next section will show that
-        much of the apparent generalisation is inherited at L=0:
+        much of the apparent generalisation is inherited at L=0:{" "}
+        <span className="text-sm text-ink-mute">(Babylonian has its own
+        section because the paper-default protocol mismeasures it.)</span>
       </p>
 
       <table className="article-table mt-4">
