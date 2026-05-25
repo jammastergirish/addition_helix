@@ -18,7 +18,8 @@ interface Props { index: IndexDoc | null; }
  * The twist: hex is *the second-cleanest depth-built case* in the
  * matrix after Latin. Pythia/Llama/GPT-J/OLMo all have ρ ≈ 0.29–0.35
  * on the hex-native basis — depth is constructing the helix, not
- * inheriting it. Most likely from code-training exposure.
+ * inheriting it. The natural guess is hex exposure during pre-training
+ * (code, addresses, hashes) but I don't have data to test it directly.
  */
 export function FindingBases({ index }: Props) {
   // Helper to pull a specific (model, script, n_max, periods) cell.
@@ -192,12 +193,12 @@ export function FindingBases({ index }: Props) {
       </p>
 
       <p>
-        This was unexpected. The most plausible explanation is{" "}
-        <strong>code training</strong>: every modern code-trained LLM
-        has seen colossal volumes of memory addresses, RGB colours, hash
-        prefixes, and bitmasks in hex. The model has learned that hex
-        digits index into a value space the way Latin digits do — and
-        the same kind of layer-by-layer construction emerges.
+        This was unexpected. The natural hypothesis is exposure to hex
+        in pre-training — most LLMs see hex in code, addresses, hashes,
+        RGB colours — but the data here doesn't directly test it.
+        Whatever the cause, the model is treating hex digits the way it
+        treats Latin digits: as indices into a value space, with
+        layer-by-layer construction of the same kind of helix.
       </p>
 
       <p>
@@ -273,8 +274,8 @@ export function FindingBases({ index }: Props) {
           <strong>Hex</strong> — the depth-built case. Learned hex
           embeddings carry meaningful structure (Δ_random {">"} 0 on every
           model), and depth roughly doubles the score on
-          Pythia/Llama/GPT-J/OLMo (ρ = 0.29–0.35). Almost certainly
-          driven by code-training exposure.
+          Pythia/Llama/GPT-J/OLMo (ρ = 0.29–0.35). Hex exposure during
+          pre-training is the natural hypothesis, but unverified here.
         </li>
       </ul>
 

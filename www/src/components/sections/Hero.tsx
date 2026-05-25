@@ -18,42 +18,61 @@ export function Hero() {
       <p className="font-sans text-base md:text-sm text-ink-mute"><i>May 2026</i></p>
 
       <p className="mt-8 text-lg leading-relaxed text-ink-soft">
-        Large language models encode integers in their residual stream as a{" "}
-        <em>generalised helix</em> — one linear "number-line" axis plus
-        modular circles at period 2, 5, 10, and 100. But a high helix R²
-        does not, by itself, tell us where that geometry came from: the
-        transformer may have built it, the{" "}
-        <strong>tokenizer/embedding front end</strong> may already supply
-        it, or the measurement basis may have flattered (or missed) the
-        underlying structure. I introduce a provenance diagnostic{" "}
-        <span className="font-mono">ρ = R²(L=0) / max_L R²(L)</span> and
-        apply it, alongside two basis/window checks and a random-embedding
-        control, across <strong>eight models</strong> from six architecture
-        families and <strong>twelve numeral systems</strong> — Latin,
-        Arabic-Indic, Persian, Devanagari, Thai, CJK digit string, binary,
-        hexadecimal, Greek alphabetic, Hebrew alphabetic, Roman, and
-        Babylonian cuneiform. The
-        Pythia/Latin, Llama/Latin, and GPT-J/Latin results all survive
-        cleanly. Most apparent cross-script generalisation is already
-        present at L=0 — pre-transformer inheritance from rendering,
-        tokenization, learned embeddings, and pooling — rather than
-        constructed by transformer depth. The clearest <em>new</em>{" "}
-        depth-built case is <strong>hexadecimal</strong>: ρ = 0.29–0.35
-        on Pythia, Llama, GPT-J, and OLMo — as low as Latin, almost
-        certainly driven by code-training exposure.
+        Large language models seem to represent numbers as a 3-D spiral
+        you can find in their internal activations — a{" "}
+        <em>generalised helix</em>, with one straight "number-line"
+        direction and circular loops at periods 2, 5, 10, and 100.{" "}
+        <a className="text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent" href="https://arxiv.org/abs/2502.00873">
+          Kantamneni &amp; Tegmark (2025)
+        </a>{" "}
+        found this on three decoder transformers (Pythia-6.9B, GPT-J-6B,
+        Llama-3.1-8B), reading Latin digits 0–99. The question I ask
+        here is different:{" "}
+        <strong>where does that geometry actually come from?</strong>{" "}
+        Did the transformer construct it through training, or was it
+        already present before any computation — supplied by the input
+        pipeline that breaks the number into tokens, looks each token up
+        in a learned table, and averages the results?
+      </p>
+
+      <p className="mt-4 text-lg leading-relaxed text-ink-soft">
+        To answer, I introduce a simple diagnostic — called{" "}
+        <strong>ρ</strong> — that compares how well the helix fits at the
+        very first layer (before any transformer block has run) to how
+        well it fits at the layer where it fits best. If those two scores
+        match, the transformer added nothing. If they differ, the
+        transformer did real work. I pair ρ with two other checks (is
+        the measurement basis right for the script's base; is the input
+        range wide enough to see long periods) and apply the kit across{" "}
+        <strong>eight models</strong> from six architecture families and{" "}
+        <strong>twelve numeral systems</strong> — Latin, Arabic-Indic,
+        Persian, Devanagari, Thai, CJK digit string, binary, hexadecimal,
+        Greek alphabetic, Hebrew alphabetic, Roman, and Babylonian
+        cuneiform.
+      </p>
+
+      <p className="mt-4 text-lg leading-relaxed text-ink-soft">
+        Kantamneni &amp; Tegmark's Latin results hold up cleanly on all
+        three of their models. But most of the "helix-in-script-X-too"
+        generalisation you might read off the raw matrix is already
+        present <em>before</em> the transformer runs — pre-transformer
+        baggage from rendering, tokenization, the learned embedding
+        table, and pooling, not something the model has constructed.
       </p>
 
       <blockquote className="mt-6 border-l-4 border-accent bg-accent/5 px-4 py-3 text-base leading-snug text-ink">
         <strong className="text-accent">The cleanest single result.</strong>{" "}
-        On Babylonian cuneiform, replacing every learned embedding with a
-        random vector leaves the L=0 base-60 helix essentially unchanged
-        across all eight models{" "}
-        <span className="text-ink-mute">(|ΔR²| ≤ 0.007)</span>. The
-        apparent Fourier geometry of cuneiform numerals is not learned
-        numerical representation — it's an emergent property of additive
-        symbolic rendering composed with mean-pooling. Some apparent
-        neural geometry can arise from rendering statistics alone, before
-        any learned component runs.
+        On Babylonian cuneiform, swapping every learned embedding for a
+        random vector barely changes the helix at the first layer — on
+        all eight models, the score gap is{" "}
+        <span className="text-ink-mute">≤ 0.007</span>. So that "base-60
+        geometry" isn't anything the model learned about cuneiform. It's
+        a side-effect of how cuneiform writes numbers: 23 is rendered as
+        two ten-wedges plus three one-wedges, and averaging those
+        tokens — any tokens, even random ones — gives a vector that
+        varies smoothly with the value. <strong>Some apparent neural
+        geometry can come from the input pipeline alone, before any
+        learning is involved.</strong>
       </blockquote>
 
       <p className="mt-4 text-sm leading-relaxed text-ink-mute">

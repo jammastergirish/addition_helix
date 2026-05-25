@@ -1,7 +1,8 @@
 /**
  * Top-of-page summary, diagnostic-first. The contribution is the
  * provenance question; the matrix is what was needed to demonstrate
- * the diagnostic. Each bullet is one claim.
+ * the diagnostic. Each bullet is one claim, written for a reader who
+ * may not know what "subspace" or "tokenizer" means.
  */
 export function Findings() {
   return (
@@ -9,74 +10,75 @@ export function Findings() {
       <h2 className="section-heading">What this shows</h2>
       <ol className="mt-4 space-y-3 list-none pl-0 text-ink-soft">
         <Claim n={1} emphasis>
-          A high helix R² is not a provenance measure. The same number can
-          come from transformer depth, from the{" "}
-          <strong>tokenizer/embedding front end</strong> (rendering +
-          tokenization + learned embeddings + pooling), or from a
-          basis/window that happened to flatter the data. I introduce a
-          simple provenance diagnostic{" "}
-          <span className="font-mono">ρ = R²(L=0) / max_L R²(L)</span> and
-          pair it with two measurement checks: basis coverage and window
-          length.
+          A well-fitting helix doesn't tell us where the helix came from.
+          The same fit could mean the transformer built the geometry, or
+          that it was already supplied by the input pipeline (rendering,
+          tokenization, embedding lookup, pooling), or that the fit just
+          happened to flatter the data. I introduce a simple provenance
+          check — <strong>ρ</strong>, the ratio of the helix fit at layer 0
+          to the helix fit at its best layer — and pair it with two checks
+          on the measurement basis and window.
         </Claim>
         <Claim n={2}>
-          The original Latin result survives across all three paper
-          models — Pythia/Latin (ρ = 0.34), Llama/Latin (ρ = 0.39), and
-          GPT-J/Latin (ρ = 0.41) — and{" "}
-          <strong>hexadecimal turns out to be a second clean depth-built
-          case</strong> on the same models (ρ = 0.29–0.35), almost
-          certainly driven by code-training exposure. Hex on these
-          models is as depth-built as Latin.
+          The original Latin result survives across all three paper models
+          — Pythia/Latin (ρ = 0.34), Llama/Latin (ρ = 0.39), and
+          GPT-J/Latin (ρ = 0.41). Low ρ means depth substantially built
+          the helix. And <strong>hexadecimal turns out to be a second
+          clean case</strong> on the same models (ρ = 0.29–0.35). I
+          don't know why; the natural guess is exposure to hex in code
+          during pre-training, but that's a hypothesis the data here
+          can't test directly.
         </Claim>
         <Claim n={3}>
           Cross-script generalisation is much narrower than the raw helix
           table suggests. Many non-Latin cells fit the trig basis
-          non-trivially, but ρ shows most of that structure is already
-          present at L=0. Only on Gemma's heavily-trained scripts
-          (Devanagari, Persian, Roman) does depth substantially
-          contribute outside Latin.
+          non-trivially, but ρ shows the structure was already present
+          before the transformer ran. Outside Latin, depth substantially
+          contributes only on Gemma's heavily-trained scripts
+          (Devanagari, Persian, Roman).
         </Claim>
         <Claim n={4}>
-          Babylonian is the cleanest case study of pre-transformer
-          structure. The base-10 basis misses base-60 structure; widening
-          the window and adding T=60 recovers +8–16 points of R²; ρ shows
-          the recovered structure is mostly pre-transformer; and a
-          random-embedding control nails the residual — replacing every
-          learned embedding with a random vector leaves the L=0 helix
-          essentially unchanged on every model (|ΔR²| ≤ 0.007). The
-          geometry is real, but it isn't learned numerical representation.
-          It's an emergent property of additive symbolic rendering
-          composed with mean-pooling.
+          Babylonian cuneiform is the cleanest case of pre-transformer
+          structure. The base-10 basis misses base-60 entirely; widening
+          the window and adding T=60 to the basis recovers +8–16 points
+          of fit; ρ shows the recovered structure is almost all
+          pre-transformer; and a random-embedding control nails the
+          residual — swap learned embeddings for random vectors and the
+          score barely moves on any model (gap ≤ 0.007). The geometry is
+          real, but it isn't learned. It's a side-effect of how cuneiform
+          writes numbers as wedge counts, averaged together by pooling.
         </Claim>
         <Claim n={5}>
           Two different stories from non-decimal bases.{" "}
           <strong>Babylonian and binary are both mechanical</strong> —
           paper basis hides the structure, native basis recovers it
-          (+0.08–0.37 R²), and the random-embedding control nails the
-          residual: replacing learned embeddings with random vectors
-          leaves the L=0 helix essentially unchanged on every model.
-          The structure is in rendering + pooling alone.{" "}
+          (+0.08–0.37 fit), and the random-embedding control shows
+          learned and random L=0 are essentially identical. The structure
+          is in rendering + pooling alone.{" "}
           <strong>Hex is genuinely depth-built</strong>: hex digit
-          embeddings carry learned structure (random-embed Δ {">"} 0 on
+          embeddings carry learned structure (random-embed gap {">"} 0 on
           every model), and depth roughly doubles the score on
           Pythia/Llama/GPT-J/OLMo (ρ = 0.29–0.35). <em>Each base needs
           its own protocol fix before its ρ becomes interpretable.</em>
         </Claim>
         <Claim n={6} emphasis>
-          The general moral: <em>some apparent neural geometry can arise
+          The general lesson: <em>some apparent neural geometry can come
           from rendering statistics alone</em>, before any learned model
-          component runs. Smooth, low-dimensional, Fourier-fittable
-          manifolds can be artifacts of how you encode the input — a
-          warning for probe work, SAE work, and any "the model represents
-          X as a manifold" claim that doesn't include a provenance check.
+          component runs. Smooth, low-dimensional, easy-to-fit manifolds
+          can be artifacts of how you encode the input — a warning for
+          probe work, sparse-autoencoder work, and any "the model
+          represents X as a manifold" claim that doesn't include a
+          provenance check.
         </Claim>
         <Claim n={7}>
-          Subspace-alignment (CKA) refines the picture further:{" "}
-          "high ρ" can mean either true pass-through (Qwen-32B/Latin:
-          CKA ≈ 0.9 — depth touches nothing) or rebuild-with-same-score
-          (Gemma/Latin: CKA ≈ 0.35 — depth produces a similar-quality
-          helix at a substantially different subspace). Mechanistically
-          distinct cases ρ alone would conflate.
+          A second check — <strong>CKA</strong> (how similar the geometry
+          at the first layer is to the geometry at the best layer) —
+          sharpens the picture further. "High ρ" can mean either real
+          pass-through (Qwen-32B/Latin: CKA ≈ 0.9, depth touches
+          nothing) or rebuild-with-same-score (Gemma/Latin: CKA ≈ 0.35,
+          depth produces a similar-quality helix in a substantially
+          different direction). Two mechanistically distinct cases ρ
+          alone would lump together.
         </Claim>
       </ol>
     </section>

@@ -4,15 +4,16 @@ export function Conclusion() {
       <h2 className="section-heading">What this changes</h2>
 
       <p>
-        The contribution is the diagnostic kit, not the matrix. The
-        standard helix-R² protocol has three failure modes that can make
-        it answer the wrong question — two hide real structure (basis
-        bandwidth, window wrap), one misattributes pre-transformer
-        structure to depth (ρ). Add the CKA extension and a fourth
-        nuance appears: high ρ doesn't always mean inheritance — it can
-        also mean "depth rebuilds a similar-score helix at a different
-        subspace." Putting all four together (basis, window, ρ, CKA)
-        across 56 cells gives this picture:
+        The contribution here is the diagnostic kit, not the matrix.
+        The standard "fit a helix and report R²" procedure has three
+        problems that can make it answer the wrong question: two hide
+        real structure (wrong basis, too-short window) and one credits
+        the transformer with structure it didn't build (which ρ catches).
+        Adding the CKA similarity check turns up a fourth nuance: a
+        high ρ doesn't always mean "the transformer left the geometry
+        alone" — sometimes the transformer rebuilds the geometry in a
+        different direction but ends up with a similar score. Putting
+        all four checks together across the matrix gives this picture:
       </p>
 
       <ul className="mt-3 space-y-2 list-disc pl-6">
@@ -28,10 +29,11 @@ export function Conclusion() {
           AND high CKA — the L=0 helix is real and depth refines it in
           the same directions): Pythia/Latin, Llama/Latin, GPT-J/Latin,
           Roman on almost every model, and{" "}
-          <strong>hexadecimal on the older research models</strong>{" "}
-          (Pythia, Llama, GPT-J, OLMo) — almost certainly driven by
-          code training. Hex is the second-cleanest depth-built case in
-          the matrix.
+          <strong>hexadecimal on Pythia/Llama/GPT-J/OLMo</strong>. Hex
+          is the second-cleanest depth-built case in the matrix; the
+          natural guess is hex exposure in pre-training (code,
+          addresses, hashes), though that's not something this work
+          tests directly.
         </li>
         <li>
           <strong>Mechanical cells</strong> (learned-vs-random gap ≈ 0
