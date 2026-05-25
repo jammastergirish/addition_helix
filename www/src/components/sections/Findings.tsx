@@ -20,11 +20,13 @@ export function Findings() {
           length.
         </Claim>
         <Claim n={2}>
-          The original Latin result survives. Pythia/Latin (ρ = 0.34) and
-          Llama/Latin (ρ = 0.39) have most of the helix built by depth —
-          these are the cells the original paper studies, and they're the
-          cleanest evidence that the helix on those cells is genuinely a
-          learned compositional representation.
+          The original Latin result survives across all three paper
+          models — Pythia/Latin (ρ = 0.34), Llama/Latin (ρ = 0.39), and
+          GPT-J/Latin (ρ = 0.41) — and{" "}
+          <strong>hexadecimal turns out to be a second clean depth-built
+          case</strong> on the same models (ρ = 0.29–0.35), almost
+          certainly driven by code-training exposure. Hex on these
+          models is as depth-built as Latin.
         </Claim>
         <Claim n={3}>
           Cross-script generalisation is much narrower than the raw helix
@@ -35,17 +37,32 @@ export function Findings() {
           contribute outside Latin.
         </Claim>
         <Claim n={4}>
-          Babylonian is the cleanest case study. The base-10 basis misses
-          base-60 structure; widening the window and adding T=60 recovers
-          +8–16 points of R²; ρ shows the recovered structure is mostly
-          pre-transformer; and a random-embedding control nails the
-          residual — replacing every learned embedding with a random
-          vector leaves the L=0 helix essentially unchanged on every
-          model (|ΔR²| ≤ 0.007). The geometry is real, but it isn't
-          learned numerical representation. It's an emergent property of
-          additive symbolic rendering composed with mean-pooling.
+          Babylonian is the cleanest case study of pre-transformer
+          structure. The base-10 basis misses base-60 structure; widening
+          the window and adding T=60 recovers +8–16 points of R²; ρ shows
+          the recovered structure is mostly pre-transformer; and a
+          random-embedding control nails the residual — replacing every
+          learned embedding with a random vector leaves the L=0 helix
+          essentially unchanged on every model (|ΔR²| ≤ 0.007). The
+          geometry is real, but it isn't learned numerical representation.
+          It's an emergent property of additive symbolic rendering
+          composed with mean-pooling.
         </Claim>
-        <Claim n={5} emphasis>
+        <Claim n={5}>
+          Two different stories from non-decimal bases.{" "}
+          <strong>Babylonian and binary are both mechanical</strong> —
+          paper basis hides the structure, native basis recovers it
+          (+0.08–0.37 R²), and the random-embedding control nails the
+          residual: replacing learned embeddings with random vectors
+          leaves the L=0 helix essentially unchanged on every model.
+          The structure is in rendering + pooling alone.{" "}
+          <strong>Hex is genuinely depth-built</strong>: hex digit
+          embeddings carry learned structure (random-embed Δ {">"} 0 on
+          every model), and depth roughly doubles the score on
+          Pythia/Llama/GPT-J/OLMo (ρ = 0.29–0.35). <em>Each base needs
+          its own protocol fix before its ρ becomes interpretable.</em>
+        </Claim>
+        <Claim n={6} emphasis>
           The general moral: <em>some apparent neural geometry can arise
           from rendering statistics alone</em>, before any learned model
           component runs. Smooth, low-dimensional, Fourier-fittable
@@ -53,7 +70,7 @@ export function Findings() {
           warning for probe work, SAE work, and any "the model represents
           X as a manifold" claim that doesn't include a provenance check.
         </Claim>
-        <Claim n={6}>
+        <Claim n={7}>
           Subspace-alignment (CKA) refines the picture further:{" "}
           "high ρ" can mean either true pass-through (Qwen-32B/Latin:
           CKA ≈ 0.9 — depth touches nothing) or rebuild-with-same-score

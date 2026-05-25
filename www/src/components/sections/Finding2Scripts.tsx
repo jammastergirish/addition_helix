@@ -28,7 +28,7 @@ export function Finding2Scripts({ index }: Props) {
       </h2>
 
       <p>
-        Apply the protocol to all eight numeral systems and the raw
+        Apply the protocol to all twelve numeral systems and the raw
         helix / 9-d PCA table tempts a broad generalisation: positional
         scripts often score above the additive systems, and some
         non-Latin cells approach Latin. But the ratio is uneven —

@@ -80,10 +80,10 @@ export function TheDiagnostic({ index }: Props) {
       </p>
 
       <p className="mt-4">
-        The 8-model × 8-script matrix below is the test bed. It exists to
+        The 8-model × 12-script matrix below is the test bed. It exists to
         surface the three modes, not to publish "the helix generalises to
-        eight numeral systems!" — that would have been the headline from a
-        naive read, and ρ is what stops you writing it.
+        twelve numeral systems!" — that would have been the headline from
+        a naive read, and ρ is what stops you writing it.
       </p>
 
       <h3 className="section-subheading">Preview: the matrix, classified</h3>
@@ -123,7 +123,7 @@ export function TheDiagnostic({ index }: Props) {
         <ol className="mt-1 list-decimal pl-6 space-y-1">
           <li>
             Render <span className="font-mono">a</span> as a string in the
-            chosen numeral system (see "The eight numeral systems" above).
+            chosen numeral system (see "The twelve numeral systems" above).
           </li>
           <li>
             Tokenize with the model's own tokenizer (BPE for all eight
@@ -196,7 +196,7 @@ export function TheDiagnostic({ index }: Props) {
           look up token IDs through it instead of the learned table, and
           mean-pool. If the random-embedding L=0 R² ≈ the learned L=0
           R², the L=0 structure is mechanical (renderer + tokenization +
-          pooling), not learned semantics. Run for all 8 scripts × 7
+          pooling), not learned semantics. Run for all 12 scripts × 8
           models; see Finding 3 for the comparison. Implemented in{" "}
           <span className="font-mono">embed_control.py</span>.
         </p>

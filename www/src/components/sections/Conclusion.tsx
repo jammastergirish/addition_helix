@@ -26,16 +26,29 @@ export function Conclusion() {
         <li>
           <strong>Depth-amplification cells</strong> (low-to-moderate ρ
           AND high CKA — the L=0 helix is real and depth refines it in
-          the same directions): Pythia/Latin, Llama/Latin, Roman on
-          almost every model.
+          the same directions): Pythia/Latin, Llama/Latin, GPT-J/Latin,
+          Roman on almost every model, and{" "}
+          <strong>hexadecimal on the older research models</strong>{" "}
+          (Pythia, Llama, GPT-J, OLMo) — almost certainly driven by
+          code training. Hex is the second-cleanest depth-built case in
+          the matrix.
+        </li>
+        <li>
+          <strong>Mechanical cells</strong> (learned-vs-random gap ≈ 0
+          at L=0): Babylonian on every model, <em>and</em> binary on
+          every model. Both cases share the same underlying mechanism —
+          additive symbolic rendering (wedge counts, bit counts)
+          composed with mean-pooling produces vectors that vary smoothly
+          with <em>n</em> regardless of what's in the embedding table.
+          The structure is in the renderer + pooling alone.
         </li>
         <li>
           <strong>Rebuild cells</strong> (high ρ but LOW CKA — depth
           produces a similar-score helix at a different subspace,
           flattening to "inherited" under ρ alone): the whole Gemma
-          family on most scripts, Babylonian on Pythia/Llama/OLMo, Qwen
-          on Devanagari. The presence of these cells is the single
-          biggest reason ρ alone is insufficient.
+          family on most scripts, Babylonian on Pythia/Llama/OLMo,
+          Qwen on Devanagari/Thai. The presence of these cells is the
+          single biggest reason ρ alone is insufficient.
         </li>
       </ul>
 

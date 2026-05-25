@@ -69,28 +69,37 @@ export const MODEL_LABEL: Record<string, string> = {
 };
 
 export const SCRIPT_ORDER = [
-  "latin", "arabic", "persian", "devanagari",
-  "chinese", "greek", "roman", "babylonian",
+  "latin", "arabic", "persian", "devanagari", "thai",
+  "chinese", "binary", "hexadecimal",
+  "greek", "hebrew", "roman", "babylonian",
 ] as const;
 
 export const SCRIPT_LABEL: Record<string, string> = {
-  latin:       "Latin",
-  arabic:      "Arabic-Indic",
-  persian:     "Persian",
-  devanagari:  "Devanagari",
-  chinese:     "CJK digit string",
-  greek:       "Greek alphabetic",
-  roman:       "Roman",
-  babylonian:  "Babylonian cuneiform",
+  latin:        "Latin",
+  arabic:       "Arabic-Indic",
+  persian:      "Persian",
+  devanagari:   "Devanagari",
+  thai:         "Thai",
+  chinese:      "CJK digit string",
+  binary:       "Binary",
+  hexadecimal:  "Hexadecimal",
+  greek:        "Greek alphabetic",
+  hebrew:       "Hebrew alphabetic",
+  roman:        "Roman",
+  babylonian:   "Babylonian cuneiform",
 };
 
 export const SCRIPT_EXAMPLE: Record<string, string> = {
-  latin:       "23",
-  arabic:      "٢٣",
-  persian:     "۲۳",
-  devanagari:  "२३",
-  chinese:     "二三",
-  greek:       "κγ",
-  roman:       "XXIII",
-  babylonian:  "𒌋𒌋𒁹𒁹𒁹",
+  latin:        "23",
+  arabic:       "٢٣",
+  persian:      "۲۳",
+  devanagari:   "२३",
+  thai:         "๒๓",
+  chinese:      "二三",
+  binary:       "10111",
+  hexadecimal:  "17",
+  greek:        "κγ",
+  hebrew:       "כג",
+  roman:        "XXIII",
+  babylonian:   "𒌋𒌋𒁹𒁹𒁹",
 };

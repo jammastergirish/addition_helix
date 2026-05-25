@@ -32,7 +32,7 @@ Writes out/_random_embed_control.json. Run as the last pass after the
 main sweep + aggregate.
 
 Usage:
-    uv run embed_control.py                       # all 8 models, all 8 scripts
+    uv run embed_control.py                       # all 8 models, all 12 scripts
     uv run embed_control.py --model X --script Y  # one combo
 """
 from __future__ import annotations
@@ -129,6 +129,21 @@ def to_babylonian(n: int) -> str:
     return " ".join(_bab_column(c) for c in cols)
 
 
+HEBREW_UNITS = ["", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"]
+HEBREW_TENS  = ["", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"]
+
+
+def to_hebrew(n: int) -> str:
+    if n == 0:
+        return "אפס"
+    if n < 0 or n > 99:
+        raise ValueError(f"to_hebrew: got {n}")
+    if n == 15: return "טו"
+    if n == 16: return "טז"
+    t, u = divmod(n, 10)
+    return HEBREW_TENS[t] + HEBREW_UNITS[u]
+
+
 def format_number(n: int, script: str) -> str:
     if script == "latin":
         return str(n)
@@ -138,10 +153,18 @@ def format_number(n: int, script: str) -> str:
         return "".join(chr(0x06F0 + int(d)) for d in str(n))
     if script == "devanagari":
         return "".join(chr(0x0966 + int(d)) for d in str(n))
+    if script == "thai":
+        return "".join(chr(0x0E50 + int(d)) for d in str(n))
     if script == "chinese":
         return to_chinese_positional(n)
+    if script == "binary":
+        return bin(n)[2:]
+    if script == "hexadecimal":
+        return format(n, "x")
     if script == "greek":
         return to_greek(n)
+    if script == "hebrew":
+        return to_hebrew(n)
     if script == "roman":
         return to_roman(n)
     if script == "babylonian":
@@ -161,8 +184,9 @@ ALL_MODELS = [
     "Qwen/Qwen2.5-7B",
     "Qwen/Qwen2.5-32B",
 ]
-ALL_SCRIPTS = ["latin", "arabic", "persian", "devanagari",
-               "chinese", "greek", "roman", "babylonian"]
+ALL_SCRIPTS = ["latin", "arabic", "persian", "devanagari", "thai",
+               "chinese", "binary", "hexadecimal",
+               "greek", "hebrew", "roman", "babylonian"]
 
 
 # Configurations to run. Mirrors run.sh's three passes.
@@ -171,9 +195,15 @@ def default_combos():
     # Pass 1: every script at the paper default
     for s in ALL_SCRIPTS:
         combos.append((s, 100, [2, 5, 10, 100]))
-    # Pass 2/3: Babylonian wider window, both bases
-    combos.append(("babylonian", 600, [2, 5, 10, 100]))
-    combos.append(("babylonian", 600, [2, 5, 10, 60, 100]))
+    # Babylonian wider window, both bases
+    combos.append(("babylonian",  600, [2, 5, 10, 100]))
+    combos.append(("babylonian",  600, [2, 5, 10, 60, 100]))
+    # Binary wider window, both bases (paper basis vs binary-native)
+    combos.append(("binary",      1024, [2, 5, 10, 100]))
+    combos.append(("binary",      1024, [2, 4, 8, 16, 32, 64]))
+    # Hex wider window, both bases (paper basis vs hex-native)
+    combos.append(("hexadecimal", 1024, [2, 5, 10, 100]))
+    combos.append(("hexadecimal", 1024, [16, 32, 64, 256]))
     return combos
 
 

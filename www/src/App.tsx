@@ -9,6 +9,7 @@ import { TheDiagnostic }     from "./components/sections/TheDiagnostic";
 import { Finding1Layers }    from "./components/sections/Finding1Layers";
 import { Finding2Scripts }   from "./components/sections/Finding2Scripts";
 import { Finding3Babylon }   from "./components/sections/Finding3Babylon";
+import { FindingBases }      from "./components/sections/FindingBases";
 import { Finding4L0 }        from "./components/sections/Finding4L0";
 import { Finding5CKA }       from "./components/sections/Finding5CKA";
 import { Conclusion }        from "./components/sections/Conclusion";
@@ -45,6 +46,7 @@ export default function App() {
         <Finding1Layers index={index} />
         <Finding2Scripts index={index} />
         <Finding3Babylon index={index} />
+        <FindingBases index={index} />
         <Finding4L0 index={index} />
         <Finding5CKA />
         <Conclusion />

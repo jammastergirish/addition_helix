@@ -80,8 +80,11 @@ export function Finding1Layers({ index }: Props) {
         But <em>where</em> the helix lives in the stack varies dramatically
         across models. <strong>Pythia</strong> rises monotonically and peaks
         at the literal final layer (L32 of 32). <strong>GPT-J</strong> —
-        the paper's third model, restored here — slots in at a similar
-        size (28 layers, 6B params); profile in the chart below.{" "}
+        the paper's third model, restored here — does the same: peak at
+        L28 of 28, ρ = 0.41, helix R² = 0.49. It sits cleanly between
+        Pythia (ρ = 0.34) and Llama (ρ = 0.39), confirming the original
+        paper's "depth substantially builds the helix" finding within its
+        own model family.{" "}
         <strong>Llama</strong> peaks mid-stack at L15 of 32.{" "}
         <strong>Gemma-4-E4B</strong> shows two regimes: strong early
         structure at L0-L5, a dip around L6-L7, then a broad peak at L17

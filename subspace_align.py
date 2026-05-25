@@ -37,7 +37,7 @@ iterates over scripts inside one model-load.
 Usage:
     uv run subspace_align.py                                 # all 8 models, latin only
     uv run subspace_align.py --scripts latin,devanagari,roman # multiple scripts
-    uv run subspace_align.py --model X --scripts all          # one model, all 8 scripts
+    uv run subspace_align.py --model X --scripts all          # one model, all 12 scripts
 """
 from __future__ import annotations
 
@@ -73,8 +73,9 @@ ALL_MODELS = [
     "Qwen/Qwen2.5-7B",
     "Qwen/Qwen2.5-32B",
 ]
-ALL_SCRIPTS = ["latin", "arabic", "persian", "devanagari",
-               "chinese", "greek", "roman", "babylonian"]
+ALL_SCRIPTS = ["latin", "arabic", "persian", "devanagari", "thai",
+               "chinese", "binary", "hexadecimal",
+               "greek", "hebrew", "roman", "babylonian"]
 
 # Inline renderer + basis (no main.py import to avoid matplotlib dep)
 PERIODS = [2, 5, 10, 100]
@@ -143,15 +144,32 @@ def _to_babylonian(n: int) -> str:
     return " ".join(_bab_column(c) for c in cols)
 
 
+_HEBREW_UNITS = ["", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"]
+_HEBREW_TENS  = ["", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"]
+
+
+def _to_hebrew(n: int) -> str:
+    if n == 0: return "אפס"
+    if n > 99: raise ValueError(f"to_hebrew: got {n}")
+    if n == 15: return "טו"
+    if n == 16: return "טז"
+    t, u = divmod(n, 10)
+    return _HEBREW_TENS[t] + _HEBREW_UNITS[u]
+
+
 def format_number(n: int, script: str) -> str:
-    if script == "latin":      return str(n)
-    if script == "arabic":     return "".join(chr(0x0660 + int(d)) for d in str(n))
-    if script == "persian":    return "".join(chr(0x06F0 + int(d)) for d in str(n))
-    if script == "devanagari": return "".join(chr(0x0966 + int(d)) for d in str(n))
-    if script == "chinese":    return _to_chinese_positional(n)
-    if script == "greek":      return _to_greek(n)
-    if script == "roman":      return _to_roman(n)
-    if script == "babylonian": return _to_babylonian(n)
+    if script == "latin":       return str(n)
+    if script == "arabic":      return "".join(chr(0x0660 + int(d)) for d in str(n))
+    if script == "persian":     return "".join(chr(0x06F0 + int(d)) for d in str(n))
+    if script == "devanagari":  return "".join(chr(0x0966 + int(d)) for d in str(n))
+    if script == "thai":        return "".join(chr(0x0E50 + int(d)) for d in str(n))
+    if script == "chinese":     return _to_chinese_positional(n)
+    if script == "binary":      return bin(n)[2:]
+    if script == "hexadecimal": return format(n, "x")
+    if script == "greek":       return _to_greek(n)
+    if script == "hebrew":      return _to_hebrew(n)
+    if script == "roman":       return _to_roman(n)
+    if script == "babylonian":  return _to_babylonian(n)
     raise ValueError(f"unknown script: {script!r}")
 
 
@@ -288,9 +306,36 @@ def run_one_script(model, tokenizer, model_id: str, script: str,
     }
 
 
-def run_one_model(model_id: str, scripts, n_max: int, dtype: torch.dtype) -> list[dict]:
-    """Load the model once, iterate scripts."""
-    print(f"\n=== {model_id} ===")
+def _load_existing_keys() -> set[tuple[str, str]]:
+    """Return (model, script) keys already present in _subspace_alignment.json
+    so we can skip the expensive forward passes on re-runs."""
+    out_path = OUT / "_subspace_alignment.json"
+    if not out_path.exists():
+        return set()
+    try:
+        rows = json.loads(out_path.read_text()).get("results", [])
+    except json.JSONDecodeError:
+        return set()
+    # Only count successful rows -- skip-and-retry on prior errors.
+    return {(r["model"], r["script"]) for r in rows
+            if "error" not in r and r.get("rho") is not None}
+
+
+def run_one_model(model_id: str, scripts, n_max: int, dtype: torch.dtype,
+                   existing: set[tuple[str, str]]) -> list[dict]:
+    """Load the model once, iterate scripts.
+
+    Skips any (model, script) already in `existing` -- which means a
+    repeated `uv run subspace_align.py` only pays the model-load cost
+    for new cells. Returns ONLY the newly-computed rows; merging is the
+    caller's job (so the merge stays atomic).
+    """
+    pending = [s for s in scripts if (model_id, s) not in existing]
+    if not pending:
+        print(f"\n=== {model_id} === (all {len(scripts)} cells cached, skip)")
+        return []
+
+    print(f"\n=== {model_id} === ({len(pending)}/{len(scripts)} cells to compute)")
     tok = AutoTokenizer.from_pretrained(model_id)
     print(f"  loading ({dtype}) ...")
     try:
@@ -302,7 +347,7 @@ def run_one_model(model_id: str, scripts, n_max: int, dtype: torch.dtype) -> lis
     n_layers = get_num_layers(model)
 
     results = []
-    for script in scripts:
+    for script in pending:
         try:
             results.append(run_one_script(model, tok, model_id, script,
                                            n_max, device, n_layers))
@@ -346,14 +391,19 @@ def main():
     models = [args.model] if args.model else ALL_MODELS
     scripts = ALL_SCRIPTS if args.scripts == "all" else [s.strip() for s in args.scripts.split(",")]
 
+    existing = _load_existing_keys()
+    if existing:
+        print(f"({len(existing)} (model, script) cells already in _subspace_alignment.json — will skip)")
+
     all_new = []
     for m in models:
         try:
-            all_new.extend(run_one_model(m, scripts, args.n_max, dtype))
+            all_new.extend(run_one_model(m, scripts, args.n_max, dtype, existing))
         except Exception as e:
             print(f"  !! {m} FAILED: {e}")
             for s in scripts:
-                all_new.append({"model": m, "script": s, "error": str(e)})
+                if (m, s) not in existing:
+                    all_new.append({"model": m, "script": s, "error": str(e)})
 
     out_path = OUT / "_subspace_alignment.json"
     merged = _merge_results(out_path, all_new)

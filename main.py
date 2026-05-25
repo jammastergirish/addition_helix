@@ -473,11 +473,62 @@ def to_babylonian(n: int) -> str:
     return " ".join(one_column(c) for c in columns)
 
 
+# Hebrew alphabetic numerals (gematria). Like Greek, each letter has a
+# fixed value. ADDITIVE: 23 = כ + ג ("kaf-gimel", 20+3). The script is
+# RTL — `כג` is stored largest-first (כ=20 at index 0) and displays in
+# Hebrew text as גכ right-to-left (units-then-tens to the reader).
+# Special cases at 15 and 16 to avoid spelling part of the Tetragrammaton:
+#   15 = טו (9+6) not יה (10+5)   ← "YH" is a divine name fragment
+#   16 = טז (9+7) not יו (10+6)
+# We use the word "אפס" (efes, Hebrew for zero/nothing) for n=0.
+HEBREW_UNITS = ["", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"]
+HEBREW_TENS  = ["", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"]
+
+
+def to_hebrew(n: int) -> str:
+    """Convert n in [0, 99] to its Hebrew alphabetic numeral (gematria)."""
+    if n == 0:
+        return "אפס"
+    if n < 0 or n > 99:
+        raise ValueError(f"to_hebrew only supports 0..99, got {n}")
+    if n == 15: return "טו"
+    if n == 16: return "טז"
+    tens, units = divmod(n, 10)
+    return HEBREW_TENS[tens] + HEBREW_UNITS[units]
+
+
+def to_binary(n: int) -> str:
+    """Convert n to its base-2 representation as a digit string.
+
+    Positional, but with TWO digit values (0, 1) and natural periods at
+    powers of 2 (T = 2, 4, 8, 16, 32, 64). The paper's basis [2, 5, 10,
+    100] matches only T=2, so binary is a strong test of mode 1 (basis
+    bandwidth) -- analogous to Babylonian's T=60 story but for a much
+    finer base.
+    """
+    if n < 0:
+        raise ValueError(f"to_binary only supports n >= 0, got {n}")
+    return bin(n)[2:]  # strips the "0b" prefix; bin(0)[2:] == "0"
+
+
+def to_hexadecimal(n: int) -> str:
+    """Convert n to its base-16 representation (lowercase a-f).
+
+    Positional with 16 digit values (0-9, a-f). Natural periods at 16
+    and 256. Like binary, the paper basis catches almost none of this.
+    For n in [0, 99] the output is 1-2 characters.
+    """
+    if n < 0:
+        raise ValueError(f"to_hexadecimal only supports n >= 0, got {n}")
+    return format(n, "x")
+
+
 def format_number(n: int, script: str) -> str:
     """Render an integer in the requested numeral script.
 
     Maps decimal digits to Unicode equivalents in the chosen script.
-    For Roman/Greek, delegates to dedicated helpers.
+    For Roman/Greek/Hebrew/Babylonian/binary/hex, delegates to dedicated
+    helpers.
     """
     if script == "latin":
         return str(n)
@@ -492,10 +543,19 @@ def format_number(n: int, script: str) -> str:
     if script == "devanagari":
         # Devanagari digits at U+0966 (०) through U+096F (९).
         return "".join(chr(0x0966 + int(d)) for d in str(n))
+    if script == "thai":
+        # Thai digits at U+0E50 (๐) through U+0E59 (๙).
+        return "".join(chr(0x0E50 + int(d)) for d in str(n))
     if script == "chinese":
         return to_chinese_positional(n)
+    if script == "binary":
+        return to_binary(n)
+    if script == "hexadecimal":
+        return to_hexadecimal(n)
     if script == "greek":
         return to_greek(n)
+    if script == "hebrew":
+        return to_hebrew(n)
     if script == "roman":
         return to_roman(n)
     if script == "babylonian":
@@ -1064,13 +1124,16 @@ def main():
                     help="HF model id. Paper uses pythia-6.9b and gpt-j-6b. "
                          "On 128 GB unified memory either runs comfortably.")
     ap.add_argument("--script", default="latin",
-                    choices=["latin", "arabic", "persian", "devanagari",
-                             "chinese", "greek", "roman", "babylonian"],
+                    choices=["latin", "arabic", "persian", "devanagari", "thai",
+                             "chinese", "binary", "hexadecimal",
+                             "greek", "hebrew", "roman", "babylonian"],
                     help="numeral script in which to feed the model.\n"
                          "  positional base-10 (helix predicted):\n"
-                         "    latin arabic persian devanagari chinese\n"
+                         "    latin arabic persian devanagari thai chinese\n"
+                         "  positional, other bases:\n"
+                         "    binary (base 2) hexadecimal (base 16)\n"
                          "  non-positional / additive:\n"
-                         "    greek roman\n"
+                         "    greek hebrew roman\n"
                          "  positional base-60, additive within each column:\n"
                          "    babylonian")
     ap.add_argument("--pool", default="mean", choices=["mean", "last"],

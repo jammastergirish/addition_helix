@@ -29,14 +29,18 @@ export function Hero() {
         <span className="font-mono">ρ = R²(L=0) / max_L R²(L)</span> and
         apply it, alongside two basis/window checks and a random-embedding
         control, across <strong>eight models</strong> from six architecture
-        families and <strong>eight numeral systems</strong> — Latin,
-        Arabic-Indic, Persian, Devanagari, positional Chinese (CJK digit
-        strings), Greek alphabetic, Roman, and Babylonian cuneiform. The
-        Pythia/Latin and Llama/Latin results survive cleanly. Most apparent
-        cross-script generalisation is already present at L=0 —
-        pre-transformer inheritance from rendering, tokenization, learned
-        embeddings, and pooling — rather than constructed by transformer
-        depth.
+        families and <strong>twelve numeral systems</strong> — Latin,
+        Arabic-Indic, Persian, Devanagari, Thai, CJK digit string, binary,
+        hexadecimal, Greek alphabetic, Hebrew alphabetic, Roman, and
+        Babylonian cuneiform. The
+        Pythia/Latin, Llama/Latin, and GPT-J/Latin results all survive
+        cleanly. Most apparent cross-script generalisation is already
+        present at L=0 — pre-transformer inheritance from rendering,
+        tokenization, learned embeddings, and pooling — rather than
+        constructed by transformer depth. The clearest <em>new</em>{" "}
+        depth-built case is <strong>hexadecimal</strong>: ρ = 0.29–0.35
+        on Pythia, Llama, GPT-J, and OLMo — as low as Latin, almost
+        certainly driven by code-training exposure.
       </p>
 
       <blockquote className="mt-6 border-l-4 border-accent bg-accent/5 px-4 py-3 text-base leading-snug text-ink">

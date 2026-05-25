@@ -4,7 +4,7 @@ import { RhoCkaScatter } from "../charts/RhoCkaScatter";
  * Subspace alignment (linear CKA) between L=0 and peak-layer fitted
  * helix subspaces. Goes after the ρ heatmap and before the Conclusion.
  *
- * Computed across all 8 models × 8 scripts (subspace_align.py).
+ * Computed across all 8 models × 12 scripts (subspace_align.py).
  */
 export function Finding5CKA() {
   return (

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Sweep the helix experiment across all eight models and all eight numeral
+# Sweep the helix experiment across all eight models and all twelve numeral
 # scripts.  Each run uses --pool mean (the honest default) and --sweep
 # (layer scan + auto-targeted standard figures at the helix-R² peak).
 #
 # Three passes:
-#   pass 1  -- 8 models x 8 scripts at n_max=100, basis=[2,5,10,100]
+#   pass 1  -- 8 models x 12 scripts at n_max=100, basis=[2,5,10,100]
 #              (paper-default range and basis)
 #   pass 2  -- 8 models x 1 script  (babylonian) at n_max=600,
 #              basis=[2,5,10,100] (paper basis -- demonstrates the basis
@@ -70,23 +70,42 @@ SCRIPTS_N100=(
   arabic
   persian
   devanagari
+  thai
   chinese
+  binary
+  hexadecimal
   greek
+  hebrew
   roman
   babylonian
 )
 
-# Pass 2 -- extended range, only for scripts where the larger window
-# answers a question the small window can't.
-SCRIPTS_N600=(
-  babylonian
+# Extended passes -- one entry per (script, n_max, periods) combination
+# that goes beyond the paper-default n=100, basis [2,5,10,100] sweep.
+# Format: "script:n_max:periods"  (empty periods = paper default).
+#
+# Each row exists to surface a specific failure mode of the standard
+# protocol on its target script:
+#
+#   - Babylonian (base 60): T=60 needs many wraps AND inclusion in the
+#     basis. Paper protocol misses both, so we run n=600 with both
+#     paper-default and +T=60 bases and compare.
+#
+#   - Binary (base 2): natural periods are 2, 4, 8, 16, 32, 64. Paper
+#     basis catches only T=2. Run at n=1024 (16 wraps of T=64) with
+#     paper basis vs binary-native powers-of-2.
+#
+#   - Hexadecimal (base 16): natural periods 16, 32, 64, 128, 256.
+#     Paper basis catches almost nothing. Run at n=1024 (4 wraps of
+#     T=256) with paper basis vs hex-native periods.
+EXTRA_PASSES=(
+  "babylonian:600:"                  # baseline at wider window
+  "babylonian:600:2,5,10,60,100"     # + T=60  (the Babylonian story)
+  "binary:1024:"                     # baseline at wider window
+  "binary:1024:2,4,8,16,32,64"       # binary-native (all powers of 2)
+  "hexadecimal:1024:"                # baseline at wider window
+  "hexadecimal:1024:16,32,64,256"    # hex-native
 )
-
-# Pass 3 -- extended range AND extended basis (adds T=60). Same scripts.
-SCRIPTS_N600_BAB_BASIS=(
-  babylonian
-)
-EXT_PERIODS="2,5,10,60,100"
 
 # Match-helper: case-insensitive substring check.
 matches_filter() {
@@ -129,13 +148,10 @@ for model in "${MODELS[@]}"; do
     total=$((total + 1))
     [[ -f "$(marker_for "${model}" "${script}" 100 "")" ]] || todo=$((todo + 1))
   done
-  for script in "${SCRIPTS_N600[@]}"; do
+  for spec in "${EXTRA_PASSES[@]}"; do
+    IFS=':' read -r script n_max periods <<< "${spec}"
     total=$((total + 1))
-    [[ -f "$(marker_for "${model}" "${script}" 600 "")" ]] || todo=$((todo + 1))
-  done
-  for script in "${SCRIPTS_N600_BAB_BASIS[@]}"; do
-    total=$((total + 1))
-    [[ -f "$(marker_for "${model}" "${script}" 600 "${EXT_PERIODS}")" ]] || todo=$((todo + 1))
+    [[ -f "$(marker_for "${model}" "${script}" "${n_max}" "${periods}")" ]] || todo=$((todo + 1))
   done
 done
 
@@ -215,7 +231,7 @@ run_combo() {
   fi
 }
 
-# ----- Pass 1: n_max = 100 -----
+# ----- Pass 1: n_max = 100, paper-default basis on every script -----
 for model in "${MODELS[@]}"; do
   matches_filter "${model}" || continue
   for script in "${SCRIPTS_N100[@]}"; do
@@ -223,61 +239,87 @@ for model in "${MODELS[@]}"; do
   done
 done
 
-# ----- Pass 2: n_max = 600, paper basis (Babylonian -- the T=60 test) -----
+# ----- Extended passes (Babylonian, binary, hex wider windows / bases) -----
 for model in "${MODELS[@]}"; do
   matches_filter "${model}" || continue
-  for script in "${SCRIPTS_N600[@]}"; do
-    run_combo "${model}" "${script}" 600
+  for spec in "${EXTRA_PASSES[@]}"; do
+    IFS=':' read -r script n_max periods <<< "${spec}"
+    run_combo "${model}" "${script}" "${n_max}" "${periods}"
   done
 done
 
-# ----- Pass 3: n_max = 600, extended basis with T=60 (Babylonian) ---------
-# Quantifies how much variance the added T=60 dimension actually captures.
-for model in "${MODELS[@]}"; do
-  matches_filter "${model}" || continue
-  for script in "${SCRIPTS_N600_BAB_BASIS[@]}"; do
-    run_combo "${model}" "${script}" 600 "${EXT_PERIODS}"
-  done
-done
+# ============================================================================
+# Post-sweep tools. Each writes its own aggregate / control / comparison
+# artefact into out/. Failures in any one don't abort the others.
+# ============================================================================
+run_tool() {
+  local label="$1"; shift
+  local logname="$1"; shift
+  local logpath="${LOG_DIR}/${logname}.log"
+  echo
+  echo "==================================================================="
+  echo "  ${label}"
+  echo "==================================================================="
+  if "$@" > "${logpath}" 2>&1; then
+    echo "  ok  (log: ${logpath})"
+  else
+    echo "  !! FAILED  (log: ${logpath})"
+  fi
+}
 
-# ----- Pass 4: random-embedding control -----
-# Cheap (no model forward passes -- just tokenize + lookup random vectors
-# + mean-pool + fit basis). Runs across all (model, script, basis) combos
-# the main sweep produced; outputs out/_random_embed_control.json that
-# the React site (Finding 3) reads to display the learned-vs-random gap.
-#
-# Idempotent enough: re-running just overwrites the JSON. Skipped if the
-# user filtered to a specific model that doesn't match (controlled by
-# --model flag forwarded below).
-echo
-echo "==================================================================="
-echo "  pass 4: random-embedding control"
-echo "==================================================================="
-EMBED_ARGS=()
+# Best-effort: forward --model when --filter was supplied. The Python
+# tools accept a single --model only, so we pick the first match.
+TOOL_MODEL_ARGS=()
 if [[ -n "${FILTER}" ]]; then
-  # Best-effort: pass through the same filter. If the filter doesn't
-  # match a real HF id, embed_control.py will run all 8 models.
   for model in "${MODELS[@]}"; do
     if matches_filter "${model}"; then
-      EMBED_ARGS+=("--model" "${model}")
-      break  # embed_control.py only accepts one --model at a time
+      TOOL_MODEL_ARGS+=("--model" "${model}")
+      break
     fi
   done
 fi
-if uv run embed_control.py "${EMBED_ARGS[@]}" > "${LOG_DIR}/_embed_control.log" 2>&1; then
-  echo "  wrote out/_random_embed_control.json  (see ${LOG_DIR}/_embed_control.log)"
-else
-  echo "  !! random-embedding control FAILED (see ${LOG_DIR}/_embed_control.log)"
-fi
+
+# ----- Pass 4: aggregate -----
+# Cheap. Walks out/<model>/<script>/<pool>/fig_layer_sweep.json files
+# and writes out/_index.json (the master cell index the React site reads
+# first) plus out/_l0_share.csv (the historical L=0 / peak table).
+# Doesn't accept --model; always processes every cell.
+run_tool "pass 4: aggregate _index.json" "_aggregate" \
+  uv run aggregate.py
+
+# ----- Pass 5: random-embedding control -----
+# Cheap (no forward passes -- just tokenize + random embedding lookup +
+# mean-pool + basis fit). Writes out/_random_embed_control.json. Used in
+# Finding 3 to show the L=0 helix is mechanical (Babylonian) vs learned
+# (Latin/positional).
+run_tool "pass 5: random-embedding control" "_embed_control" \
+  uv run embed_control.py "${TOOL_MODEL_ARGS[@]}"
+
+# ----- Pass 6: subspace alignment (CKA) -----
+# EXPENSIVE (loads each model, does 100 forward passes per script). The
+# script merges into out/_subspace_alignment.json and skips (model,
+# script) rows already present, so re-running after the main sweep only
+# costs the new cells. By default runs Latin on every model; add
+# --scripts all to cover the whole matrix.
+run_tool "pass 6: subspace alignment (CKA) -- Latin only by default" "_subspace_align" \
+  uv run subspace_align.py "${TOOL_MODEL_ARGS[@]}" --scripts all
+
+# ----- Pass 7: comparison image -----
+# Cheap. Stitches per-model layer-sweep PNGs into one comparison image
+# at out/_compare/fig_latin_sweep_<N>models.png. Layer counts on the
+# header strips are read at runtime from each model's layer_sweep.json
+# so they stay in sync.
+run_tool "pass 7: cross-model comparison PNG" "_compare" \
+  uv run compare.py
 
 # ----- Summary -----
 echo
 echo "==================================================================="
 echo "  summary"
 echo "==================================================================="
-printf "  ran:     %d\n" "${ran}"
-printf "  skipped: %d\n" "${skipped}"
-printf "  failed:  %d\n" "${failed}"
+printf "  main-sweep ran:     %d\n" "${ran}"
+printf "  main-sweep skipped: %d\n" "${skipped}"
+printf "  main-sweep failed:  %d\n" "${failed}"
 if (( failed > 0 )); then
   echo "  failed combos:"
   printf "    - %s\n" "${failed_list[@]}"
@@ -286,4 +328,7 @@ echo
 echo "  fig_layer_sweep locations:"
 find out -name "fig_layer_sweep.json" 2>/dev/null | sort | sed 's/^/    /'
 echo
-echo "  Don't forget:  uv run aggregate.py   # refresh _index.json + _l0_share.csv"
+echo "  aggregate artefacts:"
+for f in out/_index.json out/_l0_share.csv out/_random_embed_control.json out/_subspace_alignment.json out/_compare/*.png; do
+  [[ -e "${f}" ]] && echo "    ${f}"
+done
