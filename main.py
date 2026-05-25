@@ -102,6 +102,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import sys
 import warnings
 from pathlib import Path
 
@@ -240,41 +241,19 @@ def _configure_fonts() -> None:
 
 _configure_fonts()
 
-# The four periods the paper discovered via Fourier analysis. T=2 captures
-# parity, T=5 captures (a mod 5), T=10 the decimal units digit, T=100 the
-# coarse position. Together with a linear magnitude axis they form a
-# 9-parameter (1 + 2*4) encoding of any integer a -- a "generalized helix".
-PERIODS = [2, 5, 10, 100]
+# Shared constants + renderers + numpy helpers. PERIODS, format_number,
+# helix_basis, fit_helix, get_num_layers all moved into helix_lib.py so
+# embed_control.py and subspace_align.py can import them too.
+from helix_lib import (  # noqa: E402
+    BAB_ONE, BAB_TEN, BAB_ZERO,
+    CHINESE_POSITIONAL, GREEK_TENS, GREEK_UNITS,
+    HEBREW_TENS, HEBREW_UNITS, PERIODS,
+    fit_helix, format_number, get_num_layers, helix_basis,
+    to_babylonian, to_binary, to_chinese_positional, to_greek,
+    to_hebrew, to_hexadecimal, to_roman,
+)
+
 OUT_DIR = Path(__file__).parent
-
-
-# ============================================================================
-#  HELPERS
-# ============================================================================
-def get_num_layers(model) -> int:
-    """Find the number of transformer blocks in a HF model.
-
-    Different model families expose this under different attribute names,
-    and recent multi-component models (Gemma 4, some vision-language
-    models) nest it inside a sub-config. We try the common paths in
-    order, then fall back to peeking at the hidden_states length.
-    """
-    cfg = model.config
-    # Most architectures (Pythia, GPT-2, Llama, Mistral, Qwen, ...)
-    for attr in ("num_hidden_layers", "n_layer", "num_layers"):
-        if hasattr(cfg, attr):
-            return getattr(cfg, attr)
-    # Multi-component configs (Gemma 4, some VLMs): the language-model
-    # block lives in a sub-config.
-    for sub in ("text_config", "language_model_config", "decoder"):
-        if hasattr(cfg, sub):
-            sub_cfg = getattr(cfg, sub)
-            for attr in ("num_hidden_layers", "n_layer", "num_layers"):
-                if hasattr(sub_cfg, attr):
-                    return getattr(sub_cfg, attr)
-    raise AttributeError(
-        "Could not find layer count on model.config. Pass --layer explicitly "
-        "to bypass the auto-detect.")
 
 
 def pick_device() -> torch.device:
@@ -293,41 +272,7 @@ def pick_device() -> torch.device:
     return torch.device("cpu")
 
 
-# ----------------------------------------------------------------------------
-#  The helix basis B(a)
-#
-#  This is THE central object of the paper. Given an integer a, B(a) is a
-#  (1 + 2K)-dimensional feature vector that captures both magnitude and
-#  multiple kinds of modular structure.
-# ----------------------------------------------------------------------------
-def helix_basis(a, periods=PERIODS):
-    """Return the row-vector B(a) (or a matrix of rows if `a` is an array).
-
-    Layout of a single row B(a):
-        column 0     : a                      <- linear magnitude
-        columns 1, 2 : cos(2*pi*a/T_1), sin(2*pi*a/T_1)   <- circle of period T_1
-        columns 3, 4 : cos(2*pi*a/T_2), sin(2*pi*a/T_2)   <- circle of period T_2
-        ...
-
-    GEOMETRY
-    --------
-    A (cos(2*pi*a/T), sin(2*pi*a/T)) pair is a point on the UNIT CIRCLE
-    at angle theta = 2*pi*a/T radians. As a goes 0, 1, 2, ..., that point
-    rotates by 2*pi/T radians per step -- T steps to come back home.
-    Integers sharing the same (a mod T) thus land at the SAME point on
-    the T-circle, which is how the model can read "the units digit"
-    without ever computing a % 10.
-
-    Addition becomes adding angles -- the "Clock" algorithm.
-    """
-    a = np.asarray(a, dtype=np.float64)
-    cols = [a]                                # the linear "rise" of the helix
-    for T in periods:
-        cols.append(np.cos(2 * np.pi * a / T))
-        cols.append(np.sin(2 * np.pi * a / T))
-    return np.stack(cols, axis=-1)
-
-
+# basis_idx is only used by main.py's plot functions; kept here.
 def basis_idx(feature, periods=PERIODS) -> int:
     """Look up the column index of a named feature in B(a).
 
@@ -340,227 +285,6 @@ def basis_idx(feature, periods=PERIODS) -> int:
     kind, T = feature
     i = periods.index(T)
     return 1 + 2 * i + (0 if kind == "cos" else 1)
-
-
-# ============================================================================
-#  NUMERAL SCRIPT RENDERING  (only matters when `--script` != latin)
-# ============================================================================
-def to_roman(n: int) -> str:
-    """Convert a non-negative integer to its Roman-numeral string.
-
-    Roman numerals don't have a true zero -- we use "nulla" for n=0.
-    For n=1..99 the output is standard: I, II, III, IV, ..., XCIX.
-
-    Key property: NOT a positional system. Adjacent integers (e.g. 9 -> 10)
-    have wildly different glyph sequences (IX -> X). So the model has no
-    reason to wire up a period-10 structure when it sees Roman numerals --
-    which is exactly the prediction the helix theory makes.
-    """
-    if n == 0:
-        return "nulla"
-    pairs = [(1000, "M"), (900, "CM"), (500, "D"), (400, "CD"),
-             (100, "C"), (90, "XC"), (50, "L"), (40, "XL"),
-             (10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I")]
-    out = []
-    for v, s in pairs:
-        while n >= v:
-            out.append(s)
-            n -= v
-    return "".join(out)
-
-
-# Greek alphabetic numerals (Milesian system). 1-9 use one alphabet block,
-# 10-90 use another. ADDITIVE: 23 = κ + γ = "κγ".
-# Notes:
-#   * Classical letter for 6 is digamma ϛ (U+03DB stigma in modern Unicode).
-#   * Classical letter for 90 is koppa ϟ (U+03DF).
-#   * Greek had no zero -- we use "Ø" as a non-colliding placeholder.
-GREEK_UNITS = ["", "α", "β", "γ", "δ", "ε", "ϛ", "ζ", "η", "θ"]
-GREEK_TENS  = ["", "ι", "κ", "λ", "μ", "ν", "ξ", "ο", "π", "ϟ"]
-
-
-def to_greek(n: int) -> str:
-    """Convert n in [0, 99] to its Greek alphabetic numeral.
-
-    Like Roman, this is NOT positional. 9 -> 10 changes glyph entirely
-    (θ -> ι), and 23 is κγ -- a 'tens' letter then a 'units' letter,
-    not two copies of a digit set. Helix should vanish.
-    """
-    if n == 0:
-        return "Ø"
-    if n < 0 or n > 99:
-        raise ValueError(f"to_greek only supports 0..99, got {n}")
-    tens, units = divmod(n, 10)
-    return GREEK_TENS[tens] + GREEK_UNITS[units]
-
-
-# CJK digits used in POSITIONAL Chinese (e.g. 23 -> 二三, not 二十三).
-CHINESE_POSITIONAL = "〇一二三四五六七八九"
-
-
-def to_chinese_positional(n: int) -> str:
-    """23 -> '二三', 100 -> '一〇〇'.  Positional base-10 in CJK glyphs.
-
-    The OTHER way Chinese writes numbers uses place names (十=ten,
-    百=hundred, 千=thousand), e.g. 23 = 二十三 ("two-ten-three"), which is
-    additive in spirit (closer to Roman). We deliberately use the
-    positional form here so this script stays base-10 positional.
-    """
-    return "".join(CHINESE_POSITIONAL[int(d)] for d in str(n))
-
-
-# Babylonian cuneiform: POSITIONAL at base 60, ADDITIVE within each column.
-# Two wedges only:  𒁹 = 1  and  𒌋 = 10. Numbers 0-59 fit in one column;
-# 60-99 use two columns separated by a space. The Babylonians had no zero
-# until very late -- we use the late-period placeholder 𒑊 for n=0 and for
-# an empty second column (e.g. 60 = "𒁹 𒑊").
-#
-# Examples:  23 = 𒌋𒌋𒁹𒁹𒁹           (2 tens + 3 ones, single column)
-#            59 = 𒌋𒌋𒌋𒌋𒌋𒁹𒁹𒁹𒁹𒁹𒁹𒁹𒁹𒁹   (5 tens + 9 ones)
-#            60 = 𒁹 𒑊                (one sixty, zero ones)
-#            61 = 𒁹 𒁹
-#            99 = 𒁹 𒌋𒌋𒌋𒁹𒁹𒁹𒁹𒁹𒁹𒁹𒁹𒁹
-#
-# Helix prediction is genuinely uncertain here: within a column the system
-# is additive (Roman-like, helix-killing), but across the 60-boundary it
-# becomes positional (helix-friendly). For our 0-99 range the only
-# 60-wraparound happens once, at n=60, so we'd more likely see *within-
-# column* period-10 structure than the textbook period-60 structure of
-# Babylonian. Whether the model has even seen enough cuneiform during
-# pre-training to encode any of this is a further unknown.
-BAB_ONE  = "\U00012079"   # 𒁹  CUNEIFORM SIGN DISH        (= 1)
-BAB_TEN  = "\U0001230B"   # 𒌋  CUNEIFORM SIGN U           (= 10)
-BAB_ZERO = "\U0001244A"   # 𒑊  CUNEIFORM NUMERIC SIGN TWO ASH TENU (late zero)
-
-
-def to_babylonian(n: int) -> str:
-    """Convert n in [0, 215999] to its Babylonian cuneiform numeral.
-
-    Each sexagesimal column is rendered additively as
-        (count of 𒌋 = 10) + (count of 𒁹 = 1)
-    via `one_column`. Multiple columns are separated by a space, with
-    the most-significant column on the left -- the same convention used
-    in the standard "0; 30; 0" transliteration of cuneiform.
-
-    Examples:
-        23   = 𒌋𒌋𒁹𒁹𒁹            (single column, two 10s + three 1s)
-        59   = 𒌋𒌋𒌋𒌋𒌋𒁹𒁹𒁹𒁹𒁹𒁹𒁹𒁹𒁹
-        60   = 𒁹 𒑊                  (one in 60s column, zero in 1s)
-        120  = 𒁹𒁹 𒑊                (two 60s, zero 1s)
-        599  = 𒁹𒁹𒁹𒁹𒁹𒁹𒁹𒁹𒁹 𒌋𒌋𒌋𒌋𒌋𒁹𒁹𒁹𒁹𒁹𒁹𒁹𒁹𒁹
-        600  = 𒌋 𒑊                  (one ten in 60s column = 600, zero 1s)
-        3600 = 𒁹 𒑊 𒑊                (one in 3600s column, zero zero)
-    """
-    if n < 0:
-        raise ValueError(f"to_babylonian only supports n >= 0, got {n}")
-    if n == 0:
-        return BAB_ZERO
-
-    def one_column(v: int) -> str:
-        # Additive rendering of 0..59 within a single sexagesimal column.
-        if v == 0:
-            return BAB_ZERO
-        tens, ones = divmod(v, 10)
-        return BAB_TEN * tens + BAB_ONE * ones
-
-    # Decompose into base-60 columns, most-significant first.
-    columns = []
-    rest = n
-    while rest > 0:
-        rest, lsb = divmod(rest, 60)
-        columns.append(lsb)
-    columns.reverse()
-    return " ".join(one_column(c) for c in columns)
-
-
-# Hebrew alphabetic numerals (gematria). Like Greek, each letter has a
-# fixed value. ADDITIVE: 23 = כ + ג ("kaf-gimel", 20+3). The script is
-# RTL — `כג` is stored largest-first (כ=20 at index 0) and displays in
-# Hebrew text as גכ right-to-left (units-then-tens to the reader).
-# Special cases at 15 and 16 to avoid spelling part of the Tetragrammaton:
-#   15 = טו (9+6) not יה (10+5)   ← "YH" is a divine name fragment
-#   16 = טז (9+7) not יו (10+6)
-# We use the word "אפס" (efes, Hebrew for zero/nothing) for n=0.
-HEBREW_UNITS = ["", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"]
-HEBREW_TENS  = ["", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"]
-
-
-def to_hebrew(n: int) -> str:
-    """Convert n in [0, 99] to its Hebrew alphabetic numeral (gematria)."""
-    if n == 0:
-        return "אפס"
-    if n < 0 or n > 99:
-        raise ValueError(f"to_hebrew only supports 0..99, got {n}")
-    if n == 15: return "טו"
-    if n == 16: return "טז"
-    tens, units = divmod(n, 10)
-    return HEBREW_TENS[tens] + HEBREW_UNITS[units]
-
-
-def to_binary(n: int) -> str:
-    """Convert n to its base-2 representation as a digit string.
-
-    Positional, but with TWO digit values (0, 1) and natural periods at
-    powers of 2 (T = 2, 4, 8, 16, 32, 64). The paper's basis [2, 5, 10,
-    100] matches only T=2, so binary is a strong test of mode 1 (basis
-    bandwidth) -- analogous to Babylonian's T=60 story but for a much
-    finer base.
-    """
-    if n < 0:
-        raise ValueError(f"to_binary only supports n >= 0, got {n}")
-    return bin(n)[2:]  # strips the "0b" prefix; bin(0)[2:] == "0"
-
-
-def to_hexadecimal(n: int) -> str:
-    """Convert n to its base-16 representation (lowercase a-f).
-
-    Positional with 16 digit values (0-9, a-f). Natural periods at 16
-    and 256. Like binary, the paper basis catches almost none of this.
-    For n in [0, 99] the output is 1-2 characters.
-    """
-    if n < 0:
-        raise ValueError(f"to_hexadecimal only supports n >= 0, got {n}")
-    return format(n, "x")
-
-
-def format_number(n: int, script: str) -> str:
-    """Render an integer in the requested numeral script.
-
-    Maps decimal digits to Unicode equivalents in the chosen script.
-    For Roman/Greek/Hebrew/Babylonian/binary/hex, delegates to dedicated
-    helpers.
-    """
-    if script == "latin":
-        return str(n)
-    if script == "arabic":
-        # Arabic-Indic digits live at U+0660 (٠) through U+0669 (٩).
-        return "".join(chr(0x0660 + int(d)) for d in str(n))
-    if script == "persian":
-        # Extended Arabic-Indic / Persian digits live at U+06F0 (۰) through
-        # U+06F9 (۹). Different Unicode block from `arabic`; some glyphs
-        # are visually identical, others aren't.
-        return "".join(chr(0x06F0 + int(d)) for d in str(n))
-    if script == "devanagari":
-        # Devanagari digits at U+0966 (०) through U+096F (९).
-        return "".join(chr(0x0966 + int(d)) for d in str(n))
-    if script == "thai":
-        # Thai digits at U+0E50 (๐) through U+0E59 (๙).
-        return "".join(chr(0x0E50 + int(d)) for d in str(n))
-    if script == "chinese":
-        return to_chinese_positional(n)
-    if script == "binary":
-        return to_binary(n)
-    if script == "hexadecimal":
-        return to_hexadecimal(n)
-    if script == "greek":
-        return to_greek(n)
-    if script == "hebrew":
-        return to_hebrew(n)
-    if script == "roman":
-        return to_roman(n)
-    if script == "babylonian":
-        return to_babylonian(n)
-    raise ValueError(f"unknown script: {script!r}")
 
 
 # ============================================================================
@@ -763,28 +487,6 @@ def plot_layer_sweep(pc1_r2, helix_r2, pca_kd_r2, savepath, title, n_basis=9):
             },
         },
     )
-
-
-# ============================================================================
-#  HELIX FIT
-# ============================================================================
-def fit_helix(H, numbers, periods=PERIODS):
-    """Solve  H ~= B @ W  by least squares; return W, intercept, R^2.
-
-    R^2 close to 1.0 means the (1 + 2K) helix features explain almost
-    all variance in the residual stream's variation with `a`. The paper
-    reports R^2 within a few percent of the same-dimensional PCA upper
-    bound -- meaning the helix isn't just A good (1+2K)-D fit, it's THE
-    (1+2K)-D structure the model uses.
-    """
-    B = helix_basis(numbers, periods=periods)
-    reg = LinearRegression(fit_intercept=True).fit(B, H)
-    H_hat = reg.predict(B)
-    r2 = r2_score(H, H_hat, multioutput="variance_weighted")
-    # sklearn stores coef_ as (n_outputs, n_features) = (d, 9). We want
-    # W of shape (9, d) so that  H ~= B @ W  with B of shape (N, 9).
-    W = reg.coef_.T
-    return W, reg.intercept_, r2
 
 
 # ============================================================================

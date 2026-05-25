@@ -2,6 +2,14 @@ import { useMemo, useState } from "react";
 import * as d3 from "d3";
 import type { LayerSweepDoc } from "../../lib/types";
 import { fmtPct } from "../../lib/svg";
+import { MODEL_COLOR, MODEL_ORDER } from "../../lib/data";
+
+// Fallback palette indexed by position, used when an overlay isn't keyed by a
+// known HF model id. Mirrors MODEL_COLOR in MODEL_ORDER order.
+const PALETTE = MODEL_ORDER.map((m) => MODEL_COLOR[m]);
+function defaultColor(i: number): string {
+  return PALETTE[i % PALETTE.length];
+}
 
 interface Props {
   /** One or more layer-sweep docs to overlay. */
@@ -137,16 +145,3 @@ export function LayerSweep({ docs, metric = "helix_r2", height = 280 }: Props) {
   );
 }
 
-function defaultColor(i: number): string {
-  // 8 nicely-distinct colours for the 8-model overlay.
-  return [
-    "#0369a1", // sky-700    (Pythia)
-    "#4338ca", // indigo-700 (GPT-J)
-    "#c2410c", // orange-700 (Llama)
-    "#15803d", // green-700  (Gemma-E4B)
-    "#7c3aed", // violet-600 (Gemma-31B)
-    "#be185d", // pink-700   (OLMo)
-    "#0891b2", // cyan-600   (Qwen-7B)
-    "#a16207", // amber-700  (Qwen-32B)
-  ][i % 8];
-}

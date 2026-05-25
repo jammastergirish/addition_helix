@@ -39,14 +39,27 @@ export function Hero() {
       </p>
 
       <p className="mt-4 text-lg leading-relaxed text-ink-soft">
+        This provenance question is also motivated by prior behavioral
+        work on number tokenization.{" "}
+        <a className="text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent" href="https://arxiv.org/abs/2402.14903">
+          Singh &amp; Strouse (2024)
+        </a>{" "}
+        show that arithmetic performance in frontier LLMs depends
+        strongly on how numbers are tokenized: changing the tokenization
+        direction can substantially improve GPT-3.5/4 arithmetic, and
+        the resulting errors follow systematic token-boundary patterns.
+        Their result is behavioral; the question here is
+        representational. If tokenization can change arithmetic
+        behavior, can the input pipeline also create the internal
+        numerical geometry we later interpret as a model representation?
+      </p>
+
+      <p className="mt-4 text-lg leading-relaxed text-ink-soft">
         I introduce a provenance diagnostic, ρ = helix R²(L=0) /
         max<sub>L</sub> R²(L), and pair it with basis/window checks,
         a random-embedding control, and a representation-alignment
-        test (CKA), applied across <strong>eight models</strong> from
-        six architecture families and <strong>twelve numeral
-        systems</strong> — Latin, Arabic-Indic, Persian, Devanagari,
-        Thai, CJK digit string, binary, hexadecimal, Greek alphabetic,
-        Hebrew alphabetic, Roman, and Babylonian cuneiform.
+        test (CKA), applied across <strong>eight models</strong> and <strong>twelve numeral
+          systems</strong>.
       </p>
 
       <p className="mt-4 text-lg leading-relaxed text-ink-soft">
@@ -68,8 +81,8 @@ export function Hero() {
         semantics. It arises mechanically: from how cuneiform renders
         numbers as wedge counts, how the tokenizer splits those wedges,
         and how mean-pooling combines them. <strong>Some apparent neural
-        geometry can come from the input pipeline alone, before learned
-        embeddings or transformer blocks are needed.</strong>
+          geometry can come from the input pipeline alone, before learned
+          embeddings or transformer blocks are needed.</strong>
       </blockquote>
 
       <p className="mt-4 text-sm leading-relaxed text-ink-mute">

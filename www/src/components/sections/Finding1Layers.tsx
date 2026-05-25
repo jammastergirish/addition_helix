@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { IndexDoc, LayerSweepDoc } from "../../lib/types";
-import { findCell, loadJson, MODEL_ORDER, MODEL_LABEL } from "../../lib/data";
+import { findCell, loadJson, MODEL_ORDER, MODEL_LABEL, MODEL_COLOR } from "../../lib/data";
 import { LayerSweep } from "../charts/LayerSweep";
 import { fmtPct } from "../../lib/svg";
 
@@ -24,10 +24,9 @@ export function Finding1Layers({ index }: Props) {
     const cells = MODEL_ORDER.map((m) =>
       findCell(index.cells, { model: m, ...LATIN_DEFAULT }),
     );
-    const colors = ["#0369a1", "#4338ca", "#c2410c", "#15803d", "#7c3aed", "#be185d", "#0891b2", "#a16207"];
     Promise.all(
-      cells.map(async (c, i) => c?.paths.layer_sweep
-        ? { label: MODEL_LABEL[c.model], color: colors[i],
+      cells.map(async (c) => c?.paths.layer_sweep
+        ? { label: MODEL_LABEL[c.model], color: MODEL_COLOR[c.model],
             doc: await loadJson<LayerSweepDoc>(c.paths.layer_sweep) }
         : null,
       ),

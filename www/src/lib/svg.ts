@@ -5,14 +5,6 @@ import * as d3 from "d3";
 
 export const VIRIDIS = (t: number) => d3.interpolateViridis(t);
 
-export interface Margin { top: number; right: number; bottom: number; left: number; }
-
-export const DEFAULT_MARGIN: Margin = { top: 16, right: 24, bottom: 36, left: 48 };
-
-export function tickValues(scale: d3.ScaleLinear<number, number>, n = 5): number[] {
-  return scale.ticks(n);
-}
-
 // Color stops for the rho heatmap. Diverging palette so 1.0 ("all tokeniser")
 // is visually distinct from 0.0 ("all depth"). Mid = 0.5.
 export function rhoColor(rho: number | null | undefined): string {

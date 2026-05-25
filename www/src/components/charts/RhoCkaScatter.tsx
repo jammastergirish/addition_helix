@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import * as d3 from "d3";
-import { loadJson } from "../../lib/data";
-import { MODEL_ORDER, MODEL_LABEL, SCRIPT_LABEL } from "../../lib/data";
+import { loadJson, MODEL_ORDER, MODEL_LABEL, MODEL_COLOR, SCRIPT_LABEL } from "../../lib/data";
 
 interface Cell {
   model: string;
@@ -17,17 +16,6 @@ interface Doc {
   kind: "subspace_alignment_cka";
   results: Cell[];
 }
-
-const MODEL_COLOR: Record<string, string> = {
-  "EleutherAI/pythia-6.9b":    "#0369a1",
-  "EleutherAI/gpt-j-6b":       "#4338ca",
-  "meta-llama/Llama-3.1-8B":   "#c2410c",
-  "google/gemma-4-E4B":        "#15803d",
-  "google/gemma-4-31B":        "#7c3aed",
-  "allenai/Olmo-3-1125-32B":   "#be185d",
-  "Qwen/Qwen2.5-7B":           "#0891b2",
-  "Qwen/Qwen2.5-32B":          "#a16207",
-};
 
 /**
  * 2D scatter of (ρ, CKA-helix) for every (model, script) cell. Four

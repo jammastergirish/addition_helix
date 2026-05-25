@@ -142,7 +142,7 @@ export function FindingBases({ index }: Props) {
       </p>
 
       <p>
-        The ρ column on Pythia/Llama/OLMo/GPT-J (0.44–0.77) therefore
+        The ρ column on Pythia/Llama/OLMo/GPT-J (0.62–0.77) therefore
         doesn't mean those models learned binary number-sense. It means
         depth is doing additional work <em>on top of</em> a mechanical
         L=0 helix — and the CKA data (Finding 5) confirms it: those
@@ -207,11 +207,16 @@ export function FindingBases({ index }: Props) {
       </p>
 
       <p>
-        Gemma-31B/hex (ρ = 0.34, CKA = 0.67) and Gemma-4-E4B/hex
-        (ρ = 0.43, CKA = 0.79) are also depth-built, with subspace
-        alignment in the depth-amplifies regime — Gemma uses hex
-        differently from how it uses Latin (where ρ is high and CKA is
-        low — the rebuild signature).
+        Gemma's hex picture is more protocol-dependent than the other
+        four models'. On the <em>paper-default</em> protocol, Gemma-31B
+        sits at ρ = 0.34, CKA = 0.67 and Gemma-E4B at ρ = 0.43, CKA =
+        0.79 — both look like depth amplification of a real L=0 helix.
+        On the <em>hex-native</em> protocol used by the table above
+        (n=1024, basis [16,32,64,256]), Gemma's ρ rises to 0.54 and 0.63
+        — closer to the inherited / depth-amplified border than to the
+        depth-built regime where Pythia/Llama/GPT-J/OLMo land. Either
+        way, Gemma is using hex more like Latin than like the
+        all-Gemma-scripts rebuild pattern of Finding 5.
       </p>
 
       <h3 className="section-subheading">The random-embedding control confirms it</h3>

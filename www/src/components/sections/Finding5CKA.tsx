@@ -80,7 +80,7 @@ export function Finding5CKA() {
           isn't — depth replaces the first-layer helix with a
           similar-quality one whose row-similarity geometry is
           substantially different. The whole Gemma family lives here
-          (CKA 0.19–0.65 across most scripts).{" "}
+          (CKA 0.21–0.65 across most scripts).{" "}
           <strong>Babylonian on Pythia, Llama, and OLMo</strong> sits
           here too (ρ ≈ 0.86, CKA = 0.25–0.53) — depth produces a
           different helix on top of the mechanical first-layer one.{" "}
@@ -96,16 +96,17 @@ export function Finding5CKA() {
           <strong>Depth refines what's there</strong> (low-to-moderate ρ,
           high CKA — the green quadrant). Pythia/Latin (0.34, 0.79) and
           Llama/Latin (0.39, 0.81) — the paper's clean cells. Also Roman
-          on every model (CKA = 0.82–0.90): even when the first-layer
-          helix is weak, depth preserves and amplifies its
-          integer-to-integer geometry rather than rebuilding from
-          scratch.
+          on every non-Gemma model (CKA = 0.77–0.90): even when the
+          first-layer helix is weak, depth preserves and amplifies its
+          integer-to-integer geometry rather than rebuilding from scratch.
+          Gemma is the lone exception (Roman CKA 0.30, 0.57) — Gemma
+          rebuilds Roman like it rebuilds everything else.
         </li>
         <li>
           <strong>Depth builds something new</strong> (low ρ, low CKA —
           the grey quadrant). Empirically the rarest case in this
           matrix. Gemma's Devanagari/Persian/Roman/Greek cells edge into
-          it (ρ ≈ 0.44–0.61, CKA ≈ 0.30–0.45) — depth is doing the most
+          it (ρ ≈ 0.44–0.63, CKA ≈ 0.29–0.57) — depth is doing the most
           representational work on Gemma's non-Latin scripts, building a
           helix with a substantially different integer-to-integer
           geometry than the input pipeline supplied.

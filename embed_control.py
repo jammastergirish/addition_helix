@@ -52,141 +52,14 @@ from sklearn.linear_model import LinearRegression  # noqa: E402
 from sklearn.metrics import r2_score  # noqa: E402
 from transformers import AutoConfig, AutoTokenizer  # noqa: E402
 
+from helix_lib import (  # noqa: E402
+    ALL_MODELS, ALL_SCRIPTS,
+    format_number, get_d_model, helix_basis,
+)
+
 warnings.filterwarnings("ignore")
 
 OUT = Path(__file__).parent / "out"
-
-
-# ─── inlined helpers from main.py (kept separate so this script doesn't
-#     drag in torch / matplotlib via main.py's imports) ──────────────────
-
-def helix_basis(a, periods):
-    """Trig basis B(a) = [a, cos(2πa/T), sin(2πa/T)] per period T."""
-    a = np.asarray(a, dtype=np.float64)
-    cols = [a]
-    for T in periods:
-        cols.append(np.cos(2 * np.pi * a / T))
-        cols.append(np.sin(2 * np.pi * a / T))
-    return np.stack(cols, axis=-1)
-
-
-def to_roman(n: int) -> str:
-    if n == 0:
-        return "nulla"
-    pairs = [(1000, "M"), (900, "CM"), (500, "D"), (400, "CD"),
-             (100, "C"),  (90, "XC"),  (50, "L"),  (40, "XL"),
-             (10, "X"),   (9, "IX"),   (5, "V"),   (4, "IV"), (1, "I")]
-    out = []
-    for v, s in pairs:
-        while n >= v:
-            out.append(s); n -= v
-    return "".join(out)
-
-
-GREEK_UNITS = ["", "α", "β", "γ", "δ", "ε", "ϛ", "ζ", "η", "θ"]
-GREEK_TENS  = ["", "ι", "κ", "λ", "μ", "ν", "ξ", "ο", "π", "ϟ"]
-
-
-def to_greek(n: int) -> str:
-    if n == 0:
-        return "Ø"
-    if n > 99:
-        raise ValueError(f"to_greek: got {n}")
-    t, u = divmod(n, 10)
-    return GREEK_TENS[t] + GREEK_UNITS[u]
-
-
-CHINESE_POSITIONAL = "〇一二三四五六七八九"
-
-
-def to_chinese_positional(n: int) -> str:
-    return "".join(CHINESE_POSITIONAL[int(d)] for d in str(n))
-
-
-BAB_ONE  = "\U00012079"   # 𒁹
-BAB_TEN  = "\U0001230B"   # 𒌋
-BAB_ZERO = "\U0001244A"   # 𒑊 (late-period zero placeholder)
-
-
-def _bab_column(v: int) -> str:
-    if v == 0:
-        return BAB_ZERO
-    tens, ones = divmod(v, 10)
-    return BAB_TEN * tens + BAB_ONE * ones
-
-
-def to_babylonian(n: int) -> str:
-    if n < 0:
-        raise ValueError(f"to_babylonian: got {n}")
-    if n == 0:
-        return BAB_ZERO
-    cols = []
-    rest = n
-    while rest > 0:
-        rest, lsb = divmod(rest, 60)
-        cols.append(lsb)
-    cols.reverse()
-    return " ".join(_bab_column(c) for c in cols)
-
-
-HEBREW_UNITS = ["", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"]
-HEBREW_TENS  = ["", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"]
-
-
-def to_hebrew(n: int) -> str:
-    if n == 0:
-        return "אפס"
-    if n < 0 or n > 99:
-        raise ValueError(f"to_hebrew: got {n}")
-    if n == 15: return "טו"
-    if n == 16: return "טז"
-    t, u = divmod(n, 10)
-    return HEBREW_TENS[t] + HEBREW_UNITS[u]
-
-
-def format_number(n: int, script: str) -> str:
-    if script == "latin":
-        return str(n)
-    if script == "arabic":
-        return "".join(chr(0x0660 + int(d)) for d in str(n))
-    if script == "persian":
-        return "".join(chr(0x06F0 + int(d)) for d in str(n))
-    if script == "devanagari":
-        return "".join(chr(0x0966 + int(d)) for d in str(n))
-    if script == "thai":
-        return "".join(chr(0x0E50 + int(d)) for d in str(n))
-    if script == "chinese":
-        return to_chinese_positional(n)
-    if script == "binary":
-        return bin(n)[2:]
-    if script == "hexadecimal":
-        return format(n, "x")
-    if script == "greek":
-        return to_greek(n)
-    if script == "hebrew":
-        return to_hebrew(n)
-    if script == "roman":
-        return to_roman(n)
-    if script == "babylonian":
-        return to_babylonian(n)
-    raise ValueError(f"unknown script: {script!r}")
-
-
-# ─── config helpers ─────────────────────────────────────────────────────
-
-ALL_MODELS = [
-    "EleutherAI/pythia-6.9b",
-    "EleutherAI/gpt-j-6b",
-    "meta-llama/Llama-3.1-8B",
-    "google/gemma-4-E4B",
-    "google/gemma-4-31B",
-    "allenai/Olmo-3-1125-32B",
-    "Qwen/Qwen2.5-7B",
-    "Qwen/Qwen2.5-32B",
-]
-ALL_SCRIPTS = ["latin", "arabic", "persian", "devanagari", "thai",
-               "chinese", "binary", "hexadecimal",
-               "greek", "hebrew", "roman", "babylonian"]
 
 
 # Configurations to run. Mirrors run.sh's three passes.
@@ -205,17 +78,6 @@ def default_combos():
     combos.append(("hexadecimal", 1024, [2, 5, 10, 100]))
     combos.append(("hexadecimal", 1024, [16, 32, 64, 256]))
     return combos
-
-
-def get_d_model(cfg) -> int:
-    if hasattr(cfg, "hidden_size"):
-        return cfg.hidden_size
-    for sub in ("text_config", "language_model_config"):
-        if hasattr(cfg, sub):
-            sub_cfg = getattr(cfg, sub)
-            if hasattr(sub_cfg, "hidden_size"):
-                return sub_cfg.hidden_size
-    raise AttributeError("no hidden_size on config")
 
 
 def get_vocab_size(cfg, tokenizer) -> int:

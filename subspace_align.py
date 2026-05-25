@@ -54,123 +54,17 @@ os.environ.setdefault("HF_HUB_ENABLE_HF_TRANSFER", "1")
 
 import numpy as np  # noqa: E402
 import torch  # noqa: E402
-from sklearn.linear_model import LinearRegression  # noqa: E402
-from sklearn.metrics import r2_score  # noqa: E402
 from tqdm import tqdm  # noqa: E402
 from transformers import AutoModelForCausalLM, AutoTokenizer  # noqa: E402
+
+from helix_lib import (  # noqa: E402
+    ALL_MODELS, ALL_SCRIPTS, PERIODS,
+    fit_helix, format_number, get_num_layers, helix_basis,
+)
 
 warnings.filterwarnings("ignore")
 
 OUT = Path(__file__).parent / "out"
-
-ALL_MODELS = [
-    "EleutherAI/pythia-6.9b",
-    "EleutherAI/gpt-j-6b",
-    "meta-llama/Llama-3.1-8B",
-    "google/gemma-4-E4B",
-    "google/gemma-4-31B",
-    "allenai/Olmo-3-1125-32B",
-    "Qwen/Qwen2.5-7B",
-    "Qwen/Qwen2.5-32B",
-]
-ALL_SCRIPTS = ["latin", "arabic", "persian", "devanagari", "thai",
-               "chinese", "binary", "hexadecimal",
-               "greek", "hebrew", "roman", "babylonian"]
-
-# Inline renderer + basis (no main.py import to avoid matplotlib dep)
-PERIODS = [2, 5, 10, 100]
-
-
-def helix_basis(a, periods=PERIODS):
-    a = np.asarray(a, dtype=np.float64)
-    cols = [a]
-    for T in periods:
-        cols.append(np.cos(2 * np.pi * a / T))
-        cols.append(np.sin(2 * np.pi * a / T))
-    return np.stack(cols, axis=-1)
-
-
-# ── renderers (inlined from main.py) ─────────────────────────────────
-
-def _to_roman(n: int) -> str:
-    if n == 0:
-        return "nulla"
-    pairs = [(1000, "M"), (900, "CM"), (500, "D"), (400, "CD"),
-             (100, "C"),  (90, "XC"),  (50, "L"),  (40, "XL"),
-             (10, "X"),   (9, "IX"),   (5, "V"),   (4, "IV"), (1, "I")]
-    out = []
-    for v, s in pairs:
-        while n >= v: out.append(s); n -= v
-    return "".join(out)
-
-
-_GREEK_UNITS = ["", "α", "β", "γ", "δ", "ε", "ϛ", "ζ", "η", "θ"]
-_GREEK_TENS  = ["", "ι", "κ", "λ", "μ", "ν", "ξ", "ο", "π", "ϟ"]
-
-
-def _to_greek(n: int) -> str:
-    if n == 0: return "Ø"
-    if n > 99: raise ValueError(f"to_greek: got {n}")
-    t, u = divmod(n, 10)
-    return _GREEK_TENS[t] + _GREEK_UNITS[u]
-
-
-_CHINESE_POS = "〇一二三四五六七八九"
-
-
-def _to_chinese_positional(n: int) -> str:
-    return "".join(_CHINESE_POS[int(d)] for d in str(n))
-
-
-_BAB_ONE  = "\U00012079"
-_BAB_TEN  = "\U0001230B"
-_BAB_ZERO = "\U0001244A"
-
-
-def _bab_column(v: int) -> str:
-    if v == 0: return _BAB_ZERO
-    tens, ones = divmod(v, 10)
-    return _BAB_TEN * tens + _BAB_ONE * ones
-
-
-def _to_babylonian(n: int) -> str:
-    if n < 0: raise ValueError(f"to_babylonian: got {n}")
-    if n == 0: return _BAB_ZERO
-    cols, rest = [], n
-    while rest > 0:
-        rest, lsb = divmod(rest, 60)
-        cols.append(lsb)
-    cols.reverse()
-    return " ".join(_bab_column(c) for c in cols)
-
-
-_HEBREW_UNITS = ["", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"]
-_HEBREW_TENS  = ["", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"]
-
-
-def _to_hebrew(n: int) -> str:
-    if n == 0: return "אפס"
-    if n > 99: raise ValueError(f"to_hebrew: got {n}")
-    if n == 15: return "טו"
-    if n == 16: return "טז"
-    t, u = divmod(n, 10)
-    return _HEBREW_TENS[t] + _HEBREW_UNITS[u]
-
-
-def format_number(n: int, script: str) -> str:
-    if script == "latin":       return str(n)
-    if script == "arabic":      return "".join(chr(0x0660 + int(d)) for d in str(n))
-    if script == "persian":     return "".join(chr(0x06F0 + int(d)) for d in str(n))
-    if script == "devanagari":  return "".join(chr(0x0966 + int(d)) for d in str(n))
-    if script == "thai":        return "".join(chr(0x0E50 + int(d)) for d in str(n))
-    if script == "chinese":     return _to_chinese_positional(n)
-    if script == "binary":      return bin(n)[2:]
-    if script == "hexadecimal": return format(n, "x")
-    if script == "greek":       return _to_greek(n)
-    if script == "hebrew":      return _to_hebrew(n)
-    if script == "roman":       return _to_roman(n)
-    if script == "babylonian":  return _to_babylonian(n)
-    raise ValueError(f"unknown script: {script!r}")
 
 
 # ── CKA ──────────────────────────────────────────────────────────────────
@@ -195,28 +89,6 @@ def linear_cka(X: np.ndarray, Y: np.ndarray) -> float:
     num = float((XtY * XtY).sum())
     den = float(np.sqrt((XtX * XtX).sum() * (YtY * YtY).sum()))
     return num / den if den > 0 else 0.0
-
-
-def fit_helix(H, numbers, periods=PERIODS):
-    B = helix_basis(numbers, periods=periods)
-    reg = LinearRegression(fit_intercept=True).fit(B, H)
-    W = reg.coef_.T  # (n_features, d)
-    r2 = float(r2_score(H, reg.predict(B), multioutput="variance_weighted"))
-    return W, reg.intercept_, r2
-
-
-def get_num_layers(model) -> int:
-    cfg = model.config
-    for attr in ("num_hidden_layers", "n_layer", "num_layers"):
-        if hasattr(cfg, attr):
-            return getattr(cfg, attr)
-    for sub in ("text_config", "language_model_config"):
-        if hasattr(cfg, sub):
-            sub_cfg = getattr(cfg, sub)
-            for attr in ("num_hidden_layers", "n_layer", "num_layers"):
-                if hasattr(sub_cfg, attr):
-                    return getattr(sub_cfg, attr)
-    raise AttributeError("no layer count on model.config")
 
 
 def pick_device() -> torch.device:

@@ -34,11 +34,11 @@ export function Finding4L0({ index }: Props) {
         </div>
         <figcaption className="mx-auto mt-3 max-w-prose text-sm text-ink-mute leading-snug">
           The most consequential row is the bottom of the cool spectrum:
-          Pythia and Llama on Latin (ρ = 0.34, 0.39) — the cells the
-          original paper studies, and the cleanest evidence that the
-          helix on those cells is substantially constructed by depth.
-          Everything warm has most of its helix score available before any
-          transformer block runs.
+          Pythia, Llama, and GPT-J on Latin (ρ = 0.34, 0.39, 0.41) — the
+          cells the original paper studies, and the cleanest evidence
+          that the helix on those cells is substantially constructed by
+          depth. Everything warm has most of its helix score available
+          before any transformer block runs.
         </figcaption>
       </figure>
 
@@ -49,22 +49,26 @@ export function Finding4L0({ index }: Props) {
         cell <strong>depth-built / depth-amplified</strong> if{" "}
         <span className="font-mono">ρ ≤ 0.55</span> and{" "}
         <span className="font-mono">helix/PCA ≥ 0.70</span> at the peak.
-        On that joint criterion only four cells of 96 qualify:
-        Pythia/Latin, Llama/Latin, and Gemma's two Devanagari cells
-        (E4B and 31B). Relaxing helix/PCA to 0.60 adds Gemma's Roman
-        cells and Gemma-E4B/Persian; a few Qwen-Roman and Qwen-Devanagari
-        cells are borderline (ρ in the 0.67–0.76 range). Either way,
-        the bar is "narrow" — not "everything outside Latin is real
-        cross-script geometry."
+        On that joint criterion six cells of 96 qualify: the three Latin
+        cells from the original paper (Pythia, Llama, GPT-J), Gemma's two
+        Devanagari cells (E4B and 31B), and Gemma-31B/Binary — though
+        Binary at paper defaults is one of the cells the heatmap warns is
+        mismeasured, so I'd usually set it aside and read its native-basis
+        ρ in the case studies. Relaxing helix/PCA to 0.60 adds Gemma's
+        two Roman cells; a few Qwen-Roman and Qwen-Devanagari cells are
+        borderline (ρ in the 0.67–0.77 range). Either way, the bar is
+        "narrow" — not "everything outside Latin is real cross-script
+        geometry."
       </p>
 
       <p>Cell-by-cell:</p>
 
       <ul className="mt-4 space-y-3 list-disc pl-6">
         <li>
-          <strong>Pythia/Latin and Llama/Latin are the paper's clean cells.</strong>{" "}
-          ρ = 0.34 and 0.39 — less than half of the helix is at L=0, the
-          rest is genuinely built by depth.
+          <strong>The three paper-model Latin cells are clean.</strong>{" "}
+          Pythia/Latin ρ = 0.34, Llama/Latin ρ = 0.39, GPT-J/Latin ρ =
+          0.41 — less than half of the helix is at L=0, the rest is
+          genuinely built by depth.
         </li>
         <li>
           <strong>Qwen 2.5 takes mode 3 to its limit — even on Latin.</strong>{" "}
@@ -76,9 +80,10 @@ export function Finding4L0({ index }: Props) {
           tokenizer, not the transformer.
         </li>
         <li>
-          <strong>The cross-script extension on Pythia, Llama, and Qwen is
+          <strong>The cross-script extension on Pythia and Llama is
           almost entirely pre-transformer</strong> (ρ = 0.73–1.00 across
-          non-Latin cells on those models). Pythia isn't a multilingual
+          non-Latin positional cells on those two models; Qwen is broken
+          out below). Pythia isn't a multilingual
           model; its Arabic-Indic "helix" isn't number representation
           built by the transformer, it's the tokenizer/embedding front
           end: <code>٢٣</code> splits into per-digit sub-tokens whose
@@ -87,11 +92,11 @@ export function Finding4L0({ index }: Props) {
         </li>
         <li>
           <strong>Gemma genuinely builds the helix on Devanagari, Persian,
-          and Roman</strong> (ρ = 0.44–0.65). These are scripts where
+          and Roman</strong> (ρ = 0.44–0.63). These are scripts where
           Gemma 4 plausibly had substantial training exposure, though
           I don't measure pre-training distributions directly. Qwen
           sits between: its only borderline depth-built cells are
-          Roman (ρ ≈ 0.67–0.70) and Devanagari on Qwen-32B (ρ ≈ 0.76).
+          Roman (ρ ≈ 0.67–0.70) and Devanagari (ρ ≈ 0.76–0.77).
         </li>
         <li>
           <strong>Babylonian is universally pre-transformer</strong>{" "}
@@ -111,12 +116,12 @@ export function Finding4L0({ index }: Props) {
 
       <p className="mt-6">
         <strong>The cells where depth genuinely builds the helix are
-        narrower than the original headline suggests:</strong> the paper's
-        Pythia/Latin and Llama/Latin, plus Gemma's strong non-Latin
-        scripts. Of 96 cells, 4–6 clear the joint ρ + quality bar
-        depending on threshold. Everywhere else, the helix framing
-        borrows rhetorical strength from cells where depth did the work
-        to talk about cells where it didn't.
+        narrower than the original headline suggests:</strong> the three
+        paper-model Latin cells, plus Gemma's strong non-Latin scripts.
+        Of 96 cells, 6–8 clear the joint ρ + quality bar depending on
+        threshold. Everywhere else, the helix framing borrows rhetorical
+        strength from cells where depth did the work to talk about cells
+        where it didn't.
       </p>
 
       <h3 className="section-subheading">The classification grid</h3>

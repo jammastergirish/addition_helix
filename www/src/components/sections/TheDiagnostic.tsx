@@ -45,10 +45,16 @@ export function TheDiagnostic() {
           at the best layer can be the entire output of how the model
           renders the number to text, breaks it into tokens, looks each
           token up in the embedding table, and averages the results. The
-          transformer might have done nothing to construct it. You can't
-          tell which case you're in without comparing the best layer to
-          the very first layer (before any computation). <em>The fix:</em>{" "}
-          alongside the peak score, report the ratio
+          transformer might have done nothing to construct it. This is
+          the representation-level analogue of the tokenization effects
+          studied by{" "}
+          <a className="text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent" href="https://arxiv.org/abs/2402.14903">
+            Singh &amp; Strouse
+          </a>: tokenization is not a neutral preprocessing detail, but
+          an inductive bias in the numerical reasoning pipeline. You
+          can't tell which case you're in without comparing the best
+          layer to the very first layer (before any computation).{" "}
+          <em>The fix:</em> alongside the peak score, report the ratio
         </li>
       </ol>
 

@@ -68,6 +68,19 @@ export const MODEL_LABEL: Record<string, string> = {
   "Qwen/Qwen2.5-32B":          "Qwen2.5-32B",
 };
 
+// Shared model colour palette used by LayerSweep, RhoCkaScatter, etc.
+// Order matches MODEL_ORDER so an index-based lookup is also valid.
+export const MODEL_COLOR: Record<string, string> = {
+  "EleutherAI/pythia-6.9b":    "#0369a1", // sky-700
+  "EleutherAI/gpt-j-6b":       "#4338ca", // indigo-700
+  "meta-llama/Llama-3.1-8B":   "#c2410c", // orange-700
+  "google/gemma-4-E4B":        "#15803d", // green-700
+  "google/gemma-4-31B":        "#7c3aed", // violet-600
+  "allenai/Olmo-3-1125-32B":   "#be185d", // pink-700
+  "Qwen/Qwen2.5-7B":           "#0891b2", // cyan-600
+  "Qwen/Qwen2.5-32B":          "#a16207", // amber-700
+};
+
 export const SCRIPT_ORDER = [
   "latin", "arabic", "persian", "devanagari", "thai",
   "chinese", "binary", "hexadecimal",
