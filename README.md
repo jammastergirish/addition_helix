@@ -45,28 +45,14 @@ out/                generated data and figures (gitignored)
 # one cell
 uv run main.py --model meta-llama/Llama-3.1-8B --script latin --sweep
 
-# full sweep: 8 models × 12 scripts + extended-basis runs (~6–8 h)
+# full sweep + every aggregate / diagnostic / comparison pass (~6–8 h)
 ./run.sh
-
-# aggregate + auxiliary diagnostics (after the sweep)
-uv run aggregate.py
-uv run embed_control.py
-uv run subspace_align.py --scripts all
 
 # the React blogpost
 cd www && npm install && npm run dev
 ```
 
-`./run.sh` is idempotent — any combo whose `fig_layer_sweep.json` already
-exists is skipped. Filter with a substring: `./run.sh gemma`, `./run.sh 31B`.
-
-## Citation
-
-```
-@article{kantamneni2025helix,
-  title  = {Language Models Use Trigonometry to Do Addition},
-  author = {Kantamneni, Subhash and Tegmark, Max},
-  journal= {arXiv preprint arXiv:2502.00873},
-  year   = {2025}
-}
-```
+`./run.sh` runs the per-cell sweep, then `aggregate.py`, `embed_control.py`,
+`subspace_align.py`, and `compare.py` as post-sweep passes. It's idempotent —
+any combo whose `fig_layer_sweep.json` already exists is skipped. Filter
+with a substring: `./run.sh gemma`, `./run.sh 31B`.
