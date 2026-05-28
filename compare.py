@@ -70,9 +70,16 @@ def main() -> None:
     for model_dir, base_name in MODELS:
         p = ROOT / "out" / model_dir / "latin" / "mean" / "fig_layer_sweep.png"
         if not p.exists():
-            raise FileNotFoundError(f"missing {p}")
+            # Skip models that haven't been swept (e.g. a filtered run)
+            # rather than aborting the whole comparison.
+            print(f"  skip (no sweep yet): {p}")
+            continue
         panels.append(Image.open(p))
         labels.append(label_for(model_dir, base_name))
+
+    if not panels:
+        print("compare: no per-model sweeps found; nothing to stitch.")
+        return
 
     w = max(im.width for im in panels)
     row_h = HEADER_H + max(im.height for im in panels) + PAD
@@ -94,7 +101,7 @@ def main() -> None:
         canvas.paste(im, (PAD + (w - im.width) // 2, y + HEADER_H))
         y += row_h
 
-    out_path = OUT_DIR / f"fig_latin_sweep_{len(MODELS)}models.png"
+    out_path = OUT_DIR / f"fig_latin_sweep_{len(panels)}models.png"
     canvas.save(out_path, "PNG", optimize=True)
     print(f"wrote {out_path}")
 

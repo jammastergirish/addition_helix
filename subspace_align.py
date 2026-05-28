@@ -111,7 +111,12 @@ def collect_l0_and_peak(model, tokenizer, n_max: int, peak_layer: int,
                         device, script: str):
     """Forward each integer once; keep only hidden_states[0] and
     hidden_states[peak_layer], mean-pooled over the numeral's tokens."""
-    bos = tokenizer.bos_token_id or tokenizer.eos_token_id
+    # Match main.py's BOS handling exactly: fall back to EOS only when
+    # bos_token_id is genuinely absent. Using `or` here would mis-treat a
+    # valid bos_token_id of 0 as falsy and substitute EOS.
+    bos = tokenizer.bos_token_id
+    if bos is None:
+        bos = tokenizer.eos_token_id
     H_l0 = []
     H_peak = []
     for n in tqdm(range(n_max), desc=f"  {script} L=0,L={peak_layer}", leave=False):

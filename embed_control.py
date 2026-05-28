@@ -81,9 +81,13 @@ def default_combos():
 
 
 def get_vocab_size(cfg, tokenizer) -> int:
-    if hasattr(cfg, "vocab_size") and cfg.vocab_size:
-        return cfg.vocab_size
-    return len(tokenizer)
+    # Size the random embedding table to cover every id the tokenizer can
+    # emit. cfg.vocab_size is sometimes smaller than len(tokenizer) (added /
+    # special tokens), which would make rand_embed[ids] raise IndexError if
+    # a rendered numeral ever tokenized to a high id. Take the max so the
+    # lookup is always in range.
+    cfg_vocab = getattr(cfg, "vocab_size", 0) or 0
+    return max(cfg_vocab, len(tokenizer))
 
 
 def fit_r2(H, numbers, periods):
