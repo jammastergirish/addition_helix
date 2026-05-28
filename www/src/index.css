@@ -18,8 +18,14 @@
   h1, h2, h3, h4 {
     font-family: theme('fontFamily.sans');
     font-weight: 600;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.015em;
     color: theme('colors.ink.DEFAULT');
+  }
+
+  /* Display type for the hero + part numbers carries the editorial weight. */
+  .font-display {
+    font-family: theme('fontFamily.display');
+    font-feature-settings: "kern", "ss01";
   }
 
   code, kbd, pre, samp {
@@ -30,6 +36,18 @@
   /* Crisp number figures in tables */
   table .numeric {
     font-variant-numeric: tabular-nums;
+  }
+
+  /* Deep-dive disclosures: drop the native triangle (the ▸ in the summary
+     text is the affordance) and give the open state a soft accent edge. */
+  details > summary {
+    list-style: none;
+  }
+  details > summary::-webkit-details-marker {
+    display: none;
+  }
+  details[open] {
+    border-color: theme('colors.accent.soft');
   }
 }
 
@@ -81,15 +99,40 @@
   }
 
   .section-heading {
-    @apply text-2xl md:text-3xl font-semibold tracking-tight mt-20 mb-6;
+    font-family: theme('fontFamily.display');
+    @apply text-2xl md:text-[1.85rem] font-extrabold tracking-[-0.02em] mt-20 mb-6 leading-tight;
+  }
+  /* Short accent bar above each section heading as a quiet editorial marker. */
+  .section-heading::before {
+    content: "";
+    @apply block h-[3px] w-10 bg-accent mb-4 rounded-full;
   }
 
   .section-subheading {
-    @apply text-lg md:text-xl font-semibold mt-10 mb-3;
+    @apply font-sans text-lg md:text-xl font-bold tracking-tight mt-10 mb-3;
   }
 
   .pill {
     @apply inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium uppercase tracking-wider;
+  }
+
+  /* Editorial eyebrow / kicker — small Archivo, tracked, uppercase. */
+  .kicker {
+    @apply font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-accent;
+  }
+
+  /* A thin accent rule with a centred wedge mark — used as a section
+     separator that nods to the cuneiform 𒁹 / number-line motif. */
+  .rule-wedge {
+    @apply relative flex items-center justify-center;
+  }
+  .rule-wedge::before,
+  .rule-wedge::after {
+    content: "";
+    @apply h-px flex-1 bg-ink/15;
+  }
+  .rule-wedge > span {
+    @apply px-3 font-mono text-xs text-accent/70;
   }
 
   /* Tables that look at home in a magazine, not a spreadsheet */
@@ -117,4 +160,25 @@ body::before {
   background-image:
     radial-gradient(circle at 25% 30%, rgba(0,0,0,0.012) 0, transparent 40%),
     radial-gradient(circle at 75% 70%, rgba(0,0,0,0.012) 0, transparent 40%);
+}
+
+/* One orchestrated page-load reveal: hero elements rise + fade in a
+   staggered sequence. Respects reduced-motion. */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.reveal {
+  opacity: 0;
+  animation: rise-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.reveal-1 { animation-delay: 0.05s; }
+.reveal-2 { animation-delay: 0.16s; }
+.reveal-3 { animation-delay: 0.27s; }
+.reveal-4 { animation-delay: 0.38s; }
+.reveal-5 { animation-delay: 0.49s; }
+.reveal-6 { animation-delay: 0.60s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; animation: none; }
 }

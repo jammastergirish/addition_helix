@@ -38,28 +38,31 @@ export function ChartFrame<T>({ src, caption, children, minHeight = 320 }: Props
     // get more horizontal room than the surrounding body text.
     <figure className="wide my-8">
       <div
-        className="rounded-lg border border-ink/10 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-4"
+        className="overflow-hidden rounded-xl border border-ink/10 bg-white shadow-[0_2px_14px_-6px_rgba(0,0,0,0.12)]"
         style={{ minHeight }}
       >
-        {data ? (
-          children(data)
-        ) : error ? (
-          <div className="flex h-full min-h-[200px] items-center justify-center text-sm text-ink-mute">
-            <div className="text-center">
-              <div className="font-medium text-ink/70">Chart data not loaded</div>
-              <div className="mt-1 text-xs">
-                Source: <code className="text-ink/60">{src ?? "(none)"}</code>
-              </div>
-              <div className="mt-2 text-xs">
-                Run <code>./run.sh &amp;&amp; uv run aggregate.py</code> to populate it.
+        <div className="h-[3px] w-full bg-gradient-to-r from-accent/70 via-accent/25 to-transparent" />
+        <div className="p-5">
+          {data ? (
+            children(data)
+          ) : error ? (
+            <div className="flex h-full min-h-[200px] items-center justify-center text-sm text-ink-mute">
+              <div className="text-center">
+                <div className="font-medium text-ink/70">Chart data not loaded</div>
+                <div className="mt-1 text-xs">
+                  Source: <code className="text-ink/60">{src ?? "(none)"}</code>
+                </div>
+                <div className="mt-2 text-xs">
+                  Run <code>./run.sh &amp;&amp; uv run aggregate.py</code> to populate it.
+                </div>
               </div>
             </div>
-          </div>
-        ) : (
-          <div className="flex h-full min-h-[200px] items-center justify-center text-sm text-ink-mute">
-            loading…
-          </div>
-        )}
+          ) : (
+            <div className="flex h-full min-h-[200px] items-center justify-center text-sm text-ink-mute">
+              loading…
+            </div>
+          )}
+        </div>
       </div>
       {caption && (
         <figcaption className="mx-auto mt-3 max-w-prose text-sm text-ink-mute leading-snug">

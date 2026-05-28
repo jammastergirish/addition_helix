@@ -4,10 +4,12 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        // Serif body for blogpost feel; mono for numerals / code.
-        serif: ['"Source Serif 4"', '"Source Serif Pro"', 'Charter', 'Georgia', 'serif'],
-        sans:  ['"Inter"', 'system-ui', 'sans-serif'],
-        mono:  ['"JetBrains Mono"', '"SF Mono"', 'ui-monospace', 'monospace'],
+        // Serif body for blogpost feel; Archivo grotesque for UI/headings;
+        // Archivo Expanded for display (hero, Part numbers); mono for numerals.
+        serif:   ['"Source Serif 4"', '"Source Serif Pro"', 'Charter', 'Georgia', 'serif'],
+        sans:    ['"Archivo"', 'system-ui', 'sans-serif'],
+        display: ['"Archivo Expanded"', '"Archivo"', 'system-ui', 'sans-serif'],
+        mono:    ['"JetBrains Mono"', '"SF Mono"', 'ui-monospace', 'monospace'],
       },
       colors: {
         ink:   { DEFAULT: '#1a1a1a', soft: '#2a2a2a', mute: '#555' },
