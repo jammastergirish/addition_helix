@@ -252,10 +252,10 @@ export function FindingBases({ index }: Props) {
       <p className="mt-4">
         Hex digit embeddings carry meaningful structure that random
         embeddings don't. Combined with the high peak helix R² and
-        low ρ on Pythia/Llama/GPT-J/OLMo, the diagnostic kit gives a
-        fully consistent <em>depth-built</em> story for hex on those
-        models — with modest learned-embedding contribution at L=0 and
-        a substantial depth-driven amplification on top.
+        low ρ on Pythia/Llama/GPT-J/OLMo, all four checks tell the
+        same <em>depth-built</em> story for hex on those models — with
+        modest learned-embedding contribution at L=0 and a substantial
+        depth-driven amplification on top.
       </p>
 
       <h3 className="section-subheading">Three case studies, three different mode-1 stories</h3>
@@ -295,6 +295,124 @@ export function FindingBases({ index }: Props) {
         apply the fix, ρ tells you immediately whether what you find is
         learned, mechanical, or somewhere between.
       </p>
+
+      <details className="my-6 rounded-md border border-ink/10 bg-paper-warm/40 px-4 py-3 text-[0.97rem] leading-relaxed text-ink-soft [&[open]>summary]:mb-2">
+        <summary className="cursor-pointer select-none font-sans text-sm font-medium text-ink/80 hover:text-accent">
+          ▸ Deep dive: <em>how the basis/window fix translates to binary and hex</em>
+        </summary>
+
+        <p>
+          The basis-bandwidth and window-wrap story from Finding 3 isn't
+          specific to Babylonian. Binary and hex are the same shape of
+          problem with different period sets.
+        </p>
+
+        <p className="mt-3">
+          <strong>Binary.</strong> Natural periods are powers of 2:{" "}
+          <span className="font-mono">T ∈ {"{"}2, 4, 8, 16, 32, 64{"}"}</span>.
+          The paper basis <span className="font-mono">{"{"}2, 5, 10, 100{"}"}</span>{" "}
+          catches only T=2 (the parity bit). T=10 isn't a binary
+          period — it doesn't divide any power of 2 cleanly — so even
+          if the model encodes per-bit structure at every level, the
+          paper basis can only see the parity bit.
+        </p>
+
+        <p className="mt-3">
+          The window question: how wide do we need? T=64 is the
+          longest period we care about; we want ≥ 10 wraps for clean
+          identification. So <span className="font-mono">n_max ≥ 640</span>{" "}
+          is the minimum; we use 1024 (16 wraps of T=64). That also
+          gives 32 wraps of T=32, 64 wraps of T=16, etc. — plenty of
+          headroom on every period.
+        </p>
+
+        <p className="mt-3">
+          Native basis:{" "}
+          <span className="font-mono">{"{"}2, 4, 8, 16, 32, 64{"}"}</span>.
+          Fitting with this basis at n=1024 recovers +0.10 to +0.37
+          helix R² across the 8 models. The largest gains are on
+          Qwen and Gemma, whose tokenizers split numbers into smaller
+          sub-tokens — so the per-bit count structure has more
+          opportunities to be visible after mean-pooling.
+        </p>
+
+        <p className="mt-3">
+          But binary is <em>mechanical</em>: the random-embedding gap
+          on the native basis is <span className="font-mono">|Δ R²| ≤ 0.03</span>{" "}
+          on every model. The structure is in the rendering + pooling,
+          not in learned bit semantics. Same mode-1 fix as Babylonian,
+          same conclusion as Babylonian.
+        </p>
+
+        <p className="mt-3">
+          <strong>Hex.</strong> Natural periods are{" "}
+          <span className="font-mono">{"{"}16, 32, 64, 256{"}"}</span>.
+          Paper basis catches <em>none</em> of these — not even T=16.
+          Even T=10 (which the paper basis includes) isn't a hex
+          period at all; integers 0–99 in hex are 00, 01, …, 63 (so
+          hex-digit-1 cycles with period 16, not 10), and the paper
+          basis has no T=16 column. The paper-default protocol on hex
+          is therefore measuring almost nothing.
+        </p>
+
+        <p className="mt-3">
+          Window: T=256 is the longest period. 4 wraps at n=1024 is
+          fewer than the rule-of-thumb 10, but T=256 is also a
+          marginally relevant period in our range (it only completes
+          one revolution at all if n ≥ 256). We've chosen the trade-off
+          that gets clean identification of T=16, 32, 64 and a noisier
+          but still informative T=256.
+        </p>
+
+        <p className="mt-3">
+          Native basis:{" "}
+          <span className="font-mono">{"{"}16, 32, 64, 256{"}"}</span>.
+          Fitting with this basis at n=1024 recovers +0.19 to +0.29
+          across the 8 models — similar magnitude to Babylonian's
+          recovery from native-basis runs.
+        </p>
+
+        <p className="mt-3">
+          Hex's verdict differs from binary's. The random-embedding
+          gap on the native basis is <em>positive on every model</em>{" "}
+          (small on Llama/OLMo, sizeable on Gemma). Hex digit
+          embeddings <em>do</em> carry learned structure that random
+          vectors don't reproduce. Combined with the low ρ on the
+          paper models, hex on Pythia/Llama/GPT-J/OLMo is the
+          second-cleanest depth-built case in the matrix — after the
+          three paper-model Latin cells K&amp;T originally identified.
+        </p>
+
+        <p className="mt-3">
+          <strong>The general recipe.</strong> For any script whose
+          natural period isn't in the paper basis:
+        </p>
+
+        <ol className="mt-2 list-decimal pl-6 space-y-1">
+          <li>Identify the script's natural periods.</li>
+          <li>
+            Widen the input range so the longest target period wraps
+            many times (≥ 8–10 is the rule of thumb).
+          </li>
+          <li>Add the native periods to the basis.</li>
+          <li>
+            Run the random-embedding control on the native-basis result.
+            If Δ ≈ 0, the structure is mechanical (rendering + pooling).
+            If Δ {">"} 0, the embeddings carry learned structure.
+          </li>
+          <li>
+            Look at ρ on the native-basis run. Low ρ + positive Δ =
+            depth-built (hex on the paper models). High ρ + Δ ≈ 0 =
+            mechanical inheritance (Babylonian, binary).
+          </li>
+        </ol>
+
+        <p className="mt-3">
+          Each protocol fix is mechanical; the result on each script
+          is mechanistically different. The kit doesn't presuppose any
+          particular reading — it just makes the readings legible.
+        </p>
+      </details>
     </section>
   );
 }

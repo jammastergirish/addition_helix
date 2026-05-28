@@ -127,8 +127,8 @@ export function Finding4L0({ index }: Props) {
       <h3 className="section-subheading">The classification grid</h3>
 
       <p>
-        Applying the mutually exclusive criteria from the Diagnostic
-        kit (depth-built / depth-amplified / inherited / weak /
+        Applying the mutually exclusive classification criteria from
+        Part 2 (depth-built / depth-amplified / inherited / weak /
         ambiguous), here's the same 96-cell matrix coloured by class:
       </p>
 

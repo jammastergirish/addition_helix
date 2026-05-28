@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999998 (TeX Live 2026) (preloaded format=xelatex 2026.3.22)  25 MAY 2026 15:53
+This is XeTeX, Version 3.141592653-2.6-0.999998 (TeX Live 2026) (preloaded format=xelatex 2026.3.22)  27 MAY 2026 14:43
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -943,49 +943,41 @@ Overfull \hbox (8.19565pt too wide) in paragraph at lines 103--113
  []
 
 
-Overfull \hbox (5.04562pt too wide) in paragraph at lines 123--131
+Overfull \hbox (8.22458pt too wide) in paragraph at lines 114--130
+\TU/lmr/m/n/10 are single tokens in their models—GPT-J tokenizes $\OT1/cmr/m/n/
+10 [0\OML/cmm/m/it/10 ; \OT1/cmr/m/n/10 361]$
+ []
+
+
+Overfull \hbox (6.84563pt too wide) in paragraph at lines 114--130
+\TU/lmr/m/n/10 Our question starts where that simplification stops. When
+ []
+
+
+Overfull \hbox (0.38564pt too wide) in paragraph at lines 114--130
+\TU/lmr/m/n/10 the same helical fit is generalised across scripts and bases,
+ []
+
+
+Overfull \hbox (25.01706pt too wide) in paragraph at lines 114--130
+\TU/lmr/m/n/10 erature, “the model represents $\OML/cmm/m/it/10 X$ \TU/lmr/m/n/
+10 as a [helix/sphere/manifold]”
+ []
+
+
+Overfull \hbox (5.04562pt too wide) in paragraph at lines 131--139
 \TU/lmr/m/n/10 ([][]2024[][]) show that arithmetic performance in frontier LLMs
 
  []
 
 
-Overfull \hbox (2.66577pt too wide) in paragraph at lines 132--145
+Overfull \hbox (2.66577pt too wide) in paragraph at lines 140--153
 \TU/lmr/m/n/10 der a joint $\OML/cmm/m/it/10 ^^Z$\TU/lmr/m/n/10 +quality criter
 ion. \TU/lmr/m/it/10 (3) \TU/lmr/m/n/10 Babylonian cuneiform
  []
 
-[2
-
-]
-Overfull \hbox (9.62122pt too wide) in paragraph at lines 203--210
-[] []\TU/lmr/bx/n/10 Representation alignment (CKA).[] \TU/lmr/m/n/10 Linear CK
-A ([][]Ko-
- []
-
-
-Overfull \hbox (6.11563pt too wide) in paragraph at lines 214--218
-\TU/lmr/m/n/10 GPT-J-6B, Llama-3.1-8B, Gemma-4-E4B, Gemma-4-31B,
- []
-
-
-Overfull \hbox (1.00563pt too wide) in paragraph at lines 214--218
-\TU/lmr/m/n/10 OLMo-3-32B, Qwen2.5-7B, Qwen2.5-32B. Three of these
- []
-
-
-Overfull \hbox (3.6895pt too wide) in paragraph at lines 219--226
-\TU/lmr/m/n/10 token scripts; see App. [][]A[][]). The default protocol is $\OM
-L/cmm/m/it/10 n[] \OT1/cmr/m/n/10 =
- []
-
-
-Overfull \hbox (9.25563pt too wide) in paragraph at lines 219--226
-\TU/lmr/m/n/10 tionally run with wider windows and native bases (App. [][]C[][]
-). 
- []
-
 LaTeX Font Info:    Font shape `TU/GeezaPro(0)/m/n' will be
-(Font)              scaled to size 8.09995pt on input line 241.
+(Font)              scaled to size 8.09995pt on input line 178.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `GeezaPro' (encoding: TU).
 (microtype)             For optimal results, create family-specific settings.
@@ -1150,7 +1142,7 @@ Package microtype Info: Character `\textgreater ' is missing
 (microtype)             in font `\TU/GeezaPro(0)/m/n/9'.
 (microtype)             Ignoring protrusion settings for this character.
 LaTeX Font Info:    Font shape `TU/DevanagariSangamMN(0)/m/n' will be
-(Font)              scaled to size 8.09995pt on input line 243.
+(Font)              scaled to size 8.09995pt on input line 180.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `DevanagariSangamMN' (encoding: TU).
 (microtype)             For optimal results, create family-specific settings.
@@ -1183,7 +1175,7 @@ Package microtype Info: Character `\textquestiondown ' is missing
 (microtype)             in font `\TU/DevanagariSangamMN(0)/m/n/9'.
 (microtype)             Ignoring protrusion settings for this character.
 LaTeX Font Info:    Font shape `TU/Thonburi(0)/m/n' will be
-(Font)              scaled to size 8.09995pt on input line 244.
+(Font)              scaled to size 8.09995pt on input line 181.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `Thonburi' (encoding: TU).
 (microtype)             For optimal results, create family-specific settings.
@@ -1207,7 +1199,7 @@ Package microtype Info: Character `textquotedblright ' is missing
 (microtype)             in font `TU/Thonburi(0)/m/n/9'.
 (microtype)             Ignoring protrusion settings for this character.
 LaTeX Font Info:    Font shape `TU/TimesNewRoman(0)/m/n' will be
-(Font)              scaled to size 8.54997pt on input line 250.
+(Font)              scaled to size 8.54997pt on input line 187.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `TimesNewRoman' (encoding: TU).
 (microtype)             For optimal results, create family-specific settings.
@@ -1231,7 +1223,7 @@ Package microtype Info: Character `textquotedblright ' is missing
 (microtype)             in font `TU/TimesNewRoman(0)/m/n/9'.
 (microtype)             Ignoring protrusion settings for this character.
 LaTeX Font Info:    Font shape `TU/ArialHebrew(0)/m/n' will be
-(Font)              scaled to size 8.09995pt on input line 251.
+(Font)              scaled to size 8.09995pt on input line 188.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `ArialHebrew' (encoding: TU).
 (microtype)             For optimal results, create family-specific settings.
@@ -1336,13 +1328,78 @@ Package microtype Info: Character `\textquestiondown ' is missing
 (microtype)             in font `\TU/ArialHebrew(0)/m/n/9'.
 (microtype)             Ignoring protrusion settings for this character.
 LaTeX Font Info:    Font shape `TU/NotoSansCuneiform(0)/m/n' will be
-(Font)              scaled to size 8.09995pt on input line 254.
+(Font)              scaled to size 8.09995pt on input line 191.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `NotoSansCuneiform' (encoding: TU).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
+[2
+
+]
+Overfull \hbox (6.65561pt too wide) in paragraph at lines 232--243
+\TU/lmr/m/n/10 clock and the number-line direction live in residual space—
+ []
+
+
+Overfull \hbox (11.09561pt too wide) in paragraph at lines 232--243
+\TU/lmr/m/n/10 and Figure [][]1[][] is constructed by extracting the three colu
+mns
+ []
+
+
+Overfull \hbox (11.6834pt too wide) in paragraph at lines 232--243
+\OT1/cmr/m/n/10 ([] 2\OML/cmm/m/it/10 ^^Ya\OT1/cmr/m/n/10 /10\OML/cmm/m/it/10 ;
+ [] \OT1/cmr/m/n/10 2\OML/cmm/m/it/10 ^^Ya\OT1/cmr/m/n/10 /10\OML/cmm/m/it/10 ;
+ a\OT1/cmr/m/n/10 )$\TU/lmr/m/n/10 , QR-orthonormalising them into
+ []
+
+
+Overfull \hbox (9.92397pt too wide) in paragraph at lines 244--253
+\TU/lmr/m/n/10 same dimensionality (the Eckart–Young optimal $\OML/cmm/m/it/10 
+K$\TU/lmr/m/n/10 -feature
+ []
+
+[3]
+Overfull \hbox (6.37563pt too wide) in paragraph at lines 321--329
+[]\TU/lmr/m/n/10 Both modes hide real structure. Babylonian cuneiform
+ []
+
+
+Overfull \hbox (33.26051pt too wide) in paragraph at lines 321--329
+\TU/lmr/m/n/10 (native $\OML/cmm/m/it/10 T \OT1/cmr/m/n/10 = 60$\TU/lmr/m/n/10 
+), binary (natural periods $\OML/cmm/m/it/10 T \OMS/cmsy/m/n/10 2 f\OT1/cmr/m/n
+/10 2\OML/cmm/m/it/10 ; \OT1/cmr/m/n/10 4\OML/cmm/m/it/10 ; \OT1/cmr/m/n/10 8\O
+ML/cmm/m/it/10 ; \OT1/cmr/m/n/10 16\OML/cmm/m/it/10 ; \OT1/cmr/m/n/10 32\OML/cm
+m/m/it/10 ; \OT1/cmr/m/n/10 64\OMS/cmsy/m/n/10 g$\TU/lmr/m/n/10 ),
+ []
+
+
+Overfull \hbox (0.24611pt too wide) in paragraph at lines 330--345
+\TU/lmr/m/n/10 model’s learned embedding matrix with $[] \OMS/cmsy/m/n/10 ^^X N
+\OT1/cmr/m/n/10 (0\OML/cmm/m/it/10 ; \OT1/cmr/m/n/10 1/[])$
+ []
+
+
+Overfull \hbox (4.06099pt too wide) in paragraph at lines 330--345
+\TU/lmr/m/n/10 placed), and re-fit the helix. The gap $\OT1/cmr/m/n/10 ^^A\OML/
+cmm/m/it/10 R[] \OT1/cmr/m/n/10 = \OML/cmm/m/it/10 R[] \OMS/cmsy/m/n/10 ^^@
+ []
+
+
+Overfull \hbox (6.11563pt too wide) in paragraph at lines 370--381
+\TU/lmr/m/n/10 GPT-J-6B, Llama-3.1-8B, Gemma-4-E4B, Gemma-4-31B,
+ []
+
+
+Overfull \hbox (6.56972pt too wide) in paragraph at lines 382--401
+\TU/lmr/m/n/10 token, Pythia $\OT1/cmr/m/n/10 [0\OML/cmm/m/it/10 ; \OT1/cmr/m/n
+/10 557]$\TU/lmr/m/n/10 , Llama $\OT1/cmr/m/n/10 [0\OML/cmm/m/it/10 ; \OT1/cmr/
+m/n/10 999]$\TU/lmr/m/n/10 —so for Pythia/GPT-
+ []
+
+[4]
 LaTeX Font Info:    Font shape `TU/GeezaPro(0)/m/n' will be
-(Font)              scaled to size 8.99994pt on input line 286.
+(Font)              scaled to size 8.99994pt on input line 472.
 Package microtype Info: Character `A' is missing
 (microtype)             in font `\TU/GeezaPro(0)/m/n/10'.
 (microtype)             Ignoring protrusion settings for this character.
@@ -1502,85 +1559,163 @@ Package microtype Info: Character `\textless ' is missing
 Package microtype Info: Character `\textgreater ' is missing
 (microtype)             in font `\TU/GeezaPro(0)/m/n/10'.
 (microtype)             Ignoring protrusion settings for this character.
-LaTeX Font Info:    Font shape `TU/NotoSansCuneiform(0)/m/n' will be
-(Font)              scaled to size 8.99994pt on input line 346.
 
-Overfull \hbox (3.89447pt too wide) in paragraph at lines 363--377
+Overfull \hbox (10.10646pt too wide) in paragraph at lines 463--476
+\TU/lmr/m/n/10 Latin cells (Devanagari, Persian, Roman; $\OML/cmm/m/it/10 ^^Z \
+OT1/cmr/m/n/10 = 0\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 44[]0\OML/cmm/m/it/10 :\OT1
+/cmr/m/n/10 63$\TU/lmr/m/n/10 )—
+ []
+
+
+Overfull \hbox (11.49564pt too wide) in paragraph at lines 463--476
+\TU/lmr/m/n/10 tokens whose mean (over the two positions) varies smoothly
+ []
+
+
+Overfull \hbox (9.27562pt too wide) in paragraph at lines 477--484
+\TU/lmr/m/n/10 is instead near-pure inheritance—a function of how Qwen’s
+ []
+
+LaTeX Font Info:    Font shape `TU/TimesNewRoman(0)/m/n' will be
+(Font)              scaled to size 9.49997pt on input line 487.
+Package microtype Info: Character `textendash ' is missing
+(microtype)             in font `TU/TimesNewRoman(0)/m/n/10'.
+(microtype)             Ignoring protrusion settings for this character.
+Package microtype Info: Character `textemdash ' is missing
+(microtype)             in font `TU/TimesNewRoman(0)/m/n/10'.
+(microtype)             Ignoring protrusion settings for this character.
+Package microtype Info: Character `textquoteleft ' is missing
+(microtype)             in font `TU/TimesNewRoman(0)/m/n/10'.
+(microtype)             Ignoring protrusion settings for this character.
+Package microtype Info: Character `textquoteright ' is missing
+(microtype)             in font `TU/TimesNewRoman(0)/m/n/10'.
+(microtype)             Ignoring protrusion settings for this character.
+Package microtype Info: Character `textquotedblleft ' is missing
+(microtype)             in font `TU/TimesNewRoman(0)/m/n/10'.
+(microtype)             Ignoring protrusion settings for this character.
+Package microtype Info: Character `textquotedblright ' is missing
+(microtype)             in font `TU/TimesNewRoman(0)/m/n/10'.
+(microtype)             Ignoring protrusion settings for this character.
+[5]
+LaTeX Font Info:    Font shape `TU/NotoSansCuneiform(0)/m/n' will be
+(Font)              scaled to size 8.99994pt on input line 569.
+
+Overfull \hbox (31.14877pt too wide) in paragraph at lines 567--572
+[]\TU/lmr/m/it/10 Step 1 (rendering). \TU/lmtt/m/n/10 format_number(23, ``babyl
+onian'')
+ []
+
+Missing character: There is no 𒌋 ("1230B) in font cmmi7!
+Missing character: There is no 𒌋 ("1230B) in font cmmi7!
+Missing character: There is no 𒌋 ("1230B) in font cmmi7!
+Missing character: There is no 𒁹 ("12079) in font cmmi7!
+Missing character: There is no 𒁹 ("12079) in font cmmi7!
+Missing character: There is no 𒁹 ("12079) in font cmmi7!
+Missing character: There is no 𒌋 ("1230B) in font cmmi7!
+Missing character: There is no 𒌋 ("1230B) in font cmmi7!
+Missing character: There is no 𒌋 ("1230B) in font cmmi7!
+Missing character: There is no 𒌋 ("1230B) in font cmmi7!
+Missing character: There is no 𒁹 ("12079) in font cmmi7!
+Missing character: There is no 𒁹 ("12079) in font cmmi7!
+Missing character: There is no 𒁹 ("12079) in font cmmi7!
+Missing character: There is no 𒌋 ("1230B) in font cmmi7!
+Missing character: There is no 𒁹 ("12079) in font cmmi7!
+Missing character: There is no 𒌋 ("1230B) in font cmmi7!
+Missing character: There is no 𒁹 ("12079) in font cmmi7!
+Missing character: There is no 𒌋 ("1230B) in font cmmi7!
+Missing character: There is no 𒁹 ("12079) in font cmmi7!
+Missing character: There is no 𒌋 ("1230B) in font cmmi7!
+Missing character: There is no 𒁹 ("12079) in font cmmi7!
+Missing character: There is no 𒌋 ("1230B) in font cmmi7!
+Missing character: There is no 𒁹 ("12079) in font cmmi7!
+
+Overfull \hbox (3.89447pt too wide) in paragraph at lines 650--664
  [][] 
  []
 
-
-Overfull \hbox (0.7052pt too wide) in paragraph at lines 388--398
-\TU/lmr/m/n/10 CKA separates. \TU/lmr/m/it/10 Pass-through\TU/lmr/m/n/10 : Qwen
-2.5-32B/Latin ($\OML/cmm/m/it/10 ^^Z \OT1/cmr/m/n/10 =
+[6]
+Overfull \hbox (15.40593pt too wide) in paragraph at lines 682--685
+$\OML/cmm/m/it/10 ^^Z$ \TU/lmr/m/n/10 alone conflates two mechanistically disti
+nct high-$\OML/cmm/m/it/10 ^^Z$ \TU/lmr/m/n/10 regimes.
  []
 
 
-Overfull \hbox (1.42418pt too wide) in paragraph at lines 388--398
-\OT1/cmr/m/n/10 0\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 89$\TU/lmr/m/n/10 , $[] \OT1
-/cmr/m/n/10 = 0\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 91$\TU/lmr/m/n/10 ) and OLMo/L
-atin ($\OT1/cmr/m/n/10 0\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 63$\TU/lmr/m/n/10 , $
-\OT1/cmr/m/n/10 0\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 91$\TU/lmr/m/n/10 )—depth
+Overfull \hbox (1.47563pt too wide) in paragraph at lines 708--715
+\TU/lmr/m/n/10 invariant to rotation and rescaling of the feature columns,
  []
 
 
-Overfull \hbox (62.29764pt too wide) in paragraph at lines 388--398
-\TU/lmr/m/n/10 ent integer-to-integer geometry. On Babylonian, Pythia/Llama/OLM
-o
+Overfull \hbox (19.86743pt too wide) in paragraph at lines 716--732
+\OML/cmm/m/it/10 ^^Z$\TU/lmr/m/n/10 , high CKA): Qwen2.5-32B/Latin ($\OT1/cmr/m
+/n/10 0\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 89$\TU/lmr/m/n/10 , $\OT1/cmr/m/n/10 0
+\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 91$\TU/lmr/m/n/10 ), OLMo/Latin
  []
 
 
-Overfull \hbox (9.47583pt too wide) in paragraph at lines 401--410
-\OT1/cmr/m/n/10 0\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 03$ \TU/lmr/m/n/10 on every 
-model. Hex ($\OML/cmm/m/it/10 n \OT1/cmr/m/n/10 = 1024$\TU/lmr/m/n/10 , $\OMS/c
-msy/m/n/10 T \OT1/cmr/m/n/10 = \OMS/cmsy/m/n/10 f\OT1/cmr/m/n/10 16\OML/cmm/m/i
-t/10 ; \OT1/cmr/m/n/10 32\OML/cmm/m/it/10 ; \OT1/cmr/m/n/10 64\OML/cmm/m/it/10 
-; \OT1/cmr/m/n/10 256\OMS/cmsy/m/n/10 g$\TU/lmr/m/n/10 )
+Overfull \hbox (9.9133pt too wide) in paragraph at lines 716--732
+\TU/lmr/m/it/10 build \TU/lmr/m/n/10 (high $\OML/cmm/m/it/10 ^^Z$\TU/lmr/m/n/10
+ , low CKA): the entire Gemma family ($[] \OT1/cmr/m/n/10 =
  []
 
 
-Overfull \hbox (8.91217pt too wide) in paragraph at lines 401--410
-\OT1/cmr/m/n/10 0\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 29\OML/cmm/m/it/10 ; \OT1/cm
-r/m/n/10 0\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 30\OML/cmm/m/it/10 ; \OT1/cmr/m/n/1
-0 0\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 35\OML/cmm/m/it/10 ; \OT1/cmr/m/n/10 0\OML
-/cmm/m/it/10 :\OT1/cmr/m/n/10 35$ \TU/lmr/m/n/10 on Pythia/Llama/GPT-J/OLMo, an
-d
+Overfull \hbox (9.47565pt too wide) in paragraph at lines 716--732
+\TU/lmr/m/n/10 recovers Babylonian’s full story. On Pythia/Llama/OLMo,
  []
 
 
-Overfull \hbox (1.96562pt too wide) in paragraph at lines 401--410
-\TU/lmr/m/n/10 code/addresses/hashes) is not directly tested by our data.
+Overfull \hbox (5.83687pt too wide) in paragraph at lines 749--760
+\TU/lmr/m/n/10 whose count varies with $\OML/cmm/m/it/10 n$\TU/lmr/m/n/10 ) and
+ the tokenizer (BPE chunks
  []
 
-[3]
-Overfull \hbox (18.08563pt too wide) in paragraph at lines 427--436
+
+Overfull \hbox (17.29562pt too wide) in paragraph at lines 749--760
+\TU/lmr/m/n/10 of bits) interacting with mean-pooling. Pythia/Llama/GPT-
+ []
+
+
+Overfull \hbox (6.10924pt too wide) in paragraph at lines 749--760
+\TU/lmr/m/n/10 J/OLMo carry moderately-low native-basis $\OML/cmm/m/it/10 ^^Z$ 
+\TU/lmr/m/n/10 of $\OT1/cmr/m/n/10 0\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 62[]0\OML
+/cmm/m/it/10 :\OT1/cmr/m/n/10 77$
+ []
+
+
+Overfull \hbox (6.42578pt too wide) in paragraph at lines 761--774
+\TU/lmr/m/n/10 case in the matrix. Native-basis $\OML/cmm/m/it/10 ^^Z$ \TU/lmr/
+m/n/10 on Pythia/Llama/GPT-
+ []
+
+
+Overfull \hbox (20.67133pt too wide) in paragraph at lines 761--774
+\TU/lmr/m/n/10 regime as the original paper’s Latin cells ($\OML/cmm/m/it/10 ^^
+Z \OT1/cmr/m/n/10 = 0\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 34\OML/cmm/m/it/10 ; \OT
+1/cmr/m/n/10 0\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 39\OML/cmm/m/it/10 ; \OT1/cmr/m
+/n/10 0\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 41$\TU/lmr/m/n/10 ).
+ []
+
+[7]
+Overfull \hbox (18.08563pt too wide) in paragraph at lines 810--822
 []\TU/lmr/m/n/10 The Babylonian random-embedding result is the sharpest
  []
 
 
-Overfull \hbox (13.96063pt too wide) in paragraph at lines 437--445
-[]\TU/lmr/m/n/10 The diagnostic does not invalidate the literature: K&T’s
+Overfull \hbox (19.92064pt too wide) in paragraph at lines 810--822
+\TU/lmr/m/n/10 measurements: for other geometric claims—probe-discovered
  []
 
 
-Overfull \hbox (1.90564pt too wide) in paragraph at lines 437--445
-\TU/lmr/m/n/10 The Babylonian base-60 result is then a substantive state-
- []
-
-[4]
-Underfull \hbox (badness 3078) in paragraph at lines 450--453
+Underfull \hbox (badness 3078) in paragraph at lines 841--844
 []\TU/lmr/m/n/9 Kantamneni, S. and Tegmark, M.  Language mod-
  []
 
 
-Underfull \hbox (badness 1360) in paragraph at lines 460--463
+Underfull \hbox (badness 1360) in paragraph at lines 851--854
 \TU/lmr/m/n/9 ting on small algorithmic datasets.  \TU/lmr/m/it/9 arXiv preprin
 t
  []
 
-[5
-
-]
+[8]
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
@@ -1589,36 +1724,36 @@ ex-text;!
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[6
+[9
 
 ]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 665.
+(hyperref)                removing `math shift' on input line 1056.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\rho' on input line 665.
+(hyperref)                removing `\rho' on input line 1056.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 665.
+(hyperref)                removing `math shift' on input line 1056.
 
-[7] [8] (./paper.aux)
+[10] [11] (./paper.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2022/08/05>
  ***********
 Package rerunfilecheck Info: File `paper.out' has not changed.
-(rerunfilecheck)             Checksum: FBF415DD2CE8B6704AB40D304B6FF178;3399.
+(rerunfilecheck)             Checksum: 742EDBD8B0FBB0625C099BB4462D4233;3534.
  ) 
 Here is how much of TeX's memory you used:
- 18702 strings out of 468168
- 371145 string characters out of 5432815
- 892815 words of memory out of 5000000
- 47093 multiletter control sequences out of 15000+600000
- 638625 words of font info for 150 fonts, out of 8000000 for 9000
+ 18707 strings out of 468168
+ 371289 string characters out of 5432815
+ 893127 words of memory out of 5000000
+ 47097 multiletter control sequences out of 15000+600000
+ 638633 words of font info for 151 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  73i,13n,92p,1002b,514s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on paper.pdf (8 pages).
+Output written on paper.pdf (11 pages).

@@ -13,72 +13,73 @@
 \newlabel{fig:helix-intro}{{1}{2}{The number helix at $T=10$ in Pythia-6.9B's residual stream, Latin digits 0--99, peak layer. Two axes are the $(\cos 2\pi a/10, \sin 2\pi a/10)$ pair; the vertical axis is the linear ``number-line'' direction. Colour indicates $a$. Integers sharing the units digit land at the same angular position; magnitude lifts them along the vertical}{figure.caption.1}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{2}{section.1}\protected@file@percent }
 \newlabel{sec:intro}{{1}{2}{Introduction}{section.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {2}The Diagnostic Kit}{2}{section.2}\protected@file@percent }
-\newlabel{sec:diagnostic}{{2}{2}{The Diagnostic Kit}{section.2}{}}
-\@writefile{toc}{\contentsline {paragraph}{Helix basis and quality.}{2}{section.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}What We Measure Per Cell}{2}{section.2}\protected@file@percent }
+\newlabel{sec:diagnostic}{{2}{2}{What We Measure Per Cell}{section.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Helix basis and quality.}{2}{table.caption.2}\protected@file@percent }
 \newlabel{eq:basis}{{1}{2}{Helix basis and quality}{equation.1}{}}
-\@writefile{toc}{\contentsline {paragraph}{Provenance ratio $\rho $.}{2}{equation.1}\protected@file@percent }
-\newlabel{eq:rho}{{2}{2}{Provenance ratio $\rho $}{equation.2}{}}
-\@writefile{toc}{\contentsline {paragraph}{Basis bandwidth and window wrap.}{2}{equation.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces The twelve numeral scripts, grouped by family. ``Native $T$'' is the period a basis would have to include to fit the script's positional structure exactly. The paper-default basis catches Latin and the other positional-base-10 scripts; binary/hex/Babylonian motivate extended-basis runs (App.~\ref {app:bases}).}}{3}{table.caption.2}\protected@file@percent }
+\newlabel{tab:scripts}{{1}{3}{The twelve numeral scripts, grouped by family. ``Native $T$'' is the period a basis would have to include to fit the script's positional structure exactly. The paper-default basis catches Latin and the other positional-base-10 scripts; binary/hex/Babylonian motivate extended-basis runs (App.~\ref {app:bases})}{table.caption.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Provenance ratio $\rho $.}{3}{equation.1}\protected@file@percent }
+\newlabel{eq:rho}{{2}{3}{Provenance ratio $\rho $}{equation.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Basis bandwidth and window wrap.}{3}{equation.2}\protected@file@percent }
 \citation{kornblith2019similarity}
-\citation{singh2024tokenization}
-\@writefile{toc}{\contentsline {paragraph}{Random-embedding control.}{3}{equation.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Representation alignment (CKA).}{3}{equation.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {3}Experimental Setup}{3}{section.3}\protected@file@percent }
-\newlabel{sec:setup}{{3}{3}{Experimental Setup}{section.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Results}{3}{section.4}\protected@file@percent }
-\newlabel{sec:results}{{4}{3}{Results}{section.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}The paper-models / Latin cells survive cleanly}{3}{subsection.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Cross-script generalisation is mostly pre-transformer}{3}{subsection.4.2}\protected@file@percent }
-\newlabel{sec:results-cross}{{4.2}{3}{Cross-script generalisation is mostly pre-transformer}{subsection.4.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Babylonian: geometry from rendering alone}{3}{subsection.4.3}\protected@file@percent }
-\newlabel{sec:results-bab}{{4.3}{3}{Babylonian: geometry from rendering alone}{subsection.4.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Pass-through versus rebuild}{3}{subsection.4.4}\protected@file@percent }
-\newlabel{sec:results-cka}{{4.4}{3}{Pass-through versus rebuild}{subsection.4.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Binary and hex (one-paragraph summary)}{3}{subsection.4.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Random-embedding control.}{4}{equation.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Representation alignment (CKA).}{4}{equation.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Experimental Setup}{4}{section.3}\protected@file@percent }
+\newlabel{sec:setup}{{3}{4}{Experimental Setup}{section.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Results}{5}{section.4}\protected@file@percent }
+\newlabel{sec:results}{{4}{5}{Results}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}The paper-models / Latin cells survive cleanly}{5}{subsection.4.1}\protected@file@percent }
+\newlabel{sec:results-paper}{{4.1}{5}{The paper-models / Latin cells survive cleanly}{subsection.4.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Cross-script generalisation is mostly pre-transformer}{5}{subsection.4.2}\protected@file@percent }
+\newlabel{sec:results-cross}{{4.2}{5}{Cross-script generalisation is mostly pre-transformer}{subsection.4.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Babylonian: geometry from rendering alone}{5}{subsection.4.3}\protected@file@percent }
+\newlabel{sec:results-bab}{{4.3}{5}{Babylonian: geometry from rendering alone}{subsection.4.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces $\rho $ at paper defaults ($n_{\max }=100$, $\mathcal  {T}=\{2,5,10,100\}$). Teal = depth-built ($\rho \le 0.45$); light teal = depth-amplified (0.45--0.60); cream = ambiguous; orange = inherited (0.80--0.95); deep orange = $\rho > 0.95$. Starred columns are mismeasured under paper defaults; see Table~\ref {tab:bab-rand} and App.~\ref {app:bases} for native bases.}}{6}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:rho-heatmap}{{2}{6}{$\rho $ at paper defaults ($n_{\max }=100$, $\mathcal {T}=\{2,5,10,100\}$). Teal = depth-built ($\rho \le 0.45$); light teal = depth-amplified (0.45--0.60); cream = ambiguous; orange = inherited (0.80--0.95); deep orange = $\rho > 0.95$. Starred columns are mismeasured under paper defaults; see Table~\ref {tab:bab-rand} and App.~\ref {app:bases} for native bases}{figure.caption.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Babylonian random-embedding control at the native protocol ($n_{\max }=600$, $\mathcal  {T}=\{2,5,10,60,100\}$). All eight $|\Delta | \le 0.008$. The L=0 helix score replicates with random vectors of matched scale.}}{6}{table.caption.4}\protected@file@percent }
+\newlabel{tab:bab-rand}{{2}{6}{Babylonian random-embedding control at the native protocol ($n_{\max }=600$, $\mathcal {T}=\{2,5,10,60,100\}$). All eight $|\Delta | \le 0.008$. The L=0 helix score replicates with random vectors of matched scale}{table.caption.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Pass-through versus rebuild}{7}{subsection.4.4}\protected@file@percent }
+\newlabel{sec:results-cka}{{4.4}{7}{Pass-through versus rebuild}{subsection.4.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Binary and hex: two more case studies in basis bandwidth}{7}{subsection.4.5}\protected@file@percent }
+\newlabel{sec:results-bases}{{4.5}{7}{Binary and hex: two more case studies in basis bandwidth}{subsection.4.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Discussion}{7}{section.5}\protected@file@percent }
+\newlabel{sec:discussion}{{5}{7}{Discussion}{section.5}{}}
 \citation{feucht2026wild}
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces The twelve numeral scripts, grouped by family. ``Native $T$'' is the period a basis would have to include to fit the script's positional structure exactly. The paper-default basis catches Latin and the other positional-base-10 scripts; binary/hex/Babylonian motivate extended-basis runs (App.~\ref {app:bases}).}}{4}{table.caption.2}\protected@file@percent }
-\newlabel{tab:scripts}{{1}{4}{The twelve numeral scripts, grouped by family. ``Native $T$'' is the period a basis would have to include to fit the script's positional structure exactly. The paper-default basis catches Latin and the other positional-base-10 scripts; binary/hex/Babylonian motivate extended-basis runs (App.~\ref {app:bases})}{table.caption.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces $\rho $ at paper defaults ($n_{\max }=100$, $\mathcal  {T}=\{2,5,10,100\}$). Teal = depth-built ($\rho \le 0.45$); light teal = depth-amplified (0.45--0.60); cream = ambiguous; orange = inherited (0.80--0.95); deep orange = $\rho > 0.95$. Starred columns are mismeasured under paper defaults; see Table~\ref {tab:bab-rand} and App.~\ref {app:bases} for native bases.}}{4}{figure.caption.3}\protected@file@percent }
-\newlabel{fig:rho-heatmap}{{2}{4}{$\rho $ at paper defaults ($n_{\max }=100$, $\mathcal {T}=\{2,5,10,100\}$). Teal = depth-built ($\rho \le 0.45$); light teal = depth-amplified (0.45--0.60); cream = ambiguous; orange = inherited (0.80--0.95); deep orange = $\rho > 0.95$. Starred columns are mismeasured under paper defaults; see Table~\ref {tab:bab-rand} and App.~\ref {app:bases} for native bases}{figure.caption.3}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Babylonian random-embedding control at the native protocol ($n_{\max }=600$, $\mathcal  {T}=\{2,5,10,60,100\}$). All eight $|\Delta | \le 0.008$. The L=0 helix score replicates with random vectors of matched scale.}}{4}{table.caption.4}\protected@file@percent }
-\newlabel{tab:bab-rand}{{2}{4}{Babylonian random-embedding control at the native protocol ($n_{\max }=600$, $\mathcal {T}=\{2,5,10,60,100\}$). All eight $|\Delta | \le 0.008$. The L=0 helix score replicates with random vectors of matched scale}{table.caption.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Discussion}{4}{section.5}\protected@file@percent }
-\newlabel{sec:discussion}{{5}{4}{Discussion}{section.5}{}}
 \bibcite{kantamneni2025helix}{{1}{2025}{{Kantamneni \& Tegmark}}{{}}}
 \bibcite{nanda2023progress}{{2}{2023}{{Nanda et al.}}{{}}}
 \bibcite{power2022grokking}{{3}{2022}{{Power et al.}}{{}}}
 \bibcite{singh2024tokenization}{{4}{2024}{{Singh \& Strouse}}{{}}}
 \bibcite{feucht2026wild}{{5}{2026}{{Feucht, Haklay et al.}}{{}}}
 \bibcite{kornblith2019similarity}{{6}{2019}{{Kornblith et al.}}{{}}}
-\@writefile{toc}{\contentsline {section}{\numberline {A}Methods details}{6}{appendix.A}\protected@file@percent }
-\newlabel{app:methods}{{A}{6}{Methods details}{appendix.A}{}}
-\@writefile{toc}{\contentsline {paragraph}{Activation collection.}{6}{appendix.A}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Helix fit.}{6}{appendix.A}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{$\rho $ and the peak layer.}{6}{appendix.A}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Random-embedding control.}{6}{appendix.A}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Linear CKA.}{6}{appendix.A}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Classification thresholds.}{6}{appendix.A}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {B}Per-model peak layers on Latin}{6}{appendix.B}\protected@file@percent }
-\newlabel{app:layers}{{B}{6}{Per-model peak layers on Latin}{appendix.B}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {C}Binary and hexadecimal: native-basis case studies}{6}{appendix.C}\protected@file@percent }
-\newlabel{app:bases}{{C}{6}{Binary and hexadecimal: native-basis case studies}{appendix.C}{}}
-\@writefile{toc}{\contentsline {paragraph}{Binary}{6}{appendix.C}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Hexadecimal}{6}{table.caption.5}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Binary, paper basis vs.\ binary-native, $n=1024$.}}{7}{table.caption.5}\protected@file@percent }
-\newlabel{tab:binary-native}{{3}{7}{Binary, paper basis vs.\ binary-native, $n=1024$}{table.caption.5}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Hexadecimal, paper basis vs.\ hex-native, $n=1024$.}}{7}{table.caption.6}\protected@file@percent }
-\newlabel{tab:hex-native}{{4}{7}{Hexadecimal, paper basis vs.\ hex-native, $n=1024$}{table.caption.6}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {D}Random-embedding control across all scripts}{7}{appendix.D}\protected@file@percent }
-\newlabel{app:embed-control}{{D}{7}{Random-embedding control across all scripts}{appendix.D}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Learned-vs-random $\Delta R^2_{L=0}$ across all paper-default cells. Negative or near-zero $\Delta $ marks mechanically-produced L=0 geometry.}}{7}{table.caption.7}\protected@file@percent }
-\newlabel{tab:embed-full}{{5}{7}{Learned-vs-random $\Delta R^2_{L=0}$ across all paper-default cells. Negative or near-zero $\Delta $ marks mechanically-produced L=0 geometry}{table.caption.7}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {E}$(\rho , \text  {CKA})$ scatter and the four quadrants}{7}{appendix.E}\protected@file@percent }
-\newlabel{app:cka}{{E}{7}{$(\rho , \text {CKA})$ scatter and the four quadrants}{appendix.E}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {F}Classification grid (full)}{8}{appendix.F}\protected@file@percent }
-\newlabel{app:classification}{{F}{8}{Classification grid (full)}{appendix.F}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {G}Reproducibility}{8}{appendix.G}\protected@file@percent }
-\newlabel{app:repro}{{G}{8}{Reproducibility}{appendix.G}{}}
-\@writefile{toc}{\contentsline {paragraph}{Compute.}{8}{appendix.G}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Data.}{8}{appendix.G}\protected@file@percent }
-\gdef \@abspage@last{8}
+\@writefile{toc}{\contentsline {section}{\numberline {A}Methods details}{9}{appendix.A}\protected@file@percent }
+\newlabel{app:methods}{{A}{9}{Methods details}{appendix.A}{}}
+\@writefile{toc}{\contentsline {paragraph}{Activation collection.}{9}{appendix.A}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Helix fit.}{9}{appendix.A}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{$\rho $ and the peak layer.}{9}{appendix.A}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Random-embedding control.}{9}{appendix.A}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Linear CKA.}{9}{appendix.A}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Classification thresholds.}{9}{appendix.A}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {B}Per-model peak layers on Latin}{9}{appendix.B}\protected@file@percent }
+\newlabel{app:layers}{{B}{9}{Per-model peak layers on Latin}{appendix.B}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {C}Binary and hexadecimal: native-basis case studies}{9}{appendix.C}\protected@file@percent }
+\newlabel{app:bases}{{C}{9}{Binary and hexadecimal: native-basis case studies}{appendix.C}{}}
+\@writefile{toc}{\contentsline {paragraph}{Binary}{9}{appendix.C}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Hexadecimal}{9}{table.caption.5}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Binary, paper basis vs.\ binary-native, $n=1024$.}}{10}{table.caption.5}\protected@file@percent }
+\newlabel{tab:binary-native}{{3}{10}{Binary, paper basis vs.\ binary-native, $n=1024$}{table.caption.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Hexadecimal, paper basis vs.\ hex-native, $n=1024$.}}{10}{table.caption.6}\protected@file@percent }
+\newlabel{tab:hex-native}{{4}{10}{Hexadecimal, paper basis vs.\ hex-native, $n=1024$}{table.caption.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {D}Random-embedding control across all scripts}{10}{appendix.D}\protected@file@percent }
+\newlabel{app:embed-control}{{D}{10}{Random-embedding control across all scripts}{appendix.D}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Learned-vs-random $\Delta R^2_{L=0}$ across all paper-default cells. Negative or near-zero $\Delta $ marks mechanically-produced L=0 geometry.}}{10}{table.caption.7}\protected@file@percent }
+\newlabel{tab:embed-full}{{5}{10}{Learned-vs-random $\Delta R^2_{L=0}$ across all paper-default cells. Negative or near-zero $\Delta $ marks mechanically-produced L=0 geometry}{table.caption.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {E}$(\rho , \text  {CKA})$ scatter and the four quadrants}{10}{appendix.E}\protected@file@percent }
+\newlabel{app:cka}{{E}{10}{$(\rho , \text {CKA})$ scatter and the four quadrants}{appendix.E}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {F}Classification grid (full)}{11}{appendix.F}\protected@file@percent }
+\newlabel{app:classification}{{F}{11}{Classification grid (full)}{appendix.F}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {G}Reproducibility}{11}{appendix.G}\protected@file@percent }
+\newlabel{app:repro}{{G}{11}{Reproducibility}{appendix.G}{}}
+\@writefile{toc}{\contentsline {paragraph}{Compute.}{11}{appendix.G}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Data.}{11}{appendix.G}\protected@file@percent }
+\gdef \@abspage@last{11}

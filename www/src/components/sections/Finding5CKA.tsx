@@ -1,4 +1,5 @@
 import { RhoCkaScatter } from "../charts/RhoCkaScatter";
+import { M, MM } from "../Math";
 
 /**
  * Subspace alignment (linear CKA) between L=0 and peak-layer fitted
@@ -145,6 +146,197 @@ export function Finding5CKA() {
         the alignment question — they're effectively the same point as
         ρ = 1.
       </p>
+
+      <details className="my-6 rounded-md border border-ink/10 bg-paper-warm/40 px-4 py-3 text-[0.97rem] leading-relaxed text-ink-soft [&[open]>summary]:mb-2">
+        <summary className="cursor-pointer select-none font-sans text-sm font-medium text-ink/80 hover:text-accent">
+          ▸ Deep dive: <em>same ρ, different CKA — a worked comparison</em>
+        </summary>
+
+        <p>
+          Two cells, both with high ρ — meaning the helix score at the
+          peak layer is mostly already at L=0. By ρ alone they look the
+          same. CKA reveals two very different mechanisms.
+        </p>
+
+        <p className="mt-3">
+          <strong>Setup.</strong> For each cell:
+        </p>
+        <ol className="mt-2 list-decimal pl-6 space-y-1">
+          <li>Run the layer sweep, identify the peak layer.</li>
+          <li>
+            Collect H at L=0 and at the peak layer — two matrices of
+            shape (100, 4096), one row per integer.
+          </li>
+          <li>
+            Fit the helix basis on each →{" "}
+            <M>{String.raw`W^{(L=0)}`}</M> and{" "}
+            <M>{String.raw`W^{(\text{peak})}`}</M>.
+          </li>
+          <li>
+            Form the helix-projected representations{" "}
+            <M>{String.raw`X = B \cdot W^{(L=0)}`}</M> and{" "}
+            <M>{String.raw`Y = B \cdot W^{(\text{peak})}`}</M> — the
+            best 9-dimensional helix approximations of each layer,
+            expanded back into the full 4096-d hidden space.
+          </li>
+          <li>Compute <M>{String.raw`\mathrm{CKA}(X, Y)`}</M>.</li>
+        </ol>
+
+        <p className="mt-3">
+          <strong>Cell A: Qwen2.5-32B/Latin.</strong> ρ ≈ 0.89. The
+          helix at L=0 is already near the peak score (Qwen splits
+          Latin numbers per-digit, so rendering + tokenization +
+          mean-pooling supplies a fittable manifold before any block
+          has run). CKA ≈ 0.91.
+        </p>
+
+        <p className="mt-2 ml-4">
+          Reading: both the score <em>and</em> the integer-to-integer
+          relationships are preserved through depth.{" "}
+          <strong>Pass-through</strong>. The transformer doesn't touch
+          the helix.
+        </p>
+
+        <p className="mt-3">
+          <strong>Cell B: Gemma-4-31B/Latin.</strong> ρ ≈ 0.79. Similar
+          to A — the score barely changes between L=0 and peak. CKA ≈ 0.33.
+        </p>
+
+        <p className="mt-2 ml-4">
+          Reading: same score story, but the integer-to-integer
+          relationships have <em>substantially shifted</em>. The
+          peak-layer representation arranges the 100 integers into a
+          helix, but it's not the same arrangement as the L=0 helix.{" "}
+          <strong>Rebuild</strong>. Depth is doing significant
+          representational work; it just doesn't show up as a score
+          change.
+        </p>
+
+        <p className="mt-4">
+          <strong>Concrete intuition.</strong> Imagine a 3D helix plot
+          at L=0 with integers labelled. Now imagine the 3D helix at
+          the peak layer of the same model on the same script.
+        </p>
+
+        <ul className="mt-2 list-disc pl-6 space-y-1">
+          <li>
+            For <strong>Qwen-32B</strong>, the two plots are almost
+            identical: integer 23 is in the same position on the helix
+            in both, integer 47 is in the same position, etc. Depth
+            left the arrangement alone.
+          </li>
+          <li>
+            For <strong>Gemma-31B</strong>, the two plots have the same
+            overall helical shape but the labels have moved: integer 23
+            might be at the back of the helix at L=0 and at the front
+            at peak. The helix is still a helix, but a <em>different</em>{" "}
+            one — the row-similarity pattern (which integers are
+            nearby which) has changed.
+          </li>
+        </ul>
+
+        <p className="mt-4">
+          <strong>Why linear CKA captures this.</strong> The formula
+          (<a className="text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent" href="https://arxiv.org/abs/1905.00414">Kornblith et al. 2019</a>):
+        </p>
+
+        <MM>{String.raw`\mathrm{CKA}(X, Y) \;=\; \frac{\,\|X^{\top} Y\|_{F}^{2}\,}{\|X^{\top} X\|_{F} \cdot \|Y^{\top} Y\|_{F}}`}</MM>
+
+        <p>
+          (after mean-centring each matrix's columns). Linear CKA
+          measures whether the <em>row-similarity pattern</em> in X
+          matches the row-similarity pattern in Y. Concretely: take
+          the 100×100 matrix <span className="font-mono">XX<sup>⊤</sup></span> —
+          entry (i, j) is the inner product between row i and row j.
+          That matrix encodes "which integers are close to which" in
+          X's feature space. CKA ≈ 1 means this pattern is the same
+          for both X and Y.
+        </p>
+
+        <p className="mt-3">
+          Critically, CKA is <strong>invariant to rotation and
+          rescaling of the feature columns</strong>. Rotate Y's
+          features and the row-row inner products don't change.
+          Rescale them and the formula's normalisation factors out
+          the scaling. So CKA isn't asking "are X and Y in the same
+          place in residual space?" — they obviously aren't, depth
+          has done work. It's asking "is the row-similarity pattern
+          the same?" — i.e., are the same integers close to each
+          other in both representations? That's the right question
+          for "is the shape the same?"
+        </p>
+
+        <p className="mt-4">
+          <strong>Why helix-projected, not full residual stream.</strong>{" "}
+          We compute two flavours:
+        </p>
+
+        <ul className="mt-2 list-disc pl-6 space-y-1">
+          <li>
+            <strong>cka_full</strong> = CKA on the full 4096-d residual
+            stream at L=0 vs peak.
+          </li>
+          <li>
+            <strong>cka_helix</strong> = CKA on the helix-projected
+            representations <M>{String.raw`B \cdot W^{(L=0)}`}</M> and{" "}
+            <M>{String.raw`B \cdot W^{(\text{peak})}`}</M>.
+          </li>
+        </ul>
+
+        <p className="mt-3">
+          The full version mixes in everything: language structure,
+          syntactic features, attention metadata, all the things the
+          residual stream carries. That's noisy for our question — we
+          want to know whether <em>the helix</em> moved, not whether
+          the whole model state did. The helix-projected version
+          isolates the trig-fittable part of the activations and
+          compares only that.
+        </p>
+
+        <p className="mt-4">
+          <strong>The four quadrants.</strong> Plot ρ on the x-axis
+          and CKA on the y-axis. Each (model, script) cell becomes
+          one point in the scatter above. Four named regions emerge:
+        </p>
+
+        <ul className="mt-2 list-disc pl-6 space-y-1">
+          <li>
+            <strong>Top-right</strong> (high ρ, high CKA) —{" "}
+            <em>pass-through</em>. The input pipeline supplies the
+            helix and depth doesn't touch it. Qwen2.5-32B/Latin,
+            OLMo/Latin, Pythia × non-Latin positional.
+          </li>
+          <li>
+            <strong>Top-left</strong> (low ρ, high CKA) —{" "}
+            <em>depth refines</em>. The L=0 helix is partial; depth
+            amplifies its score while preserving its shape.
+            Pythia/Latin, Llama/Latin, GPT-J/Latin — K&amp;T's three
+            clean cells.
+          </li>
+          <li>
+            <strong>Bottom-right</strong> (high ρ, low CKA) —{" "}
+            <em>rebuild</em>. Score barely changes; geometry does.
+            Whole Gemma family, Babylonian on Pythia/Llama/OLMo,
+            Qwen on Devanagari.
+          </li>
+          <li>
+            <strong>Bottom-left</strong> (low ρ, low CKA) —{" "}
+            <em>depth builds new</em>. Score improves <em>and</em>{" "}
+            shape changes. Rare. Gemma's strongest non-Latin cells
+            edge here.
+          </li>
+        </ul>
+
+        <p className="mt-4">
+          ρ alone collapses top-right and bottom-right into one
+          category ("high ρ → inherited"). CKA recovers the
+          distinction: top-right is genuine inheritance (depth idle),
+          bottom-right is depth doing significant work in a way that
+          doesn't move the score. The "Gemma/Latin is mostly
+          tokenizer" reading from ρ alone turns out to be wrong once
+          CKA is added — Gemma is rebuilding, not inheriting.
+        </p>
+      </details>
     </section>
   );
 }

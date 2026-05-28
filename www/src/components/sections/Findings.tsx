@@ -14,10 +14,11 @@ export function Findings() {
           The same fit could mean the transformer built the geometry, or
           that it was already supplied by the input pipeline (rendering,
           tokenization, embedding lookup, pooling), or that the fit just
-          happened to flatter the data. I introduce a simple provenance
-          check — <strong>ρ</strong>, the ratio of the helix fit at layer 0
-          to the helix fit at its best layer — and pair it with two checks
-          on the measurement basis and window.
+          happened to flatter the data. So I checked: alongside the helix
+          fit at the best layer I also report{" "}
+          <strong>ρ</strong>, the ratio of the helix fit at layer 0 to
+          the helix fit at its best layer, plus two sanity checks on the
+          measurement basis and window.
         </Claim>
         <Claim n={2}>
           The original Latin result survives across all three paper models

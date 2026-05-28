@@ -4,8 +4,8 @@ export function Conclusion() {
       <h2 className="section-heading">What this changes</h2>
 
       <p>
-        The contribution here is the diagnostic kit, not the matrix.
-        The standard "fit a helix and report R²" procedure has three
+        The reframing is the contribution here, not the matrix. The
+        standard "fit a helix and report R²" procedure has three
         problems that can make it answer the wrong question: two hide
         real structure (wrong basis, too-short window) and one credits
         the transformer with structure it didn't build (which ρ catches).
@@ -86,8 +86,8 @@ export function Conclusion() {
       </p>
 
       <p className="mt-4">
-        Two halves of the same diagnostic kit — ρ tells you which cells
-        are most likely to distinguish depth-built from inherited
+        Two complementary halves of the same question — ρ tells you which
+        cells are most likely to distinguish depth-built from inherited
         geometry, and{" "}
         <a className="text-accent underline" href="https://arxiv.org/abs/2605.01148">
           Feucht, Haklay et al. (2026)

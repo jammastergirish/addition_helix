@@ -4,10 +4,12 @@
  * and includes a collapsible methods box at the bottom for the precise
  * pipeline. The cell-by-cell visualisations live in Part 3.
  */
+import { M, MM } from "../Math";
+
 export function TheDiagnostic() {
   return (
     <section className="prose-body">
-      <h2 className="section-heading">A diagnostic kit for helix R²</h2>
+      <h2 className="section-heading">Three things that can go wrong with helix R²</h2>
 
       <p>
         The standard procedure — take 100 integers, fit a 9-feature
@@ -16,7 +18,9 @@ export function TheDiagnostic() {
         it anywhere else and three problems can make it answer the wrong
         question.{" "}
         <strong>Two of them hide real structure that's actually there;
-        one credits the transformer with structure it didn't build.</strong>
+        one credits the transformer with structure it didn't build.</strong>{" "}
+        This section names the three problems and the corresponding
+        checks I ran alongside helix R² to spot them.
       </p>
 
       <ol className="mt-6 space-y-4 list-decimal pl-6">
@@ -58,9 +62,7 @@ export function TheDiagnostic() {
         </li>
       </ol>
 
-      <p className="mt-3 ml-12 font-mono text-sm text-ink/80">
-        ρ = R²(L=0) / max<sub>L</sub> R²(L).
-      </p>
+      <MM>{String.raw`\rho \;=\; \frac{R^2(L{=}0)}{\max_{L}\, R^2(L)}`}</MM>
 
       <p className="mt-3 ml-12">
         ρ ≈ 1 means depth didn't improve the helix score — the structure
@@ -70,6 +72,17 @@ export function TheDiagnostic() {
         need depth to exist. (To distinguish "depth left the helix
         alone" from "depth produced a similar-quality helix in a
         different direction" needs a second check — see Finding 5.)
+      </p>
+
+      <p className="mt-3 ml-12 text-[0.97rem] text-ink-soft">
+        <strong>Convention note.</strong> My L=0 is HuggingFace{" "}
+        <span className="font-mono">hidden_states[0]</span> — the
+        pre-block embedding+pooling output. That's one step{" "}
+        <em>before</em> K&amp;T's "following layer 0" residual stream,
+        which already has one transformer block applied. The pre-block
+        measurement is what we want here because it isolates the input
+        pipeline; if you read K&amp;T's plots, their first layer
+        already has some computation in it.
       </p>
 
       <p className="mt-6">
@@ -95,11 +108,14 @@ export function TheDiagnostic() {
         <em>or</em> the transformer produced a similar-quality helix
         with a substantially different integer-to-integer pattern (a
         rebuild). To separate those, I add <strong>CKA</strong>{" "}
-        (Centered Kernel Alignment) — a standard similarity metric for
-        neural representations that scores how much the pairwise
-        pattern of distances between integers at one layer matches the
-        pattern at another. CKA near 1 means the geometries are
-        essentially the same; near 0 means unrelated. Combining ρ and
+        (Centered Kernel Alignment;{" "}
+        <a className="text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent" href="https://arxiv.org/abs/1905.00414">
+          Kornblith et al.&nbsp;2019
+        </a>) — a standard similarity metric for neural representations
+        that scores how much the pairwise pattern of distances between
+        integers at one layer matches the pattern at another. CKA near
+        1 means the geometries are essentially the same; near 0 means
+        unrelated. Combining ρ and
         CKA gives a four-way classification of every cell — see the ρ
         heatmap, the classification grid, and the CKA scatter in Part 3.
       </p>
@@ -117,12 +133,17 @@ export function TheDiagnostic() {
           <li>
             Render <span className="font-mono">a</span> as a string in the
             chosen numeral system (see "The twelve numeral systems"
-            above).
+            above), <strong>with a leading space</strong> —{" "}
+            <span className="font-mono">" 23"</span> not{" "}
+            <span className="font-mono">"23"</span>. This matches
+            K&amp;T's convention. GPT-style tokenizers treat the two
+            differently, and a leading space is what numbers look like
+            in natural prompts ("compute 17 + 6", "answer: 23").
           </li>
           <li>
             Break that string into tokens using the model's own
             tokenizer — the same rules the model uses for any text. No
-            prompt scaffolding, just the bare number.
+            prompt scaffolding beyond the leading space.
           </li>
           <li>
             Run the model on those tokens and capture the internal state
@@ -133,11 +154,20 @@ export function TheDiagnostic() {
             tokens by taking the mean. (The alternative — reading only
             the last sub-token — bakes a per-digit cycle into the data
             for multi-digit scripts, producing fake helix peaks; mean
-            is a more symmetric choice across scripts.{" "}
-            <em>That said, mean-pooling is itself part of the provenance
-            story: for additive renderings like Babylonian and binary,
-            it turns symbol counts into linear arithmetic on token
-            embeddings — see Findings 3 and the binary/hex section.</em>)
+            is a more symmetric choice across scripts.) K&amp;T
+            stayed in the <em>single-token regime</em> "for simplicity"
+            — Pythia tokenizes 0–557 as one token, GPT-J 0–361, Llama
+            0–999, so on Latin at <span className="font-mono">n=100</span>{" "}
+            the choice of pool is moot for those three models. We
+            can't stay in that regime: Qwen and Gemma split Latin
+            numbers per-digit even at n=100, every non-Latin script
+            is multi-token on every tokenizer, and the extended-basis
+            Babylonian/binary/hex runs go well past any model's
+            single-token range. Mean pooling is the honest extension.{" "}
+            <em>It is also itself part of the provenance story: for
+            additive renderings like Babylonian and binary, mean-pooling
+            turns symbol counts into linear arithmetic on token
+            embeddings — see Findings 3 and the binary/hex section.</em>
           </li>
           <li>
             Collect these per-integer vectors into a matrix per layer —
@@ -316,6 +346,100 @@ export function TheDiagnostic() {
           comparison to a random-embedding control covers the mechanical
           /-learned axis at layer 0 only; later layers haven't been
           tested the same way.
+        </p>
+      </details>
+
+      <details className="my-6 rounded-md border border-ink/10 bg-paper-warm/40 px-4 py-3 text-[0.97rem] leading-relaxed text-ink-soft [&[open]>summary]:mb-2">
+        <summary className="cursor-pointer select-none font-sans text-sm font-medium text-ink/80 hover:text-accent">
+          ▸ Deep dive: <em>why mean pooling, not last-token</em>
+        </summary>
+
+        <p>
+          K&amp;T stayed in the <em>single-token regime</em> — Pythia
+          tokenizes integers in [0, 557] as one token, GPT-J [0, 361],
+          Llama [0, 999]. For those three models reading Latin at
+          n=100, every integer is one token and the choice of pool
+          (mean vs last) is moot. Outside that regime the choice
+          matters, and the failure mode of last-token pooling is
+          mechanical and predictable.
+        </p>
+
+        <p className="mt-3">
+          <strong>The last-token artifact.</strong> Take Pythia reading
+          Arabic-Indic digits. The numeral "23" renders as <span className="font-mono">٢٣</span>, which Pythia (no Arabic-Indic
+          training to speak of) splits into per-digit sub-tokens.
+          Tokenization of " ٢٣" gives roughly{" "}
+          <span className="font-mono">[space, T_٢, T_٣]</span>.
+        </p>
+
+        <p className="mt-3">
+          Now consider all integers ending in the digit 3:{" "}
+          <span className="font-mono">3, 13, 23, 33, 43, 53, 63, 73, 83, 93</span>.
+          Each tokenizes to something ending in <span className="font-mono">T_٣</span>:
+        </p>
+
+        <p className="my-2 ml-4 font-mono text-sm text-ink/80">
+          " ٣" → [space, T_٣]<br />
+          " ١٣" → [space, T_١, T_٣]<br />
+          " ٢٣" → [space, T_٢, T_٣]<br />
+          " ٣٣" → [space, T_٣, T_٣]<br />
+          ...
+        </p>
+
+        <p>
+          With <span className="font-mono">pool="last"</span>, all ten
+          of these read the same activation: the residual stream at
+          the <span className="font-mono">T_٣</span> position. So the
+          mean-pooled-over-one-token activations of 3, 13, 23, …, 93
+          are <em>identical</em>. The matrix H has ten rows that
+          repeat every ten integers — a perfect period-10 cycle that
+          we put in by construction.
+        </p>
+
+        <p className="mt-3">
+          The FFT of any column of H now has a giant peak at
+          frequency 1/10, the helix R² fit looks great, and a naive
+          reading concludes "Pythia encodes Arabic-Indic digits as a
+          period-10 helix." This is a measurement artifact. The model
+          may or may not actually encode anything; the apparent helix
+          is the trivial consequence of reading at a position whose
+          activation only depends on the last digit.
+        </p>
+
+        <p className="mt-3">
+          <strong>Why mean pooling avoids it.</strong> Mean over all
+          sub-tokens of the numeral: every position contributes
+          equally. For " ١٣" we average{" "}
+          <span className="font-mono">e_space</span>,{" "}
+          <span className="font-mono">e_T_١</span>, and{" "}
+          <span className="font-mono">e_T_٣</span>; for " ٢٣" we
+          average <span className="font-mono">e_space</span>,{" "}
+          <span className="font-mono">e_T_٢</span>, and{" "}
+          <span className="font-mono">e_T_٣</span>. These are
+          different vectors, because the tens-digit token is
+          different. So 13 and 23 are no longer collapsed to the
+          same activation.
+        </p>
+
+        <p className="mt-3">
+          But mean pooling has its own consequence. For{" "}
+          <em>additive</em> renderings — Babylonian (𒌋𒌋 = 2 tens,
+          𒁹𒁹𒁹 = 3 ones), binary (the bits), Roman within bounded
+          ranges — mean pooling turns symbol counts into linear
+          arithmetic on token embeddings. That arithmetic <em>is</em>{" "}
+          the helix score on those scripts, even with random
+          embeddings (see Finding 3). Mean is the honest choice — it
+          doesn't fabricate a period-10 cycle — but it's not neutral.
+          It's the channel through which the rendering-only structure
+          on additive scripts becomes measurable.
+        </p>
+
+        <p className="mt-3">
+          So the choice is: pick last and get a period-10 artifact
+          you can never trust on multi-token scripts, or pick mean
+          and explicitly own the renderer-times-pooling story (which
+          the random-embedding control then quantifies). We picked
+          mean.
         </p>
       </details>
     </section>

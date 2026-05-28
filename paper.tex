@@ -62,13 +62,13 @@
 $a \in [0,99]$ as a \emph{generalised helix}: a linear ``number-line''
 axis plus modular circles at $T \in \{2,5,10,100\}$. A natural reading
 is that the transformer constructs this geometry through depth. We
-introduce a four-part diagnostic kit that asks where the geometry
-\emph{comes from}: (i)~the provenance ratio
+ask where the geometry \emph{comes from}, and report four measurements
+per cell: (i)~the provenance ratio
 $\rho = R^2_{\mathrm{helix}}(L\!=\!0) / \max_L R^2_{\mathrm{helix}}(L)$,
 (ii)~a basis-bandwidth and window-wrap check, (iii)~a random-embedding
 control, and (iv)~CKA between the L=0 and peak-layer helix subspaces.
-Applied across 8 models $\times$ 12 numeral scripts (96 cells), the
-kit shows that K\&T's central Latin result holds cleanly on their
+Across 8 models $\times$ 12 numeral scripts (96 cells), K\&T's central
+Latin result holds cleanly on their
 three models (Pythia-6.9B, Llama-3.1-8B, GPT-J-6B; $\rho = 0.34, 0.39,
 0.41$) but that the apparent cross-script generalisation of the helix
 is largely \emph{pre-transformer}: only $6{-}8$ of $96$ cells clear a
@@ -111,8 +111,16 @@ in a tiny transformer trained on modular addition (itself an
 interpretation of the \citet{power2022grokking} grokking dynamics).
 K\&T further show the helix is causally used for addition.
 
-A high helix $R^2$ does \emph{not} tell us where the geometry came from.
-It might be constructed by transformer depth, or inherited from the
+K\&T deliberately avoid many tokenization complications by focusing
+on space-prefixed Latin integers that are single tokens in their
+models---GPT-J tokenizes $[0, 361]$ as one token, Pythia $[0, 557]$,
+Llama $[0, 999]$---which is the right clean setting for their causal
+addition study. Our question starts where that simplification stops.
+When the same helical fit is generalised across scripts and bases,
+the input pipeline itself can create or preserve Fourier-fittable
+structure, so provenance becomes a non-trivial question. A high
+helix $R^2$ does \emph{not} tell us where the geometry came from. It
+might be constructed by transformer depth, or inherited from the
 input pipeline (rendering, tokenization, embedding lookup, pooling),
 or induced by the measurement protocol itself (wrong basis, too-short
 input range). This question matters: in the literature, ``the model
@@ -129,8 +137,8 @@ If tokenization can change arithmetic behavior, can the input
 pipeline also \emph{create} the geometry we later interpret as a
 learned representation?
 
-\textbf{Contributions.} We introduce a four-part diagnostic kit
-(\S\ref{sec:diagnostic}) and apply it across 8 models $\times$ 12
+\textbf{Contributions.} We describe four measurements
+(\S\ref{sec:diagnostic}) and what they say across 8 models $\times$ 12
 numeral scripts (\S\ref{sec:setup}). We report three findings
 (\S\ref{sec:results}). \emph{(1)} K\&T's Pythia/Llama/GPT-J Latin
 cells survive cleanly under the wider protocol; the depth-built
@@ -146,83 +154,12 @@ probing and SAE interpretability (\S\ref{sec:discussion}).
 Complementary causal work: \citet{feucht2026wild} identify a layer-18
 base-10 addition module in Llama-3.1-8B that reads from exactly the
 Fourier features the helix basis fits, on exactly the cell our
-diagnostic marks as depth-built---answering the
+measurements mark as depth-built---answering the
 \emph{what is the geometry used for?} question on a cell we mark as
 the geometry-was-actually-built one.
 
-\section{The Diagnostic Kit}
+\section{What We Measure Per Cell}
 \label{sec:diagnostic}
-
-We characterise a $(\text{model}, \text{script})$ cell along four
-axes. Let $H \in \mathbb{R}^{n \times d}$ be the residual stream at
-layer $L$ over $n$ integers, with $h(a)$ the row for integer $a$.
-
-\paragraph{Helix basis and quality.} The trig basis is
-\begin{equation}
-\label{eq:basis}
-B(a) = \big[\,a,\, \cos(2\pi a/T), \sin(2\pi a/T)\,\big]_{T \in \mathcal{T}}.
-\end{equation}
-We fit $H \approx B W$ by ordinary least squares and report the
-variance-weighted $R^2$ at every layer, plus the K-d PCA upper
-bound at the same dimensionality (Eckart--Young). The ratio
-$R^2_{\mathrm{helix}}/R^2_{\mathrm{PCA}}$ measures \emph{quality}:
-how dominant the helix subspace is among all K-d fits.
-
-\paragraph{Provenance ratio $\rho$.} The core diagnostic:
-\begin{equation}
-\label{eq:rho}
-\rho \;=\; \frac{R^2_{\mathrm{helix}}(L\!=\!0)}{\max_L R^2_{\mathrm{helix}}(L)}.
-\end{equation}
-$L=0$ is the residual stream \emph{before any transformer block has
-run}---the output of token embedding, positional embedding, and
-mean-pooling over numeral sub-tokens. $\rho = 1$ means the helix is
-already present at L=0 and depth does not improve the score (inherited);
-$\rho \to 0$ means depth substantially builds it (depth-built). $\rho$
-alone is insufficient: a low $\rho$ in a low-quality cell just means
-the basis fits little anywhere. We classify a cell as
-\emph{depth-built} when $\rho \le 0.55$ \emph{and}
-$R^2_{\mathrm{helix}}/R^2_{\mathrm{PCA}} \ge 0.70$; \emph{inherited}
-when $\rho \ge 0.80$ at quality $\ge 0.55$; \emph{weak} when quality
-$< 0.55$; \emph{ambiguous} otherwise.
-
-\paragraph{Basis bandwidth and window wrap.} A trig basis can only
-fit periods it includes; a fitted period $T$ requires the input window
-to wrap $T$ several times. Babylonian (native $T=60$) and hex
-(natural $T \in \{16,32,64,256\}$) fail both bars at the paper
-defaults. Mitigation: widen the window past several wraps and add
-the native period to $\mathcal{T}$.
-
-\paragraph{Random-embedding control.} Replace the model's learned
-embedding matrix with $E \sim \mathcal{N}(0, 1/\sqrt{d})$ at matched
-scale, recompute the L=0 representation (rendering + tokenization +
-mean-pooling are unchanged), and re-fit the helix. A small
-$\Delta R^2_{L=0} = R^2_{\mathrm{learned}} - R^2_{\mathrm{random}}$
-means the L=0 geometry is mechanical---the embedding table contributed
-nothing the renderer + pooling did not already produce.
-
-\paragraph{Representation alignment (CKA).} Linear CKA
-\citep{kornblith2019similarity} between the helix-projected L=0 and
-peak-layer representations distinguishes two cases $\rho$ conflates:
-\emph{pass-through} (high $\rho$, high CKA) versus \emph{rebuild}
-(high $\rho$, low CKA: depth produces a similar-quality helix with a
-substantially different integer-to-integer geometry). CKA is
-rotation- and rescaling-invariant.
-
-\section{Experimental Setup}
-\label{sec:setup}
-
-\textbf{Models} (all base, non-instruction-tuned): Pythia-6.9B,
-GPT-J-6B, Llama-3.1-8B, Gemma-4-E4B, Gemma-4-31B, OLMo-3-32B,
-Qwen2.5-7B, Qwen2.5-32B. Three of these (Pythia, GPT-J, Llama) are
-the original K\&T set.
-
-\textbf{Scripts} (12 total, four families); Table~\ref{tab:scripts}
-gives each script's rendering of 23 and its mathematical family.
-All inputs use mean pooling over numeral sub-tokens (last-token
-pooling produces a period-10 artifact for multi-token scripts; see
-App.~\ref{app:methods}). The default protocol is $n_{\max}=100$,
-$\mathcal{T}=\{2,5,10,100\}$; Babylonian/binary/hex additionally run
-with wider windows and native bases (App.~\ref{app:bases}).
 
 \begin{table*}[t]
 \caption{The twelve numeral scripts, grouped by family. ``Native $T$''
@@ -256,42 +193,305 @@ Babylonian     & \cuneinum{𒌋𒌋𒁹𒁹𒁹} & \cuneinum{𒌋𒌋𒁹𒁹�
 \end{tabular}
 \end{table*}
 
+A high helix $R^2$ at the best layer is a measurement; on its own it
+doesn't tell us how the geometry got there. To answer the provenance
+question we report four separate measurements per
+$(\text{model}, \text{script})$ cell: (i)~the helix score and how
+dominant the helix subspace is among all $K$-d fits; (ii)~where in
+the stack the helix actually lives, and how much of it is already at
+the embedding output; (iii)~whether the basis and window can in
+principle see the script's natural period; and (iv)~when depth does
+change the score, whether it preserves the geometry or replaces it.
+Let $H \in \mathbb{R}^{n \times d}$ be the residual stream at layer
+$L$ over $n$ integers, with $h(a)$ the row for integer $a$.
+
+\paragraph{Helix basis and quality.} The trig basis is
+\begin{equation}
+\label{eq:basis}
+B(a) = \big[\,a,\, \cos(2\pi a/T), \sin(2\pi a/T)\,\big]_{T \in \mathcal{T}},
+\end{equation}
+giving $1 + 2|\mathcal{T}|$ features per integer (9 features at
+$\mathcal{T} = \{2,5,10,100\}$). Each column has a geometric meaning.
+The linear column $a$ is the ``spine''; when OLS fits it, the column
+picks out the residual-stream direction that best correlates with
+integer magnitude---the number-line direction. Each
+$(\cos 2\pi a/T, \sin 2\pi a/T)$ pair traces the unit circle as $a$
+varies, completing one revolution per $T$ integers, so integers
+sharing the same $(a \bmod T)$ land at the same angular position.
+$T=2$ separates parity, $T=5$ gives five clusters by mod-5, $T=10$
+gives the canonical clock face for the units digit, $T=100$ gives
+coarse position over the whole 0--99 range. Stacked, the result is
+a helix: the cos/sin pair rotates as $a$ increases and the linear
+column lifts each point. We keep cos and sin separated (rather than
+using the complex exponential $e^{2\pi i a/T}$) because the fit is
+real-valued OLS and because each (cos, sin) pair gives the model a
+2D plane it can \emph{rotate in}---which is exactly the ``Clock''
+algorithm K\&T identify, where addition becomes rotation by the
+addend's angle on each clock.
+
+We fit $H \approx B W$ by ordinary least squares and report the
+variance-weighted $R^2$ at every layer. The variance weighting puts
+emphasis on the hidden dimensions that actually vary in $a$;
+otherwise the score would be dominated by the many residual-stream
+dimensions that are nearly constant across integers (tokens for
+``language'', ``decimal'', etc.). The columns of $W$ tell us
+\emph{where} each clock and the number-line direction live in
+residual space---and Figure~\ref{fig:helix-intro} is constructed by
+extracting the three columns
+$(\cos 2\pi a/10, \sin 2\pi a/10, a)$, QR-orthonormalising them into
+a clean 3D frame, and projecting $H$ onto it.
+
+A high helix $R^2$ alone is not enough: any sufficiently expressive
+basis fits a low-dimensional signal. The relevant comparison is the
+K-d PCA upper bound at the same dimensionality (the Eckart--Young
+optimal $K$-feature reconstruction). The ratio
+$R^2_{\mathrm{helix}}/R^2_{\mathrm{PCA}}$ is our \emph{quality}
+metric: how dominant the helix subspace is among all $K$-d fits. A
+ratio near $1$ means the model isn't just \emph{fitting} the helix,
+it's \emph{using} it; a ratio near $0$ means the basis fits little
+that the activations contain.
+
+\paragraph{Provenance ratio $\rho$.} The core measurement:
+\begin{equation}
+\label{eq:rho}
+\rho \;=\; \frac{R^2_{\mathrm{helix}}(L\!=\!0)}{\max_L R^2_{\mathrm{helix}}(L)}.
+\end{equation}
+The numerator and denominator answer different questions about the
+same cell. The denominator is the helix score K\&T's analysis
+already reports: how well the trig basis fits at the model's most
+helix-friendly layer. The numerator scores the same basis at
+$L=0$, the residual stream \emph{before any transformer block has
+run}---the output of token embedding, positional embedding, and
+mean-pooling over the numeral's sub-tokens. Convention note: our
+$L=0$ is HuggingFace \texttt{hidden\_states[0]}, the pre-block
+embedding+pooling output. This is one step \emph{before} K\&T's
+``following layer 0'' residual stream, which already has one block of
+computation applied; the pre-block measurement is what we want for
+the provenance question because it isolates the input pipeline. So
+$\rho$ asks: ``of the helix you measure at the peak layer, how much
+was already supplied by the input pipeline before the transformer
+ran?'' $\rho = 1$ means
+all of it (inherited); $\rho \to 0$ means depth genuinely builds the
+geometry (depth-built); intermediate $\rho$ means depth amplifies a
+real but partial L=0 head start.
+
+Two notes on what $\rho$ is not. First, $\rho$ alone is insufficient:
+in a cell where the basis fits little anywhere, a low $\rho$ just
+means ``ratio of two small numbers,'' not ``hidden depth-built helix.''
+We therefore require a quality threshold alongside $\rho$. We call a
+cell \emph{depth-built} when $\rho \le 0.55$ \emph{and}
+$R^2_{\mathrm{helix}}/R^2_{\mathrm{PCA}} \ge 0.70$;
+\emph{depth-amplified} when $0.55 < \rho \le 0.70$ at quality $\ge
+0.60$; \emph{inherited} when $\rho \ge 0.80$ at quality $\ge 0.55$;
+\emph{weak} when quality $< 0.55$; \emph{ambiguous} between
+thresholds. Second, $\rho$ is silent about \emph{what} depth does
+when it does work---two cells can share the same $\rho$ while depth
+treats their L=0 geometry very differently. The CKA check below
+recovers that distinction.
+
+\paragraph{Basis bandwidth and window wrap.} The trig basis is not
+universal; it can only fit periods it explicitly includes. A model
+might encode integers using a period $T$ the basis doesn't contain,
+and the score will look low through no fault of the model. Two
+failure modes follow.
+
+\emph{Mode 1 (basis bandwidth):} if the script's natural period
+isn't in $\mathcal{T}$, the basis is blind to it. This is analogous
+to trying to detect a 1\,kHz tone with a microphone that only
+captures 5--20\,kHz: the tone is there, the microphone reports ``no
+signal,'' and that is a fact about the microphone, not the room.
+
+\emph{Mode 2 (window wrap):} even if we put $T = 60$ in the basis,
+$n_{\max} = 100$ wraps $T = 60$ only once (around $a = 60$). One wrap
+is not enough to identify a periodic component. The Fourier
+intuition: the FFT of a length-100 signal at frequency $f = 1/60$
+doesn't form a clean single bin because $100$ isn't an integer
+multiple of $60$. The energy of a true $T = 60$ component spreads
+across multiple frequency bins (``spectral leakage''), making it
+indistinguishable from noise. With ten cycles in 600 samples,
+leakage is small and the peak at $1/60$ is sharp and unambiguous.
+The regression intuition is the same in different language: with one
+wrap of $T = 60$ over 100 samples, the columns $\cos(2\pi a/60)$ and
+$\sin(2\pi a/60)$ are highly correlated with all sorts of other
+columns and with each other; OLS can fit ``something'' but the
+result is unstable and not attributable to $T = 60$ structure
+specifically. Rule of thumb: you need the input range to wrap any
+candidate period at least 8--10 times for clean identification.
+
+Both modes hide real structure. Babylonian cuneiform (native $T =
+60$), binary (natural periods $T \in \{2,4,8,16,32,64\}$), and hex
+(natural periods $T \in \{16,32,64,256\}$) all fail at least one bar
+at paper defaults. The mitigation is conservative: widen $n_{\max}$
+past several wraps of any candidate period, and explicitly add the
+script's native period to $\mathcal{T}$. If the score jumps with the
+fix, the original measurement was hiding real structure; if it
+doesn't, the script genuinely has no helix.
+
+\paragraph{Random-embedding control.} The most direct test of whether
+the L=0 helix is mechanical. Replace the model's learned embedding
+matrix with $\tilde{E} \sim \mathcal{N}(0, 1/\sqrt{d})$ at matched
+per-coordinate scale, recompute the L=0 representation (the tokenizer,
+the renderer, and mean-pooling are unchanged; only the embedding
+lookup is replaced), and re-fit the helix. The gap
+$\Delta R^2_{L=0} = R^2_{\mathrm{learned}} - R^2_{\mathrm{random}}$
+is what learned embeddings contribute on top of the rendering+pooling
+floor. A small $\Delta$ means the L=0 geometry is mechanical: the
+embedding table contributed nothing the input pipeline didn't already
+produce. A large $\Delta$ means the embedding table carries learned
+structure beyond what the rendering+pooling mechanically generates.
+This is the strongest version of the input-pipeline check, and the
+one that gives the paper's cleanest single number
+(\S\ref{sec:results-bab}).
+
+\paragraph{Representation alignment (CKA).} The first three
+measurements characterise the \emph{score} a cell achieves and where
+that score lives. They are silent about \emph{shape}. Two cells can
+share the same high $\rho$---both with most of the helix already at
+L=0---while one of them lets the L=0 geometry pass through unchanged
+and the other replaces it with a substantially different
+integer-to-integer pattern that just happens to fit the trig basis
+equally well. Linear CKA \citep{kornblith2019similarity} between the
+helix-projected L=0 and peak-layer representations distinguishes the
+two cases. Letting $X = B W^{(L=0)}$ and $Y = B W^{(\text{peak})}$,
+$\mathrm{CKA}(X,Y) \in [0,1]$ measures whether the
+\emph{integer-to-integer distance pattern} is the same at the two
+depths. $\mathrm{CKA} \approx 1$ at high $\rho$ means
+\emph{pass-through}: the input pipeline supplies the geometry and
+depth doesn't touch it. $\mathrm{CKA} \ll 1$ at high $\rho$ means
+\emph{rebuild}: depth replaces the L=0 helix with a similar-score
+but differently-shaped one. CKA is invariant to rotation and
+rescaling in feature space, so ``different geometry'' here means the
+\emph{row-similarity pattern} differs, not necessarily that the
+hidden directions are orthogonal.
+
+\section{Experimental Setup}
+\label{sec:setup}
+
+\textbf{Models} (all base, non-instruction-tuned): Pythia-6.9B,
+GPT-J-6B, Llama-3.1-8B, Gemma-4-E4B, Gemma-4-31B, OLMo-3-32B,
+Qwen2.5-7B, Qwen2.5-32B---a superset of the K\&T model set (Pythia,
+GPT-J, Llama) chosen to cover three architectural axes the original
+paper does not: a multilingual family with strong Indic/Arabic-Indic
+exposure (Gemma 4), a model family that aggressively splits numbers
+into per-digit tokens (Qwen 2.5), and a recent base model with a
+well-documented training mix (OLMo-3). Sizes range from 4\,B
+(Gemma-4-E4B) to 32\,B (Qwen2.5-32B, OLMo-3-32B, Gemma-4-31B). Layer
+counts range from 28 (Pythia, GPT-J) to 64 (OLMo, Qwen2.5-32B); the
+helix's peak layer varies enormously across this set (App.~\ref{app:layers}).
+
+\textbf{Scripts} (12 total, four families); Table~\ref{tab:scripts}
+gives each script's rendering of 23 and its mathematical family.
+\textbf{Pooling.} K\&T focus on the \emph{single-token regime}
+``for simplicity''---GPT-J tokenizes integers in $[0, 361]$ as one
+token, Pythia $[0, 557]$, Llama $[0, 999]$---so for Pythia/GPT-J/Llama
+on Latin at $n_{\max}=100$, every integer is one token and the
+choice of pool is moot. Outside that regime the choice matters:
+Qwen and Gemma split Latin numbers per-digit even at $n=100$, every
+non-Latin script is multi-token on every tokenizer, and our
+extended-basis Babylonian/binary/hex runs operate well outside any
+model's single-token range. We use mean pooling throughout, which is
+the honest extension---last-token pooling produces a period-10
+artifact because numbers $23, 33, 43, \ldots$ all share the same
+final sub-token in per-digit BPE; mean pooling is also the channel
+through which the rendering-only structure on Babylonian
+(\S\ref{sec:results-bab}) becomes visible. The default protocol is
+$n_{\max}=100$, $\mathcal{T}=\{2,5,10,100\}$; Babylonian/binary/hex
+additionally run with wider windows and native bases
+(App.~\ref{app:bases}).
+
 For each $(\text{model}, \text{script})$ cell we run one forward
 pass per integer with \texttt{output\_hidden\_states}, mean-pool the
 numeral's sub-token positions at every layer, fit the helix basis,
-and record per-layer $R^2$ and $\rho$. Code, configurations, and
+and record per-layer $R^2$ and $\rho$. Inputs are space-prefixed
+(``\texttt{\textvisiblespace 23}'' rather than bare ``\texttt{23}''),
+matching K\&T's convention---GPT-style tokenizers can split
+\texttt{"23"} and \texttt{" 23"} into different tokens, and natural
+prompts almost always have a leading space or operator. Code, configurations, and
 all 8 GB of intermediate JSON are public; see App.~\ref{app:repro}.
 
 \section{Results}
 \label{sec:results}
 
 \subsection{The paper-models / Latin cells survive cleanly}
+\label{sec:results-paper}
 
-On K\&T's three models on Latin, $\rho$ is well below
-the inherited threshold and quality is high: Pythia $\rho=0.34$
-($R^2_{\mathrm{helix}}/R^2_{\mathrm{PCA}}=0.85$), Llama $\rho=0.39$
-($0.85$), GPT-J $\rho=0.41$ ($0.83$). Less than half of the helix is
-at L=0; depth substantially builds it. These three cells are
-unambiguously depth-built under our criterion.
+The first check is whether our measurements reproduce the original
+paper's finding on the cells where the original protocol is the
+right one. On K\&T's three models reading Latin digits, $\rho$ is
+well below the inherited threshold and quality is high: Pythia
+$\rho=0.34$ ($R^2_{\mathrm{helix}}/R^2_{\mathrm{PCA}}=0.85$), Llama
+$\rho=0.39$ ($0.85$), GPT-J $\rho=0.41$ ($0.83$). Less than half of
+the helix is at L=0; the rest is genuinely built by depth. All
+three cells clear the depth-built bar comfortably, and the
+random-embedding control on Latin (App.~\ref{app:embed-control})
+shows the L=0 helix on these models is already substantially
+learned: random embeddings of matched scale recover only $R^2
+\approx 0.08$ at L=0 (essentially chance) compared to the learned
+$0.18{-}0.26$, leaving $\Delta R^2 = +0.10$ to $+0.15$ for the
+embedding contribution alone. The K\&T result is intact on the
+cells where they claimed it.
+
+\emph{Where the helix lives in the stack.} K\&T originally read
+at the middle layer ($n_{\mathrm{layers}} // 2$). For Pythia (32
+layers), that is L=16; for Llama (32 layers), L=16. Both have peaks
+near there, so the middle-layer heuristic was fine for K\&T's three
+models. It is the wrong heuristic for any of the five models we
+add. Pythia's actual peak is at L=32 of 32 (the literal final
+layer); GPT-J's at L=28 of 28; Llama's at L=15 of 32 (close to the
+middle); Qwen2.5-7B/Latin peaks at L=0, before any block has run
+(the helix is complete in the embedding+pooling output);
+Qwen2.5-32B/Latin peaks at L=3 of 64; Gemma-4-31B holds a moderate
+helix R² across most of the stack with a sharp spike to peak at
+L=29 of 60; Gemma-4-E4B has a double-peaked structure with global
+maximum at L=17 of 42; OLMo-3-32B rises gradually to peak at L=23
+of 64. Without the layer sweep we could not compute $\rho$ at all
+(there would be no $\max_L R^2$ to ratio L=0 against), and the
+sweep is also what lets us target our standard figures (FFT, PC1,
+circles, 3D helix) at each model's actual peak rather than at
+K\&T's middle-layer default. Per-model curves are in
+App.~\ref{app:layers}.
 
 \subsection{Cross-script generalisation is mostly pre-transformer}
 \label{sec:results-cross}
 
-Figure~\ref{fig:rho-heatmap} shows $\rho$ for all 96 cells at
-paper-default protocol. The cool (depth-built) row is narrow: outside
-the three paper-model Latin cells, depth substantially contributes
-only on Gemma's strong non-Latin cells (Devanagari, Persian, Roman;
-$\rho = 0.44{-}0.63$). Most non-Latin cells on Pythia and Llama sit
-at $\rho = 0.73{-}1.00$: the helix is already present at L=0 because
+A natural next step is to ask whether the helix story generalises
+beyond the cells K\&T tested. The raw helix matrix \emph{looks} like
+it does: many non-Latin cells fit the trig basis non-trivially. The
+provenance check shows that most of that apparent generalisation is
+pre-transformer.
+
+Figure~\ref{fig:rho-heatmap} shows $\rho$ for all 96 cells at the
+paper-default protocol. The cool (depth-built) row is visually narrow:
+outside the three paper-model Latin cells, depth substantially
+contributes only on Gemma's strong non-Latin cells (Devanagari,
+Persian, Roman; $\rho = 0.44{-}0.63$)---scripts where Gemma 4
+plausibly had heavy training exposure, though we do not measure
+pre-training distributions directly. Everything else outside Latin
+is warm. Most non-Latin cells on Pythia and Llama sit at
+$\rho = 0.73{-}1.00$: the helix is already present at $L=0$ because
 the tokenizer splits e.g.\ \arabicnum{٢٣} into per-digit sub-tokens
-whose mean varies smoothly with digit values, which the trig basis
-fits. Qwen takes pre-transformer geometry to its limit even on Latin:
-Qwen2.5-7B/Latin has $\rho = 1.00$ (helix peaks at L=0 exactly).
-Greek alphabetic numerals are universally weak ($\rho \ge 0.94$ on
-every non-Gemma model). The mutually-exclusive classifier
-(\S\ref{sec:diagnostic}) marks 6 of 96 cells as depth-built and 4
-as depth-amplified at paper defaults; the full grid is in
-App.~\ref{app:classification}.
+whose mean (over the two positions) varies smoothly with the digit
+values. The trig basis fits that smooth variation as a helix without
+any depth being involved.
+
+Two models take pre-transformer geometry to its limit even on Latin.
+Qwen2.5-7B/Latin has $\rho = 1.00$ exactly: the helix peaks at the
+literal embedding output before any block has run. Qwen2.5-32B/Latin
+peaks at L3 of 64 ($\rho = 0.89$). On Qwen 2.5 the Latin cell that
+K\&T's reading would call depth-built on Pythia/Llama is instead
+near-pure inheritance---a function of how Qwen's tokenizer breaks
+Latin numbers and how mean-pooling combines the sub-tokens.
+
+Greek alphabetic numerals are uniformly weak ($\rho \ge 0.94$ on
+every model that does not actively train on Greek): Greek 23 is
+\greeknum{κγ}, two letters from disjoint alphabet blocks with no
+positional period-10 structure. There is no helix to inherit and no
+helix for depth to build. The mutually-exclusive classifier of
+\S\ref{sec:diagnostic} marks 6 of 96 cells as depth-built and 4 as
+depth-amplified at paper defaults---about 10\% of the matrix. The
+helix framing borrows rhetorical strength from the three paper-model
+Latin cells to characterise cells where the actual mechanism is
+quite different.
 
 \definecolor{rhoteal}{HTML}{0F766E}
 \definecolor{rholight}{HTML}{5EEAD4}
@@ -335,22 +535,109 @@ Qwen2.5-32B   & \rhoD{.89} & \rhoD{.93} & \rhoD{.91} & \rhoC{.76} & \rhoD{.88} &
 \subsection{Babylonian: geometry from rendering alone}
 \label{sec:results-bab}
 
-Babylonian cuneiform is the cleanest mechanical case. The natural
-protocol fix---widen $n_{\max}$ to 600 and add $T=60$ to
+Babylonian cuneiform is positional at base 60 (additive within each
+sexagesimal column) and so fails both spectral checks at the paper
+defaults: $T = 60$ is not in $\mathcal{T} = \{2,5,10,100\}$, and a
+window of $n_{\max} = 100$ wraps $T = 60$ only once. The natural
+protocol fix---widen $n_{\max}$ to 600 and add $T = 60$ to
 $\mathcal{T}$---recovers $8{-}16$ percentage points of helix $R^2$
-uniformly across all 8 models. But the random-embedding control
-shows this recovered geometry is not learned. Table~\ref{tab:bab-rand}
-gives the learned-vs-random $\Delta R^2_{L=0}$ on the native protocol;
-the maximum absolute gap is $0.0073$. The L=0 Babylonian helix is
-mechanical: cuneiform renders $n$ as additive wedge counts
-($\text{n}{=}23 \to$ \cuneinum{𒌋𒌋𒁹𒁹𒁹}), the tokenizer splits
-those wedges, and mean-pooling produces a vector
-$h(a) \approx (t \cdot e_{\text{ten}} + u \cdot e_{\text{one}})/(t{+}u)$
-that varies smoothly with $a$ for \emph{any} embedding vectors. The
-Fourier basis fits the smooth variation. This recapitulates the
-representational analogue of \citet{singh2024tokenization}:
-tokenization is not a neutral preprocessing detail but an inductive
-bias in the numerical reasoning pipeline.
+uniformly across all 8 models, with the largest gain on Qwen2.5-7B
+(+0.16). The basis-free FFT spectrum at the wider window confirms
+peaks at multiples of $1/60$. A reading focused on the score would
+stop here: cuneiform on every model carries period-60 structure once
+you measure properly.
+
+The random-embedding control reframes that conclusion sharply. With
+the native protocol fixed, we run the control of
+\S\ref{sec:diagnostic}: replace the model's embedding table with a
+matched-scale Gaussian random matrix and recompute the L=0 helix
+score. Table~\ref{tab:bab-rand} reports the learned-vs-random gap.
+The maximum absolute $|\Delta|$ across all eight models is $0.0073$;
+two models have negative $\Delta$ (the random fit is marginally
+\emph{better} than the learned one). The L=0 Babylonian helix is
+not learned: it is mechanical.
+
+The mechanism is direct. Walking through one concrete integer makes
+it explicit. The pipeline that produces $h(n)$ at $L=0$ is the same
+four steps for every cell:
+\emph{rendering $\to$ tokenization $\to$ embedding lookup $\to$
+mean-pooling}. The random-embedding control swaps the third step
+only. For $n = 23$ on Babylonian:
+
+\emph{Step 1 (rendering).}
+\texttt{format\_number(23, ``babylonian'')} returns
+\cuneinum{𒌋𒌋𒁹𒁹𒁹}: two ten-wedges followed by three one-wedges.
+The structure is additive---the number of \cuneinum{𒌋} equals the
+tens digit, the number of \cuneinum{𒁹} equals the ones digit.
+
+\emph{Step 2 (tokenization).} The space-prefixed string is fed to
+the tokenizer. Cuneiform was not in any of our eight models'
+pre-training corpora to speak of, so each codepoint falls back to
+its UTF-8 byte representation (four bytes per cuneiform codepoint,
+often each becoming its own sub-token). Crucially, every
+\cuneinum{𒌋} expands to the same fixed byte-token sequence, and
+likewise for \cuneinum{𒁹}. Writing $T_{\cuneinum{𒌋}}$ for the
+byte-tokens of one \cuneinum{𒌋}, the tokenisation of 23 is
+$[\text{space},\, T_{\cuneinum{𒌋}},\, T_{\cuneinum{𒌋}},\,
+T_{\cuneinum{𒁹}},\, T_{\cuneinum{𒁹}},\, T_{\cuneinum{𒁹}}]$. The
+count structure of step 1 is preserved.
+
+\emph{Step 3 (embedding lookup).} Each token ID indexes a row of the
+embedding matrix $E \in \mathbb{R}^{V \times d}$. Write
+$e_{\cuneinum{𒌋}}$ for the contribution of one
+$T_{\cuneinum{𒌋}}$ (the sum of the byte-token rows). The result is
+the sequence $[e_{\text{space}},\, e_{\cuneinum{𒌋}},\,
+e_{\cuneinum{𒌋}},\, e_{\cuneinum{𒁹}},\, e_{\cuneinum{𒁹}},\,
+e_{\cuneinum{𒁹}}]$.
+
+\emph{Step 4 (mean-pooling).} Average:
+\begin{equation}
+h(23) \;\approx\; \frac{e_{\text{space}} + 2\, e_{\cuneinum{𒌋}}
+  + 3\, e_{\cuneinum{𒁹}}}{6}.
+\end{equation}
+This is a linear combination of three \emph{fixed} vectors with
+coefficients that come from the renderer's count structure: 2 = the
+tens digit of 23, 3 = the ones digit. Generalising for $n < 60$,
+\begin{equation}
+h(n) \;\approx\; \alpha(n)\, e_{\cuneinum{𒌋}} + \beta(n)\, e_{\cuneinum{𒁹}} + \text{constant},
+\end{equation}
+where $\alpha(n) = \lfloor n/10 \rfloor$ and $\beta(n) = n \bmod 10$.
+Both are smooth/periodic functions of $n$; the trig basis with
+$T \in \{10, 60\}$ in $\mathcal{T}$ fits the coefficient structure.
+
+\emph{What the random-embedding control changes.} Steps 1, 2, 4 are
+unchanged. Only step 3 changes: $e_{\cuneinum{𒌋}}$ and
+$e_{\cuneinum{𒁹}}$ are replaced by independent draws from
+$\mathcal{N}(0, 1/\sqrt{d})$. So
+\begin{equation}
+\tilde{h}(n) \;\approx\; \alpha(n)\, \tilde{e}_{\cuneinum{𒌋}} + \beta(n)\, \tilde{e}_{\cuneinum{𒁹}} + \text{constant}.
+\end{equation}
+The vectors $\tilde{e}_{\cuneinum{𒌋}}$ and
+$\tilde{e}_{\cuneinum{𒁹}}$ now point in random directions in
+$\mathbb{R}^{d}$, but they are still \emph{fixed} vectors, and the
+coefficients $\alpha(n)$ and $\beta(n)$ are the same smooth
+functions of $n$. The trig basis fits the coefficient structure
+regardless of which directions the random vectors point. The fitted
+helix \emph{rotates} in residual space with each random seed; the
+fit \emph{quality} doesn't change. This is the algebra behind
+Table~\ref{tab:bab-rand}.
+
+The contrast with Latin/Pythia is sharp. Pythia tokenizes ``\,23'' as
+a single token, so the chain collapses to
+$h(23) = e_{23}$. The helix R² is asking whether the 100 learned
+embeddings $\{e_0, e_1, \ldots, e_{99}\}$ themselves lie on a helix.
+With learned Pythia weights they do; with random embeddings they
+don't, because 100 independent random vectors carry no inter-integer
+structure. So the same swap-embeddings control gives sharply
+different verdicts on the two cells---and the difference is fully
+explained by which step in the four-step chain carries the
+geometry.
+
+This is the strongest example of the warning Singh \& Strouse's
+behavioral result implies at the representational level: tokenization
+is not a neutral preprocessing step but an inductive bias in the
+numerical reasoning pipeline. On Babylonian, the bias is so strong
+that it generates the entire L=0 helix score on its own.
 
 \begin{table}[t]
 \caption{Babylonian random-embedding control at the native protocol
@@ -376,72 +663,176 @@ Qwen2.5-32B      & 0.587 & 0.592 & $-0.004$ \\
 \end{tabular}
 \end{table}
 
-For \emph{contrast}, on Latin the gap is large and positive on every
-model ($\Delta = +0.03$ to $+0.18$; full table in
-App.~\ref{app:embed-control}), and on Pythia/Llama/OLMo/GPT-J the
-random $R^2$ is $\sim 0.08$ (chance), so the learned L=0 helix on
-Latin (0.18--0.26) reflects learned digit semantics.
+The contrast with Latin is sharp. On Latin every model has a
+substantial positive $\Delta$ ($+0.03$ to $+0.18$; full table in
+App.~\ref{app:embed-control}). On Pythia/Llama/OLMo/GPT-J the
+random-embedding $R^2$ at $L=0$ is around $0.08$---chance, since the
+Latin tokenizer gives those models a single token per integer and
+random vectors carry no number information. The learned L=0 helix on
+Latin (0.18--0.26 on the same four models) reflects learned digit
+semantics. Two cells, two different mechanisms: Latin's L=0 helix
+on Pythia is learned digit geometry that depth then refines;
+Babylonian's L=0 helix on the same model is rendering+pooling
+arithmetic that has nothing to do with what the embedding table
+contains.
 
 \subsection{Pass-through versus rebuild}
 \label{sec:results-cka}
 
-$\rho$ alone conflates two mechanistically distinct cases that CKA
-separates. \emph{Pass-through}: Qwen2.5-32B/Latin ($\rho = 0.89$,
-$\text{CKA} = 0.91$) and OLMo/Latin ($0.63$, $0.91$)---depth leaves
-the row-similarity geometry untouched. \emph{Rebuild}:
-Gemma/Latin ($\rho \approx 0.85$, $\text{CKA} \approx 0.34$)---depth
-produces a similar-quality helix with a substantially different
-integer-to-integer geometry. On Babylonian, Pythia/Llama/OLMo have
-$\rho \approx 0.86$ but CKA $= 0.25{-}0.53$, so the peak Babylonian
-helix is depth-built on top of a mechanical L=0 starting point. The
-full $(\rho, \text{CKA})$ scatter is in App.~\ref{app:cka}.
+$\rho$ alone conflates two mechanistically distinct high-$\rho$
+regimes. The CKA check from \S\ref{sec:diagnostic} separates them.
+A concrete comparison makes the distinction sharp.
 
-\subsection{Binary and hex (one-paragraph summary)}
+\emph{Two cells with similar $\rho$.} Qwen2.5-32B/Latin and
+Gemma-4-31B/Latin both have high $\rho$ ($0.89$ and $0.79$):
+on both cells, the helix score at the peak layer is mostly already
+at $L=0$. A $\rho$-only reading puts them in the same bucket:
+``inherited; the transformer doesn't do much.'' Now look at CKA on
+the helix-projected representations: Qwen-32B/Latin has $\text{CKA}
+= 0.91$, Gemma-31B/Latin has $\text{CKA} = 0.33$. Same $\rho$, very
+different CKA.
 
-Two more mode-1 case studies, two different stories. Binary ($n=1024$,
-$\mathcal{T} = \{2,4,8,16,32,64\}$) is mechanical like Babylonian:
-the random-embedding gap is $|\Delta| \le 0.03$ on every model. Hex
-($n=1024$, $\mathcal{T}=\{16,32,64,256\}$) is depth-built on the
-paper models: native-basis $\rho = 0.29, 0.30, 0.35, 0.35$ on
-Pythia/Llama/GPT-J/OLMo, and the random-embedding gap is positive on
-every model. The natural hypothesis (hex exposure in pre-training
-code/addresses/hashes) is not directly tested by our data. Full
-native-basis tables in App.~\ref{app:bases}.
+\emph{What that means geometrically.} Imagine the 3D helix at $L=0$
+with integers labelled, then the 3D helix at the peak layer (same
+model, same script). For Qwen-32B, the two plots are nearly
+identical: integer 23 is in the same position on the helix in both,
+integer 47 is in the same position, and so on. The transformer left
+the arrangement alone---\emph{pass-through}. For Gemma-31B, the two
+plots have the same overall helical shape, but the labels have
+moved: integer 23 might be at the back of the L=0 helix and at the
+front of the peak helix. The score is the same (both fit the trig
+basis equally well), but it's a \emph{different} helix---the
+row-similarity pattern across integers has changed. This is
+\emph{rebuild}.
+
+Linear CKA captures exactly this distinction. It is invariant to
+rotation and rescaling of the feature columns, so it isn't asking
+``are the two helices in the same place in residual space?''---they
+obviously aren't, depth has done work. It's asking ``is the
+row-similarity pattern the same?''---i.e., are the same integers
+close to each other in both helices? CKA $\approx 1$ on Qwen-32B
+says yes; CKA $\approx 0.33$ on Gemma-31B says no.
+
+\emph{Three patterns across the matrix.}
+\emph{Pass-through} (high $\rho$, high CKA): Qwen2.5-32B/Latin
+($0.89$, $0.91$), OLMo/Latin ($0.63$, $0.91$), most Pythia and
+Llama non-Latin positional cells ($\text{CKA} \ge 0.98$ on Persian,
+Devanagari, Chinese on Pythia). The input pipeline does all the
+work and the transformer passes the geometry through.
+\emph{Rebuild} (high $\rho$, low CKA): the entire Gemma family
+($\text{CKA} = 0.21{-}0.65$ across most scripts), and a third
+pattern that recovers Babylonian's full story. On
+Pythia/Llama/OLMo, Babylonian has $\rho \approx 0.86$ but
+$\text{CKA} = 0.25{-}0.53$: the peak Babylonian helix is depth-built
+\emph{on top of} a mechanical L=0 starting point. The score doesn't
+change much (the mechanical L=0 is already healthy), but depth
+rebuilds the integer-to-integer pattern. What that rebuilt helix is
+computing is a separate, causal question---one $\rho + \text{CKA}$
+flags but doesn't answer.
+
+The full $(\rho, \text{CKA})$ scatter and a four-quadrant
+breakdown are in App.~\ref{app:cka}.
+
+\subsection{Binary and hex: two more case studies in basis bandwidth}
+\label{sec:results-bases}
+
+Babylonian is not the only script where the paper basis is the wrong
+basis. Binary's natural periods are powers of two ($T \in
+\{2,4,8,16,32,64\}$), of which $\mathcal{T} = \{2,5,10,100\}$
+catches only $T = 2$; hexadecimal's natural periods are $T \in
+\{16,32,64,256\}$, none of which paper basis catches. Running both
+at $n_{\max} = 1024$ with the native basis recovers $+0.10$ to
+$+0.37$ helix $R^2$ on binary and $+0.19$ to $+0.29$ on hex
+(App.~\ref{app:bases}). The protocol fix is the same; the
+mechanistic readings on the two scripts are entirely different.
+
+\emph{Binary is mechanical}, like Babylonian. The random-embedding
+gap with the binary-native basis is $|\Delta R^2| \le 0.03$ on every
+model: the L=0 helix on binary is generated by the renderer (binary
+strings have length $\log_2 n$, whose count varies with $n$) and the
+tokenizer (BPE chunks of bits) interacting with mean-pooling.
+Pythia/Llama/GPT-J/OLMo carry moderately-low native-basis $\rho$ of
+$0.62{-}0.77$ on binary, but this reflects depth doing additional
+work on top of a mechanical L=0, not learned bit semantics; the
+corresponding CKA values ($0.55{-}0.71$) confirm depth amplifies
+rather than rebuilds. Binary is the second mechanical case in the
+matrix.
+
+\emph{Hex is depth-built}, the second-cleanest depth-built case in
+the matrix. Native-basis $\rho$ on Pythia/Llama/GPT-J/OLMo is
+$0.29, 0.30, 0.35, 0.35$---squarely in the same regime as the
+original paper's Latin cells ($\rho = 0.34, 0.39, 0.41$). The
+random-embedding gap is positive on every model (small on
+Llama/OLMo, sizeable on Gemma), so hex digit embeddings do carry
+learned structure that random vectors don't reproduce. The natural
+hypothesis is that all these models saw substantial hex during
+pre-training (code, addresses, hashes), but the data here doesn't
+directly test pre-training distributions. Whatever the cause, on the
+four models with the cleanest result, the model is treating hex
+digits the way it treats Latin digits: as indices into a value space,
+with layer-by-layer construction of the same kind of helix.
+
+The general pattern across the three case studies: each non-decimal
+base needs its own protocol fix before its $\rho$ becomes
+interpretable, and once the fix is applied, the rest of the
+measurements cleanly separate ``mechanical inheritance'' (Babylonian,
+binary) from ``depth-built'' (hex on the paper models) within the
+same broad failure mode.
 
 \section{Discussion}
 \label{sec:discussion}
 
-The contribution here is the diagnostic kit, not the matrix. Three
-problems can make the standard ``fit a helix, report $R^2$''
-procedure answer the wrong question: two hide real structure (wrong
-basis, too-short window), one credits the transformer with structure
-it did not build ($\rho$ catches this), and CKA reveals a fourth---a
-high $\rho$ does not always mean the geometry is untouched, sometimes
-depth rebuilds the integer-to-integer pattern with similar quality
-but different shape. The cells where K\&T's reading---``depth builds
-the helix''---is unambiguously correct are narrower than the
-generalisation suggests: 6 of 96 at paper defaults, concentrated on
-the three paper-model Latin cells and Gemma's strong non-Latin
-scripts.
+The reframing is the contribution, not the matrix. Three problems
+can make the standard ``fit a helix, report $R^2$'' procedure answer
+the wrong question. Two of them hide real structure: the basis can
+miss the period the model actually uses (\S\ref{sec:results-bab},
+\S\ref{sec:results-bases}), and the window can be too short to
+identify a real period (Babylonian at $n_{\max} = 100$). The third
+credits the transformer with structure it did not build---the case
+where the helix score is high because rendering, tokenization,
+embedding lookup, and mean-pooling already produced the geometry.
+$\rho$ catches this, and the random-embedding control isolates how
+much of the L=0 geometry is mechanical versus learned. CKA then
+reveals a fourth: a high $\rho$ does not always mean the geometry
+is untouched. Sometimes depth rebuilds the integer-to-integer
+pattern with similar quality but different shape, and a $\rho$-only
+analysis would lump that case in with genuine pass-through.
+
+Across the matrix, the cells where K\&T's reading is unambiguously
+correct are narrower than the generalisation suggests: 6 of 96 cells
+at paper defaults clear the joint $\rho$ + quality bar for
+depth-built or depth-amplified geometry, concentrated on the three
+paper-model Latin cells and Gemma's strong non-Latin scripts
+(App.~\ref{app:classification}). Outside that narrow set, the
+apparent cross-script generalisation of the helix is mostly
+pre-transformer.
 
 The Babylonian random-embedding result is the sharpest version of a
 general warning: \emph{some apparent neural geometry can come from
-rendering statistics alone}, before learned embeddings or transformer
-blocks are needed. Smooth, low-dimensional, easy-to-fit manifolds can
-be artefacts of how you encode the input. For number helices, $\rho
-+ \text{CKA}$ + the two spectral checks are the cheapest version of
-the provenance question; for other geometric claims (probe-discovered
-features, SAE directions, ``the model represents $X$ as a manifold''),
-analogues are needed before attributing measured geometry to learning.
+rendering statistics alone}, before learned embeddings or
+transformer blocks are even needed. Smooth,
+low-dimensional, easy-to-fit manifolds can be artefacts of how the
+input is encoded. For number helices specifically, $\rho + \text{CKA}$ together with
+the two spectral checks are how we asked the provenance question.
+The general lesson is independent of the specific measurements: for
+other geometric claims---probe-discovered features,
+sparse-autoencoder directions, ``the model represents $X$ as a
+manifold''---the right baseline is not zero or noise; it is the
+geometry the input pipeline already produces with random embeddings.
 
-The diagnostic does not invalidate the literature: K\&T's Latin
-results survive cleanly, and the replication across eight models
-shows the helix is architecturally general. The Babylonian base-60
-result is then a substantive statement about input pipelines, even
-if not about transformers. Causal work like \citet{feucht2026wild}
-answers the follow-up \emph{what does the model do with the
-geometry?} on exactly the cells our diagnostic marks as
-depth-built.
+The reframing does not invalidate the existing literature. K\&T's
+Latin results survive cleanly, and the replication of the helix
+across eight models on Latin shows it is an architecturally general
+object even if its provenance is not. Babylonian's base-60 result
+is then a substantive empirical statement about input
+pipelines---an additive symbolic renderer composed with mean-pooling
+is enough to produce a measurable helix. Causal work like
+\citet{feucht2026wild}, which finds a base-10 addition module in
+Llama-3.1-8B reading exactly the Fourier features the trig basis
+fits, lands on exactly the cell our measurements mark as
+depth-built: the natural follow-up is to apply that kind of causal
+interrogation to the cells where $\rho + \text{CKA}$ flag a high
+score with no depth-built helix underneath.
 
 {\small
 \begin{thebibliography}{9}

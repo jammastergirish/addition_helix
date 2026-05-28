@@ -46,7 +46,7 @@ export default function App() {
         <NumeralExplainer />
         <WhatTheHelixIs index={index} />
 
-        <PartHeader n={2} title="The diagnostic kit" />
+        <PartHeader n={2} title="What can go wrong with helix R²" />
         <TheDiagnostic />
 
         <PartHeader n={3} title="Reading the matrix" />

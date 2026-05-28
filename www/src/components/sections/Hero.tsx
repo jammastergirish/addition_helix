@@ -1,3 +1,5 @@
+import { M } from "../Math";
+
 export function Hero() {
   return (
     // Same layout grid as <main>: every direct child lands in the `main`
@@ -55,20 +57,30 @@ export function Hero() {
       </p>
 
       <p className="mt-4 text-lg leading-relaxed text-ink-soft">
-        I introduce a provenance diagnostic, ρ = helix R²(L=0) /
-        max<sub>L</sub> R²(L), and pair it with basis/window checks,
-        a random-embedding control, and a representation-alignment
-        test (CKA), applied across <strong>eight models</strong> and <strong>twelve numeral
-          systems</strong>.
+        To ask where the geometry comes from, I report four
+        measurements per cell: a provenance ratio{" "}
+        <M>{String.raw`\rho = R^2_{\mathrm{helix}}(L{=}0) \,/\, \max_{L}\, R^2_{\mathrm{helix}}(L)`}</M>;
+        a basis/window check; a random-embedding control; and a
+        representation-alignment test (CKA), across{" "}
+        <strong>eight models</strong> and{" "}
+        <strong>twelve numeral systems</strong>.
       </p>
 
       <p className="mt-4 text-lg leading-relaxed text-ink-soft">
-        Kantamneni &amp; Tegmark's Latin results hold up cleanly on all
-        three of their models. But most of the "helix-in-script-X-too"
-        generalisation you might read off the raw matrix is already
-        present <em>before</em> the transformer runs — pre-transformer
-        baggage from rendering, tokenization, the embedding table, and
-        pooling, not something the model has constructed.
+        Kantamneni &amp; Tegmark deliberately avoided many
+        tokenization complications by focusing on space-prefixed
+        Latin integers that are single tokens in their models — the
+        right clean setting for their causal addition study. My
+        question starts where that simplification stops: when we
+        extend the helical fit across scripts and bases, the input
+        pipeline itself can create or preserve Fourier-fittable
+        structure, so provenance checks become necessary. K&amp;T's
+        Latin results hold up cleanly on all three of their models;
+        but most of the "helix-in-script-X-too" generalisation you
+        might read off the raw matrix is already present{" "}
+        <em>before</em> the transformer runs — pre-transformer baggage
+        from rendering, tokenization, the embedding table, and pooling,
+        not something the model has constructed.
       </p>
 
       <blockquote className="mt-6 border-l-4 border-accent bg-accent/5 px-4 py-3 text-base leading-snug text-ink">
