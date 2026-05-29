@@ -1,18 +1,3 @@
-# /// script
-# requires-python = ">=3.10"
-# dependencies = [
-#     "torch>=2.1",
-#     "transformers>=4.40",
-#     "accelerate>=0.30",
-#     "hf-transfer>=0.1.6",
-#     "python-dotenv>=1.0",
-#     "numpy",
-#     "scipy",
-#     "scikit-learn",
-#     "matplotlib",
-#     "tqdm",
-# ]
-# ///
 """
 Language Models Use Trigonometry to Do Addition
 ================================================
@@ -214,18 +199,19 @@ def _configure_fonts() -> None:
     plots will still box. See README for install instructions.
     """
     import matplotlib.font_manager as fm
+
     candidates = [
-        "DejaVu Sans",            # Latin, Greek, Cyrillic, much of BMP
-        "Arial Unicode MS",       # very broad coverage on macOS
-        "Geeza Pro",              # Arabic, Persian
-        "Damascus",               # Arabic alt
-        "Devanagari Sangam MN",   # Devanagari (Hindi)
-        "Kohinoor Devanagari",    # Devanagari alt
-        "Hiragino Sans GB",       # CJK simplified Chinese (visible to matplotlib;
-                                  # PingFang ships as .ttc and is not enumerated)
-        "Heiti TC",               # CJK traditional Chinese
-        "Noto Sans Cuneiform",    # Babylonian; install via `brew install --cask
-                                  # font-noto-sans-cuneiform`
+        "DejaVu Sans",  # Latin, Greek, Cyrillic, much of BMP
+        "Arial Unicode MS",  # very broad coverage on macOS
+        "Geeza Pro",  # Arabic, Persian
+        "Damascus",  # Arabic alt
+        "Devanagari Sangam MN",  # Devanagari (Hindi)
+        "Kohinoor Devanagari",  # Devanagari alt
+        "Hiragino Sans GB",  # CJK simplified Chinese (visible to matplotlib;
+        # PingFang ships as .ttc and is not enumerated)
+        "Heiti TC",  # CJK traditional Chinese
+        "Noto Sans Cuneiform",  # Babylonian; install via `brew install --cask
+        # font-noto-sans-cuneiform`
     ]
     available = {f.name for f in fm.fontManager.ttflist}
     stack = [name for name in candidates if name in available]
@@ -245,12 +231,26 @@ _configure_fonts()
 # helix_basis, fit_helix, get_num_layers all moved into helix_lib.py so
 # embed_control.py and subspace_align.py can import them too.
 from helix_lib import (  # noqa: E402
-    BAB_ONE, BAB_TEN, BAB_ZERO,
-    CHINESE_POSITIONAL, GREEK_TENS, GREEK_UNITS,
-    HEBREW_TENS, HEBREW_UNITS, PERIODS,
-    fit_helix, format_number, get_num_layers, helix_basis,
-    to_babylonian, to_binary, to_chinese_positional, to_greek,
-    to_hebrew, to_hexadecimal, to_roman,
+    BAB_ONE,
+    BAB_TEN,
+    BAB_ZERO,
+    CHINESE_POSITIONAL,
+    GREEK_TENS,
+    GREEK_UNITS,
+    HEBREW_TENS,
+    HEBREW_UNITS,
+    PERIODS,
+    fit_helix,
+    format_number,
+    get_num_layers,
+    helix_basis,
+    to_babylonian,
+    to_binary,
+    to_chinese_positional,
+    to_greek,
+    to_hebrew,
+    to_hexadecimal,
+    to_roman,
 )
 
 OUT_DIR = Path(__file__).parent
@@ -291,8 +291,9 @@ def basis_idx(feature, periods=PERIODS) -> int:
 #  ACTIVATION COLLECTION
 # ============================================================================
 @torch.no_grad()
-def collect_activations(model, tokenizer, numbers, layer, device,
-                         script="latin", pool="mean"):
+def collect_activations(
+    model, tokenizer, numbers, layer, device, script="latin", pool="mean"
+):
     """For each n, feed '<bos> {numeral(n)}' and AGGREGATE the residual
     stream over the numeral's tokens at the chosen layer.
 
@@ -328,8 +329,9 @@ def collect_activations(model, tokenizer, numbers, layer, device,
         text = f" {format_number(int(n), script)}"
         # Tokenize the numeral WITHOUT BOS so we know how many tokens it
         # occupies. Then prepend BOS for the forward pass.
-        numeral_ids = tokenizer(text, add_special_tokens=False,
-                                 return_tensors="pt")["input_ids"]
+        numeral_ids = tokenizer(text, add_special_tokens=False, return_tensors="pt")[
+            "input_ids"
+        ]
         n_numeral_tokens = numeral_ids.shape[1]
         if bos is not None:
             ids = torch.cat([torch.tensor([[bos]]), numeral_ids], dim=1)
@@ -344,7 +346,7 @@ def collect_activations(model, tokenizer, numbers, layer, device,
         #   hidden_states[L]   = residual stream AFTER block L-1
         #   hidden_states[-1]  = final residual stream
         out = model(ids, output_hidden_states=True, use_cache=False)
-        hs = out.hidden_states[layer][0]                # (T, d)
+        hs = out.hidden_states[layer][0]  # (T, d)
         if pool == "last":
             h = hs[-1, :]
         elif pool == "mean":
@@ -359,8 +361,9 @@ def collect_activations(model, tokenizer, numbers, layer, device,
 #  ALL-LAYERS COLLECTION  (for the layer sweep)
 # ============================================================================
 @torch.no_grad()
-def collect_activations_all_layers(model, tokenizer, numbers, device,
-                                     script="latin", pool="mean"):
+def collect_activations_all_layers(
+    model, tokenizer, numbers, device, script="latin", pool="mean"
+):
     """Same as `collect_activations` but returns activations at EVERY layer
     in one forward pass per integer.
 
@@ -376,8 +379,9 @@ def collect_activations_all_layers(model, tokenizer, numbers, device,
     all_acts = []
     for n in tqdm(numbers, desc="forward passes", file=_TQDM_OUT):
         text = f" {format_number(int(n), script)}"
-        numeral_ids = tokenizer(text, add_special_tokens=False,
-                                 return_tensors="pt")["input_ids"]
+        numeral_ids = tokenizer(text, add_special_tokens=False, return_tensors="pt")[
+            "input_ids"
+        ]
         n_numeral_tokens = numeral_ids.shape[1]
         if bos is not None:
             ids = torch.cat([torch.tensor([[bos]]), numeral_ids], dim=1)
@@ -390,22 +394,27 @@ def collect_activations_all_layers(model, tokenizer, numbers, device,
         # For each layer L, pool over the numeral's positions.
         if pool == "last":
             per_layer = torch.stack(
-                [h[0, -1, :].float().cpu() for h in out.hidden_states], dim=0)
+                [h[0, -1, :].float().cpu() for h in out.hidden_states], dim=0
+            )
         else:  # mean
             per_layer = torch.stack(
-                [h[0, start:end, :].mean(dim=0).float().cpu()
-                 for h in out.hidden_states], dim=0)
+                [
+                    h[0, start:end, :].mean(dim=0).float().cpu()
+                    for h in out.hidden_states
+                ],
+                dim=0,
+            )
         all_acts.append(per_layer)
     return torch.stack(all_acts, dim=0).numpy()
 
 
 def run_sweep_analysis(H_all, numbers, periods=PERIODS):
     """Per-layer metrics. Returns three arrays of length n_layers+1:
-       pc1_r2[L]    -- linear-fit R² of PC1(H_L) vs numbers (the "spine")
-       helix_r2[L]  -- variance-weighted R² of the trig basis fit
-       pca_kd_r2[L] -- variance-weighted R² of the best K-D approximation,
-                       where K = 1 + 2*len(periods)
-                       (Eckart-Young upper bound on any K-D fit)
+    pc1_r2[L]    -- linear-fit R² of PC1(H_L) vs numbers (the "spine")
+    helix_r2[L]  -- variance-weighted R² of the trig basis fit
+    pca_kd_r2[L] -- variance-weighted R² of the best K-D approximation,
+                    where K = 1 + 2*len(periods)
+                    (Eckart-Young upper bound on any K-D fit)
     """
     n_hidden = H_all.shape[1]
     pc1_r2 = np.zeros(n_hidden)
@@ -425,13 +434,14 @@ def run_sweep_analysis(H_all, numbers, periods=PERIODS):
         pc1_r2[L] = r2_score(pc1, slope * numbers + intercept)
         # Helix R²
         reg = LinearRegression().fit(B, H_L)
-        helix_r2[L] = r2_score(H_L, reg.predict(B),
-                                multioutput="variance_weighted")
+        helix_r2[L] = r2_score(H_L, reg.predict(B), multioutput="variance_weighted")
         # K-D PCA upper bound (same dimensionality as the trig basis).
         pca_kd = PCA(n_components=min(n_basis, *H_L.shape)).fit(H_L)
         pca_kd_r2[L] = r2_score(
-            H_L, pca_kd.inverse_transform(pca_kd.transform(H_L)),
-            multioutput="variance_weighted")
+            H_L,
+            pca_kd.inverse_transform(pca_kd.transform(H_L)),
+            multioutput="variance_weighted",
+        )
     return pc1_r2, helix_r2, pca_kd_r2
 
 
@@ -475,15 +485,21 @@ def plot_layer_sweep(pc1_r2, helix_r2, pca_kd_r2, savepath, title, n_basis=9):
             "pca_kd_r2": pca_kd_r2,
             "helix_over_pca": ratio,
             "peaks": {
-                "pc1_r2":         {"value": float(np.nanmax(pc1_r2)),    "layer": int(np.nanargmax(pc1_r2))},
-                "helix_r2":       {"value": helix_peak,                  "layer": helix_peak_layer},
-                "helix_over_pca": {"value": float(np.nanmax(ratio)),     "layer": int(np.nanargmax(ratio))},
+                "pc1_r2": {
+                    "value": float(np.nanmax(pc1_r2)),
+                    "layer": int(np.nanargmax(pc1_r2)),
+                },
+                "helix_r2": {"value": helix_peak, "layer": helix_peak_layer},
+                "helix_over_pca": {
+                    "value": float(np.nanmax(ratio)),
+                    "layer": int(np.nanargmax(ratio)),
+                },
             },
             "l0_share": {
-                "helix_r2_l0":   float(helix_r2[0]),
+                "helix_r2_l0": float(helix_r2[0]),
                 "helix_r2_peak": helix_peak,
-                "peak_layer":    helix_peak_layer,
-                "rho":           rho,
+                "peak_layer": helix_peak_layer,
+                "rho": rho,
             },
         },
     )
@@ -514,14 +530,14 @@ def plot_fourier_and_pc1(H, numbers, savepath, periods=PERIODS):
     fig, axes = plt.subplots(2, 1, figsize=(8, 6))
 
     # --- TOP: FFT magnitude vs frequency, averaged across hidden dims ---
-    Hc = H - H.mean(0, keepdims=True)           # remove DC bin
-    fft_mag = np.abs(np.fft.rfft(Hc, axis=0))   # (N//2+1, d)
+    Hc = H - H.mean(0, keepdims=True)  # remove DC bin
+    fft_mag = np.abs(np.fft.rfft(Hc, axis=0))  # (N//2+1, d)
     avg_mag = fft_mag.mean(axis=1)
     freqs = np.fft.rfftfreq(H.shape[0])
 
     ax = axes[0]
     ax.plot(freqs, avg_mag, color="C0", lw=1.5, label="Fourier Decomposition")
-    ymax = avg_mag[1:].max() * 1.05             # ignore the DC bin for scale
+    ymax = avg_mag[1:].max() * 1.05  # ignore the DC bin for scale
     ax.set_ylim(0, ymax)
 
     # --- Reference lines for the paper's predicted periods ---
@@ -531,8 +547,16 @@ def plot_fourier_and_pc1(H, numbers, savepath, periods=PERIODS):
     # uses.
     for T in periods:
         ax.axvline(1.0 / T, ls="--", color="gray", alpha=0.25)
-        ax.text(1.0 / T, ymax * 0.02, f" T={T} (ref)",
-                fontsize=7, color="gray", ha="left", va="bottom", rotation=90)
+        ax.text(
+            1.0 / T,
+            ymax * 0.02,
+            f" T={T} (ref)",
+            fontsize=7,
+            color="gray",
+            ha="left",
+            va="bottom",
+            rotation=90,
+        )
 
     # --- Auto-detect peaks (the unbiased read) ---
     # Find the top-5 most prominent peaks in the spectrum, ignoring the
@@ -555,7 +579,8 @@ def plot_fourier_and_pc1(H, numbers, savepath, periods=PERIODS):
             f"T≈{T_peak:.1f}",
             xy=(f, avg_mag[i]),
             xytext=(f, ymax * 0.85),
-            fontsize=9, ha="center",
+            fontsize=9,
+            ha="center",
             bbox=dict(boxstyle="round", fc="lightyellow", ec="black", lw=0.7),
             arrowprops=dict(arrowstyle="-", lw=0.6, color="black"),
         )
@@ -594,11 +619,13 @@ def plot_fourier_and_pc1(H, numbers, savepath, periods=PERIODS):
         f = float(freqs[i])
         if f <= 0:
             continue
-        auto_peaks.append({
-            "freq": f,
-            "period": 1.0 / f,
-            "magnitude": float(avg_mag[i]),
-        })
+        auto_peaks.append(
+            {
+                "freq": f,
+                "period": 1.0 / f,
+                "magnitude": float(avg_mag[i]),
+            }
+        )
     dump_json(
         Path(savepath).with_suffix(".json"),
         {
@@ -606,24 +633,25 @@ def plot_fourier_and_pc1(H, numbers, savepath, periods=PERIODS):
             "meta": RUN_META,
             "periods_ref": periods,
             "fft": {
-                "freqs":      freqs,
+                "freqs": freqs,
                 "magnitudes": avg_mag,
                 "auto_peaks": auto_peaks,
             },
             "pc1": {
-                "numbers":       numbers,
-                "values":        pc1,
-                "fit_slope":     float(slope),
+                "numbers": numbers,
+                "values": pc1,
+                "fit_slope": float(slope),
                 "fit_intercept": float(intercept),
-                "r2":            float(r2),
+                "r2": float(r2),
                 "explained_variance_ratio": pca.explained_variance_ratio_[:5],
             },
         },
     )
 
 
-def plot_circles_and_line(H, numbers, W, intercept, savepath,
-                           script="latin", periods=PERIODS):
+def plot_circles_and_line(
+    H, numbers, W, intercept, savepath, script="latin", periods=PERIODS
+):
     """For each period T, project h(a) onto (cos_T direction, sin_T direction)
     in residual space. You'll see actual circles drawn out by the
     activations. Bottom strip: linear projection -- the number line.
@@ -649,46 +677,71 @@ def plot_circles_and_line(H, numbers, W, intercept, savepath,
         # Orthonormalise the (u_cos, u_sin) pair -> honest circle, not ellipse.
         Q, _ = np.linalg.qr(np.stack([u_cos, u_sin], axis=1))
         coords = Hc @ Q
-        circles_json.append({
-            "T": int(T),
-            "coords": coords,
-            "residues": (numbers % T).tolist(),
-        })
+        circles_json.append(
+            {
+                "T": int(T),
+                "coords": coords,
+                "residues": (numbers % T).tolist(),
+            }
+        )
 
         ax = fig.add_subplot(gs[0, j])
         # Colour by (a mod T) for small T -- same residue class same colour.
-        ax.scatter(coords[:, 0], coords[:, 1],
-                   c=numbers % T if T <= 10 else numbers,
-                   cmap="viridis", s=40, alpha=0.85)
+        ax.scatter(
+            coords[:, 0],
+            coords[:, 1],
+            c=numbers % T if T <= 10 else numbers,
+            cmap="viridis",
+            s=40,
+            alpha=0.85,
+        )
         seen = set()
         for n in numbers:
             r = n % T
             if T <= 10 and r not in seen:
-                ax.annotate(format_number(int(n), script),
-                            (coords[n, 0], coords[n, 1]),
-                            fontsize=8, ha="center")
+                ax.annotate(
+                    format_number(int(n), script),
+                    (coords[n, 0], coords[n, 1]),
+                    fontsize=8,
+                    ha="center",
+                )
                 seen.add(r)
             elif T > 10 and n % 5 == 0:
-                ax.annotate(format_number(int(n), script),
-                            (coords[n, 0], coords[n, 1]),
-                            fontsize=7, ha="center", alpha=0.7)
-        ax.set_xticks([]); ax.set_yticks([])
+                ax.annotate(
+                    format_number(int(n), script),
+                    (coords[n, 0], coords[n, 1]),
+                    fontsize=7,
+                    ha="center",
+                    alpha=0.7,
+                )
+        ax.set_xticks([])
+        ax.set_yticks([])
         ax.set_aspect("equal")
-        ax.text(0.02, 0.98, f"cos(a|T={T})\nsin(a|T={T})",
-                transform=ax.transAxes, va="top", fontsize=9,
-                bbox=dict(fc="white", ec="black", alpha=0.7, lw=0.6))
+        ax.text(
+            0.02,
+            0.98,
+            f"cos(a|T={T})\nsin(a|T={T})",
+            transform=ax.transAxes,
+            va="top",
+            fontsize=9,
+            bbox=dict(fc="white", ec="black", alpha=0.7, lw=0.6),
+        )
 
     # Bottom strip: linear projection (the number line).
     u_lin = W[basis_idx("lin", periods=periods)]
     u_lin = u_lin / np.linalg.norm(u_lin)
     lin = Hc @ u_lin
     ax = fig.add_subplot(gs[1, :])
-    ax.scatter(lin, np.zeros_like(lin), c=numbers, cmap="viridis",
-               s=55, alpha=0.85)
+    ax.scatter(lin, np.zeros_like(lin), c=numbers, cmap="viridis", s=55, alpha=0.85)
     for n in numbers[::5]:
-        ax.annotate(format_number(int(n), script), (lin[n], 0.0),
-                    xytext=(0, 7), textcoords="offset points",
-                    ha="center", fontsize=7)
+        ax.annotate(
+            format_number(int(n), script),
+            (lin[n], 0.0),
+            xytext=(0, 7),
+            textcoords="offset points",
+            ha="center",
+            fontsize=7,
+        )
     ax.set_yticks([])
     ax.set_xlabel("a   (projection on u_lin)")
 
@@ -702,15 +755,16 @@ def plot_circles_and_line(H, numbers, W, intercept, savepath,
             "kind": "circles_and_line",
             "meta": RUN_META,
             "numbers": numbers,
-            "labels":  labels,
+            "labels": labels,
             "circles": circles_json,
             "line": {"coords": lin},
         },
     )
 
 
-def plot_helix_3d(H, numbers, W, intercept, T, savepath,
-                   script="latin", periods=PERIODS):
+def plot_helix_3d(
+    H, numbers, W, intercept, T, savepath, script="latin", periods=PERIODS
+):
     """The iconic T=10 helix: project h(a) onto (u_cos_T, u_sin_T, u_lin)
     and plot in 3D.
 
@@ -730,16 +784,26 @@ def plot_helix_3d(H, numbers, W, intercept, T, savepath,
     fig = plt.figure(figsize=(7, 9))
     ax = fig.add_subplot(111, projection="3d")
     colors = plt.cm.viridis(numbers / max(1, numbers.max()))
-    ax.scatter(coords[:, 0], coords[:, 1], coords[:, 2],
-               c=colors, s=55, depthshade=True)
-    ax.plot(coords[:, 0], coords[:, 1], coords[:, 2],
-            color="black", lw=0.5, alpha=0.4)
+    ax.scatter(
+        coords[:, 0], coords[:, 1], coords[:, 2], c=colors, s=55, depthshade=True
+    )
+    ax.plot(coords[:, 0], coords[:, 1], coords[:, 2], color="black", lw=0.5, alpha=0.4)
     for n in numbers:
-        ax.text(coords[n, 0], coords[n, 1], coords[n, 2],
-                f" {format_number(int(n), script)}", fontsize=7, color="black")
-    ax.set_title(f"T = {T} helix of h(a) in residual space\n"
-                 "(orthonormalised u_cos, u_sin, u_lin)")
-    ax.set_xlabel("u_cos");  ax.set_ylabel("u_sin");  ax.set_zlabel("u_lin")
+        ax.text(
+            coords[n, 0],
+            coords[n, 1],
+            coords[n, 2],
+            f" {format_number(int(n), script)}",
+            fontsize=7,
+            color="black",
+        )
+    ax.set_title(
+        f"T = {T} helix of h(a) in residual space\n"
+        "(orthonormalised u_cos, u_sin, u_lin)"
+    )
+    ax.set_xlabel("u_cos")
+    ax.set_ylabel("u_sin")
+    ax.set_zlabel("u_lin")
     fig.savefig(savepath, bbox_inches="tight")
     plt.close(fig)
     print(f"  saved {savepath}")
@@ -751,9 +815,9 @@ def plot_helix_3d(H, numbers, W, intercept, T, savepath,
             "meta": RUN_META,
             "T": int(T),
             "numbers": numbers,
-            "labels":  [format_number(int(n), script) for n in numbers],
-            "coords":  coords,
-            "axes":    ["u_cos", "u_sin", "u_lin"],
+            "labels": [format_number(int(n), script) for n in numbers],
+            "coords": coords,
+            "axes": ["u_cos", "u_sin", "u_lin"],
         },
     )
 
@@ -784,24 +848,39 @@ def plot_pca_2d(H, numbers, savepath, script="latin"):
     fig, ax = plt.subplots(figsize=(10, 9))
     # Faint trajectory connecting consecutive integers -- reveals
     # staircase / cluster-hop / spiral shape directly.
-    ax.plot(coords[:, 0], coords[:, 1],
-            color="black", lw=0.5, alpha=0.25, zorder=0)
-    sc = ax.scatter(coords[:, 0], coords[:, 1], c=numbers,
-                    cmap="viridis", s=60, alpha=0.85, zorder=2)
+    ax.plot(coords[:, 0], coords[:, 1], color="black", lw=0.5, alpha=0.25, zorder=0)
+    sc = ax.scatter(
+        coords[:, 0],
+        coords[:, 1],
+        c=numbers,
+        cmap="viridis",
+        s=60,
+        alpha=0.85,
+        zorder=2,
+    )
     for n in numbers:
-        ax.annotate(format_number(int(n), script),
-                    (coords[n, 0], coords[n, 1]),
-                    fontsize=7, ha="center", va="bottom",
-                    xytext=(0, 5), textcoords="offset points")
+        ax.annotate(
+            format_number(int(n), script),
+            (coords[n, 0], coords[n, 1]),
+            fontsize=7,
+            ha="center",
+            va="bottom",
+            xytext=(0, 5),
+            textcoords="offset points",
+        )
     ax.set_xlabel(f"PC1  ({var[0]:.1%} of variance)")
     ax.set_ylabel(f"PC2  ({var[1]:.1%} of variance)")
-    ax.set_title(f"2D PCA of residual stream — script={script}\n"
-                 "(basis-free: reveals non-periodic structure)")
+    ax.set_title(
+        f"2D PCA of residual stream — script={script}\n"
+        "(basis-free: reveals non-periodic structure)"
+    )
     fig.colorbar(sc, ax=ax, label="a")
     fig.savefig(savepath, bbox_inches="tight")
     plt.close(fig)
-    print(f"  saved {savepath}   "
-          f"(PC1: {var[0]:.1%}, PC2: {var[1]:.1%}, cumulative: {var.sum():.1%})")
+    print(
+        f"  saved {savepath}   "
+        f"(PC1: {var[0]:.1%}, PC2: {var[1]:.1%}, cumulative: {var.sum():.1%})"
+    )
 
     dump_json(
         Path(savepath).with_suffix(".json"),
@@ -809,8 +888,8 @@ def plot_pca_2d(H, numbers, savepath, script="latin"):
             "kind": "pca_2d",
             "meta": RUN_META,
             "numbers": numbers,
-            "labels":  [format_number(int(n), script) for n in numbers],
-            "coords":  coords,
+            "labels": [format_number(int(n), script) for n in numbers],
+            "coords": coords,
             "explained_variance_ratio": var,
         },
     )
@@ -821,70 +900,106 @@ def plot_pca_2d(H, numbers, savepath, script="latin"):
 # ============================================================================
 def main():
     ap = argparse.ArgumentParser(
-        description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
-    ap.add_argument("--model", default="EleutherAI/pythia-6.9b",
-                    help="HF model id. Paper uses pythia-6.9b and gpt-j-6b. "
-                         "On 128 GB unified memory either runs comfortably.")
-    ap.add_argument("--script", default="latin",
-                    choices=["latin", "arabic", "persian", "devanagari", "thai",
-                             "chinese", "binary", "hexadecimal",
-                             "greek", "hebrew", "roman", "babylonian"],
-                    help="numeral script in which to feed the model.\n"
-                         "  positional base-10 (helix predicted):\n"
-                         "    latin arabic persian devanagari thai chinese\n"
-                         "  positional, other bases:\n"
-                         "    binary (base 2) hexadecimal (base 16)\n"
-                         "  non-positional / additive:\n"
-                         "    greek hebrew roman\n"
-                         "  positional base-60, additive within each column:\n"
-                         "    babylonian")
-    ap.add_argument("--pool", default="mean", choices=["mean", "last"],
-                    help="how to aggregate the residual stream across the\n"
-                         "numeral's sub-tokens. Default: mean.")
-    ap.add_argument("--layer", type=int, default=None,
-                    help="hidden_states index to read. Default = num_layers // 2.")
-    ap.add_argument("--n_max", type=int, default=100,
-                    help="study integers in [0, n_max).")
+        description=__doc__, formatter_class=argparse.RawTextHelpFormatter
+    )
+    ap.add_argument(
+        "--model",
+        default="EleutherAI/pythia-6.9b",
+        help="HF model id. Paper uses pythia-6.9b and gpt-j-6b. "
+        "On 128 GB unified memory either runs comfortably.",
+    )
+    ap.add_argument(
+        "--script",
+        default="latin",
+        choices=[
+            "latin",
+            "arabic",
+            "persian",
+            "devanagari",
+            "thai",
+            "chinese",
+            "binary",
+            "hexadecimal",
+            "greek",
+            "hebrew",
+            "roman",
+            "babylonian",
+        ],
+        help="numeral script in which to feed the model.\n"
+        "  positional base-10 (helix predicted):\n"
+        "    latin arabic persian devanagari thai chinese\n"
+        "  positional, other bases:\n"
+        "    binary (base 2) hexadecimal (base 16)\n"
+        "  non-positional / additive:\n"
+        "    greek hebrew roman\n"
+        "  positional base-60, additive within each column:\n"
+        "    babylonian",
+    )
+    ap.add_argument(
+        "--pool",
+        default="mean",
+        choices=["mean", "last"],
+        help="how to aggregate the residual stream across the\n"
+        "numeral's sub-tokens. Default: mean.",
+    )
+    ap.add_argument(
+        "--layer",
+        type=int,
+        default=None,
+        help="hidden_states index to read. Default = num_layers // 2.",
+    )
+    ap.add_argument(
+        "--n_max", type=int, default=100, help="study integers in [0, n_max)."
+    )
     ap.add_argument("--dtype", choices=["fp32", "fp16", "bf16"], default="bf16")
-    ap.add_argument("--sweep", action="store_true",
-                    help="sweep R² metrics across all layers (in addition to\n"
-                         "the standard 3-figure output). Helps locate where\n"
-                         "a model's helix peaks -- useful for models the\n"
-                         "paper didn't study, like Gemma. Output adds\n"
-                         "fig_layer_sweep.png.")
-    ap.add_argument("--periods", type=str, default="2,5,10,100",
-                    help="comma-separated list of periods for the trig basis.\n"
-                         "Default 2,5,10,100 matches the paper's Latin findings.\n"
-                         "For Babylonian try 2,5,10,60,100 (paper + base-60)\n"
-                         "or 10,30,60 (Babylonian-native + harmonic). The basis\n"
-                         "has 1 + 2K columns: linear axis plus cos/sin per period.\n"
-                         "Output directory gets a `_p<periods>` suffix when\n"
-                         "this differs from the default.")
+    ap.add_argument(
+        "--sweep",
+        action="store_true",
+        help="sweep R² metrics across all layers (in addition to\n"
+        "the standard 3-figure output). Helps locate where\n"
+        "a model's helix peaks -- useful for models the\n"
+        "paper didn't study, like Gemma. Output adds\n"
+        "fig_layer_sweep.png.",
+    )
+    ap.add_argument(
+        "--periods",
+        type=str,
+        default="2,5,10,100",
+        help="comma-separated list of periods for the trig basis.\n"
+        "Default 2,5,10,100 matches the paper's Latin findings.\n"
+        "For Babylonian try 2,5,10,60,100 (paper + base-60)\n"
+        "or 10,30,60 (Babylonian-native + harmonic). The basis\n"
+        "has 1 + 2K columns: linear axis plus cos/sin per period.\n"
+        "Output directory gets a `_p<periods>` suffix when\n"
+        "this differs from the default.",
+    )
     args = ap.parse_args()
 
     # Parse and validate periods.
     try:
-        periods = sorted({int(t.strip()) for t in args.periods.split(",")
-                          if t.strip()})
+        periods = sorted({int(t.strip()) for t in args.periods.split(",") if t.strip()})
     except ValueError:
-        raise SystemExit(f"--periods must be comma-separated ints, got {args.periods!r}")
+        raise SystemExit(
+            f"--periods must be comma-separated ints, got {args.periods!r}"
+        )
     if not periods or any(T <= 0 for T in periods):
         raise SystemExit(f"--periods must be positive ints, got {periods}")
     args.periods_list = periods
-    args.periods_is_default = (periods == [2, 5, 10, 100])
+    args.periods_is_default = periods == [2, 5, 10, 100]
 
     device = pick_device()
     print(f"device: {device}")
     if os.environ.get("HF_TOKEN"):
-        print("HF_TOKEN loaded from .env (gated/private models accessible, "
-              "downloads via hf_transfer)")
+        print(
+            "HF_TOKEN loaded from .env (gated/private models accessible, "
+            "downloads via hf_transfer)"
+        )
 
     # bf16: 16-bit "brain float". Same exponent range as fp32 but only 8
     # mantissa bits. Great for inference on big LMs -- half the memory of
     # fp32 with no measurable accuracy loss. CPU has no efficient bf16
     # kernels, so fall back to fp32 there.
-    dtype_map = {"fp32": torch.float32, "fp16": torch.float16,
-                 "bf16": torch.bfloat16}
+    dtype_map = {"fp32": torch.float32, "fp16": torch.float16, "bf16": torch.bfloat16}
     dtype = dtype_map[args.dtype]
     if device.type == "cpu":
         dtype = torch.float32
@@ -894,17 +1009,20 @@ def main():
     try:
         model = AutoModelForCausalLM.from_pretrained(args.model, dtype=dtype)
     except TypeError:
-        model = AutoModelForCausalLM.from_pretrained(
-            args.model, torch_dtype=dtype)
+        model = AutoModelForCausalLM.from_pretrained(args.model, torch_dtype=dtype)
     model = model.to(device).eval()
 
     n_layers = get_num_layers(model)
     layer = args.layer if args.layer is not None else n_layers // 2
-    print(f"reading residual stream at hidden_states[{layer}] "
-          f"(model has {n_layers} transformer layers)")
+    print(
+        f"reading residual stream at hidden_states[{layer}] "
+        f"(model has {n_layers} transformer layers)"
+    )
     print(f"numeral script: {args.script}")
-    print(f"sub-token pool: {args.pool}  "
-          f"({'reads last sub-token only' if args.pool == 'last' else 'averages over all sub-tokens of the numeral'})")
+    print(
+        f"sub-token pool: {args.pool}  "
+        f"({'reads last sub-token only' if args.pool == 'last' else 'averages over all sub-tokens of the numeral'})"
+    )
 
     numbers = np.arange(args.n_max)
 
@@ -914,15 +1032,18 @@ def main():
     # heads-up so it isn't surprising.
     multitoken = []
     for n in numbers:
-        ids = tok(f" {format_number(int(n), args.script)}",
-                  add_special_tokens=False)["input_ids"]
+        ids = tok(f" {format_number(int(n), args.script)}", add_special_tokens=False)[
+            "input_ids"
+        ]
         if len(ids) != 1:
             multitoken.append((int(n), len(ids)))
     if multitoken:
         n_multi = len(multitoken)
         max_tokens = max(t for _, t in multitoken)
-        print(f"note: {n_multi}/{len(numbers)} numerals split into multiple "
-              f"BPE tokens (up to {max_tokens} sub-tokens).")
+        print(
+            f"note: {n_multi}/{len(numbers)} numerals split into multiple "
+            f"BPE tokens (up to {max_tokens} sub-tokens)."
+        )
 
     # Per-model, per-script, per-pool output directory. We tag the pool
     # subfolder with `_n<n_max>` when n_max != 100 and with `_p<periods>`
@@ -933,26 +1054,29 @@ def main():
         pool_dir = f"{pool_dir}_n{args.n_max}"
     if not args.periods_is_default:
         pool_dir = f"{pool_dir}_p{'-'.join(map(str, periods))}"
-    out_dir = (OUT_DIR / "out" / args.model.replace("/", "__") /
-               args.script / pool_dir)
+    out_dir = OUT_DIR / "out" / args.model.replace("/", "__") / args.script / pool_dir
     out_dir.mkdir(parents=True, exist_ok=True)
     print(f"writing figures to {out_dir}")
-    print(f"helix basis periods: {periods}  (1 + 2*{len(periods)} = {1+2*len(periods)} features)")
+    print(
+        f"helix basis periods: {periods}  (1 + 2*{len(periods)} = {1 + 2 * len(periods)} features)"
+    )
 
     # Provenance attached to every JSON the plot/sweep functions write.
     RUN_META.clear()
-    RUN_META.update({
-        "model":     args.model,
-        "script":    args.script,
-        "pool":      args.pool,
-        "pool_dir":  pool_dir,
-        "n_max":     int(args.n_max),
-        "periods":   periods,
-        "n_layers":  int(n_layers),
-        "layer":     int(layer),
-        "dtype":     args.dtype,
-        "sweep":     bool(args.sweep),
-    })
+    RUN_META.update(
+        {
+            "model": args.model,
+            "script": args.script,
+            "pool": args.pool,
+            "pool_dir": pool_dir,
+            "n_max": int(args.n_max),
+            "periods": periods,
+            "n_layers": int(n_layers),
+            "layer": int(layer),
+            "dtype": args.dtype,
+            "sweep": bool(args.sweep),
+        }
+    )
 
     if args.sweep:
         # ----- Optional: layer sweep -----
@@ -962,20 +1086,27 @@ def main():
         # "we read the wrong layer" trap when the model isn't Pythia.
         print(f"\n--- layer sweep ---")
         H_all = collect_activations_all_layers(
-            model, tok, numbers, device, script=args.script, pool=args.pool)
+            model, tok, numbers, device, script=args.script, pool=args.pool
+        )
         print(f"all-layer activations: H_all in R^{H_all.shape}")
         pc1_r2, helix_r2, pca_kd_r2 = run_sweep_analysis(
-            H_all, numbers, periods=periods)
+            H_all, numbers, periods=periods
+        )
         print(f"  PC1 R²    peak {pc1_r2.max():.3f} @ layer {pc1_r2.argmax()}")
         print(f"  helix R²  peak {helix_r2.max():.3f} @ layer {helix_r2.argmax()}")
         ratio = helix_r2 / np.maximum(pca_kd_r2, 1e-6)
         print(f"  helix/PCA peak {ratio.max():.3f} @ layer {ratio.argmax()}")
         plot_layer_sweep(
-            pc1_r2, helix_r2, pca_kd_r2,
+            pc1_r2,
+            helix_r2,
+            pca_kd_r2,
             out_dir / "fig_layer_sweep.png",
-            title=(f"Layer sweep — {args.model} / {args.script} / "
-                   f"pool={args.pool} / periods={periods}"),
-            n_basis=1 + 2 * len(periods))
+            title=(
+                f"Layer sweep — {args.model} / {args.script} / "
+                f"pool={args.pool} / periods={periods}"
+            ),
+            n_basis=1 + 2 * len(periods),
+        )
         # Re-target the standard pipeline to the helix-R² peak layer.
         peak_layer = int(helix_r2.argmax())
         if args.layer is None:
@@ -990,14 +1121,14 @@ def main():
         H = H_all[:, layer, :]
     else:
         # STEP 1: collect activations at the chosen single layer
-        H = collect_activations(model, tok, numbers, layer, device,
-                                script=args.script, pool=args.pool)
+        H = collect_activations(
+            model, tok, numbers, layer, device, script=args.script, pool=args.pool
+        )
 
     print(f"activations: H in R^{H.shape}")
 
     # STEP 2: Fourier discovery + PC1 sanity check (paper Fig 2)
-    plot_fourier_and_pc1(H, numbers, out_dir / "fig2_fourier_pc1.png",
-                         periods=periods)
+    plot_fourier_and_pc1(H, numbers, out_dir / "fig2_fourier_pc1.png", periods=periods)
 
     # STEP 3: helix regression
     W, intercept, r2 = fit_helix(H, numbers, periods=periods)
@@ -1007,41 +1138,58 @@ def main():
     H_pca_kd = pca_kd.inverse_transform(pca_kd.transform(H))
     r2_pca_kd = r2_score(H, H_pca_kd, multioutput="variance_weighted")
     print(f"  {n_basis}-d PCA reconstruction R^2  = {r2_pca_kd:.4f}")
-    print("(For Latin: helix R^2 ~ PCA R^2 within a few %. "
-          "For non-positional scripts or basis/period mismatches: gap widens.)")
+    print(
+        "(For Latin: helix R^2 ~ PCA R^2 within a few %. "
+        "For non-positional scripts or basis/period mismatches: gap widens.)"
+    )
 
     # STEP 4: per-T circles + linear strip (paper Fig 3)
-    plot_circles_and_line(H, numbers, W, intercept,
-                          out_dir / "fig3_circles_and_line.png",
-                          script=args.script, periods=periods)
+    plot_circles_and_line(
+        H,
+        numbers,
+        W,
+        intercept,
+        out_dir / "fig3_circles_and_line.png",
+        script=args.script,
+        periods=periods,
+    )
 
     # STEP 5: T=10 helix in 3D (paper Fig 1, right). Use T=10 if available;
     # otherwise fall back to the first period in the list.
     T_helix = 10 if 10 in periods else periods[0]
-    plot_helix_3d(H, numbers, W, intercept, T=T_helix,
-                  savepath=out_dir / f"fig1_helix_T{T_helix}.png",
-                  script=args.script, periods=periods)
+    plot_helix_3d(
+        H,
+        numbers,
+        W,
+        intercept,
+        T=T_helix,
+        savepath=out_dir / f"fig1_helix_T{T_helix}.png",
+        script=args.script,
+        periods=periods,
+    )
 
     # STEP 6: 2D PCA scatter -- basis-free diagnostic for non-periodic
     # structure (Roman staircase, Greek clusters, etc.).
-    plot_pca_2d(H, numbers, out_dir / "fig4_pca_2d.png",
-                script=args.script)
+    plot_pca_2d(H, numbers, out_dir / "fig4_pca_2d.png", script=args.script)
 
     # Final meta JSON: everything needed for the React site's summary cards
     # without having to open every figure JSON. Updated to reflect the
     # actually-used layer (which may differ from args.layer if --sweep
     # auto-targeted the peak).
     RUN_META["layer"] = int(layer)
-    dump_json(out_dir / "_meta.json", {
-        "kind": "meta",
-        "meta": RUN_META,
-        "helix_r2":      float(r2),
-        "pca_kd_r2":     float(r2_pca_kd),
-        "helix_over_pca": float(r2 / r2_pca_kd) if r2_pca_kd > 0 else None,
-        "n_basis":       n_basis,
-        "T_helix":       int(T_helix),
-        "n_numbers":     int(len(numbers)),
-    })
+    dump_json(
+        out_dir / "_meta.json",
+        {
+            "kind": "meta",
+            "meta": RUN_META,
+            "helix_r2": float(r2),
+            "pca_kd_r2": float(r2_pca_kd),
+            "helix_over_pca": float(r2 / r2_pca_kd) if r2_pca_kd > 0 else None,
+            "n_basis": n_basis,
+            "T_helix": int(T_helix),
+            "n_numbers": int(len(numbers)),
+        },
+    )
 
     print("\nall figures written to", out_dir)
 

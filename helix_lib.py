@@ -1,9 +1,9 @@
 """Shared helpers used by main.py, embed_control.py, and subspace_align.py.
 
-Kept torch-free so embed_control.py (which doesn't load model weights) can
-import it without pulling torch into its uv environment. Anything that
-actually needs torch (pick_device in main/subspace_align) is small enough
-to keep inline in each script.
+Kept torch-free (numpy + sklearn only) so embed_control.py, which doesn't
+load model weights, imports nothing heavy through it. Anything that actually
+needs torch (pick_device in main/subspace_align) is small enough to keep
+inline in each script.
 
 What lives here:
   - Numeral renderers + format_number (12 scripts).
@@ -11,6 +11,7 @@ What lives here:
   - helix_basis B(a), fit_helix (numpy + sklearn).
   - get_num_layers / get_d_model (read HF model.config; no torch import).
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -36,9 +37,18 @@ ALL_MODELS = [
 ]
 
 ALL_SCRIPTS = [
-    "latin", "arabic", "persian", "devanagari", "thai",
-    "chinese", "binary", "hexadecimal",
-    "greek", "hebrew", "roman", "babylonian",
+    "latin",
+    "arabic",
+    "persian",
+    "devanagari",
+    "thai",
+    "chinese",
+    "binary",
+    "hexadecimal",
+    "greek",
+    "hebrew",
+    "roman",
+    "babylonian",
 ]
 
 
@@ -82,9 +92,21 @@ def to_roman(n: int) -> str:
     """
     if n == 0:
         return "nulla"
-    pairs = [(1000, "M"), (900, "CM"), (500, "D"), (400, "CD"),
-             (100, "C"), (90, "XC"), (50, "L"), (40, "XL"),
-             (10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I")]
+    pairs = [
+        (1000, "M"),
+        (900, "CM"),
+        (500, "D"),
+        (400, "CD"),
+        (100, "C"),
+        (90, "XC"),
+        (50, "L"),
+        (40, "XL"),
+        (10, "X"),
+        (9, "IX"),
+        (5, "V"),
+        (4, "IV"),
+        (1, "I"),
+    ]
     out = []
     for v, s in pairs:
         while n >= v:
@@ -99,7 +121,7 @@ def to_roman(n: int) -> str:
 # for 90 it's koppa ϟ (U+03DF). Greek had no zero — we use "Ø" as a
 # non-colliding placeholder.
 GREEK_UNITS = ["", "α", "β", "γ", "δ", "ε", "ϛ", "ζ", "η", "θ"]
-GREEK_TENS  = ["", "ι", "κ", "λ", "μ", "ν", "ξ", "ο", "π", "ϟ"]
+GREEK_TENS = ["", "ι", "κ", "λ", "μ", "ν", "ξ", "ο", "π", "ϟ"]
 
 
 def to_greek(n: int) -> str:
@@ -122,9 +144,9 @@ def to_chinese_positional(n: int) -> str:
 
 # Babylonian cuneiform: POSITIONAL at base 60, ADDITIVE within each column.
 # Two wedges only: 𒁹 = 1 and 𒌋 = 10. Late-period zero placeholder is 𒑊.
-BAB_ONE  = "\U00012079"   # 𒁹  CUNEIFORM SIGN DISH (= 1)
-BAB_TEN  = "\U0001230B"   # 𒌋  CUNEIFORM SIGN U    (= 10)
-BAB_ZERO = "\U0001244A"   # 𒑊  CUNEIFORM NUMERIC SIGN TWO ASH TENU
+BAB_ONE = "\U00012079"  # 𒁹  CUNEIFORM SIGN DISH (= 1)
+BAB_TEN = "\U0001230b"  # 𒌋  CUNEIFORM SIGN U    (= 10)
+BAB_ZERO = "\U0001244a"  # 𒑊  CUNEIFORM NUMERIC SIGN TWO ASH TENU
 
 
 def _bab_column(v: int) -> str:
@@ -157,7 +179,7 @@ def to_babylonian(n: int) -> str:
 # Hebrew alphabetic numerals (gematria). Like Greek, each letter has a
 # fixed value; ADDITIVE. Special cases at 15/16 avoid the Tetragrammaton.
 HEBREW_UNITS = ["", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"]
-HEBREW_TENS  = ["", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"]
+HEBREW_TENS = ["", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"]
 
 
 def to_hebrew(n: int) -> str:
@@ -166,8 +188,10 @@ def to_hebrew(n: int) -> str:
         return "אפס"
     if n < 0 or n > 99:
         raise ValueError(f"to_hebrew only supports 0..99, got {n}")
-    if n == 15: return "טו"
-    if n == 16: return "טז"
+    if n == 15:
+        return "טו"
+    if n == 16:
+        return "טז"
     tens, units = divmod(n, 10)
     return HEBREW_TENS[tens] + HEBREW_UNITS[units]
 
@@ -189,10 +213,10 @@ def to_hexadecimal(n: int) -> str:
 # Per-script digit-block offsets for the four positional Unicode scripts
 # that map decimal digits 0–9 onto a contiguous codepoint range.
 _DIGIT_BASE = {
-    "arabic":     0x0660,   # Arabic-Indic ٠..٩
-    "persian":    0x06F0,   # Extended Arabic-Indic / Persian ۰..۹
-    "devanagari": 0x0966,   # Devanagari ०..९
-    "thai":       0x0E50,   # Thai ๐..๙
+    "arabic": 0x0660,  # Arabic-Indic ٠..٩
+    "persian": 0x06F0,  # Extended Arabic-Indic / Persian ۰..۹
+    "devanagari": 0x0966,  # Devanagari ०..९
+    "thai": 0x0E50,  # Thai ๐..๙
 }
 
 
@@ -203,13 +227,20 @@ def format_number(n: int, script: str) -> str:
     if script in _DIGIT_BASE:
         base = _DIGIT_BASE[script]
         return "".join(chr(base + int(d)) for d in str(n))
-    if script == "chinese":     return to_chinese_positional(n)
-    if script == "binary":      return to_binary(n)
-    if script == "hexadecimal": return to_hexadecimal(n)
-    if script == "greek":       return to_greek(n)
-    if script == "hebrew":      return to_hebrew(n)
-    if script == "roman":       return to_roman(n)
-    if script == "babylonian":  return to_babylonian(n)
+    if script == "chinese":
+        return to_chinese_positional(n)
+    if script == "binary":
+        return to_binary(n)
+    if script == "hexadecimal":
+        return to_hexadecimal(n)
+    if script == "greek":
+        return to_greek(n)
+    if script == "hebrew":
+        return to_hebrew(n)
+    if script == "roman":
+        return to_roman(n)
+    if script == "babylonian":
+        return to_babylonian(n)
     raise ValueError(f"unknown script: {script!r}")
 
 
@@ -235,7 +266,8 @@ def get_num_layers(model) -> int:
                     return getattr(sub_cfg, attr)
     raise AttributeError(
         "Could not find layer count on model.config. Pass --layer "
-        "explicitly to bypass the auto-detect.")
+        "explicitly to bypass the auto-detect."
+    )
 
 
 def get_d_model(cfg) -> int:

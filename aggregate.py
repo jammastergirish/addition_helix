@@ -1,7 +1,3 @@
-# /// script
-# requires-python = ">=3.10"
-# dependencies = []
-# ///
 """Walk `out/*/*/<pool>/fig_layer_sweep.json` and aggregate every cell's
 L=0-vs-peak helix-share and per-layer peaks into two top-level files:
 
@@ -18,6 +14,7 @@ refresh the aggregates. It is fast and idempotent.
 Usage:
     uv run aggregate.py
 """
+
 from __future__ import annotations
 
 import csv
@@ -72,39 +69,43 @@ def main() -> None:
         peaks = sweep.get("peaks", {})
         l0 = sweep.get("l0_share", {})
 
-        cells.append({
-            "model":         model,
-            "script":        script,
-            "pool":          parsed["pool"],
-            "n_max":         parsed["n_max"],
-            "periods":       parsed["periods"],
-            "n_layers":      meta.get("n_layers"),
-            # L=0 vs peak diagnostic (the blogpost's headline finding)
-            "helix_r2_l0":   l0.get("helix_r2_l0"),
-            "helix_r2_peak": l0.get("helix_r2_peak"),
-            "peak_layer":    l0.get("peak_layer"),
-            "rho":           l0.get("rho"),
-            # Other per-metric peaks
-            "pc1_r2_peak":            peaks.get("pc1_r2", {}).get("value"),
-            "pc1_r2_peak_layer":      peaks.get("pc1_r2", {}).get("layer"),
-            "helix_over_pca_peak":       peaks.get("helix_over_pca", {}).get("value"),
-            "helix_over_pca_peak_layer": peaks.get("helix_over_pca", {}).get("layer"),
-            # Relative paths for the site's lazy loaders
-            "paths": {
-                "dir":          str(pool_dir.relative_to(OUT)),
-                "layer_sweep":  str(sweep_path.relative_to(OUT)),
-                "fourier_pc1":  _maybe_rel(pool_dir / "fig2_fourier_pc1.json"),
-                "circles":      _maybe_rel(pool_dir / "fig3_circles_and_line.json"),
-                "helix_3d":     _maybe_rel_glob(pool_dir, "fig1_helix_T*.json"),
-                "pca_2d":       _maybe_rel(pool_dir / "fig4_pca_2d.json"),
-                "meta":         _maybe_rel(pool_dir / "_meta.json"),
-            },
-        })
+        cells.append(
+            {
+                "model": model,
+                "script": script,
+                "pool": parsed["pool"],
+                "n_max": parsed["n_max"],
+                "periods": parsed["periods"],
+                "n_layers": meta.get("n_layers"),
+                # L=0 vs peak diagnostic (the blogpost's headline finding)
+                "helix_r2_l0": l0.get("helix_r2_l0"),
+                "helix_r2_peak": l0.get("helix_r2_peak"),
+                "peak_layer": l0.get("peak_layer"),
+                "rho": l0.get("rho"),
+                # Other per-metric peaks
+                "pc1_r2_peak": peaks.get("pc1_r2", {}).get("value"),
+                "pc1_r2_peak_layer": peaks.get("pc1_r2", {}).get("layer"),
+                "helix_over_pca_peak": peaks.get("helix_over_pca", {}).get("value"),
+                "helix_over_pca_peak_layer": peaks.get("helix_over_pca", {}).get(
+                    "layer"
+                ),
+                # Relative paths for the site's lazy loaders
+                "paths": {
+                    "dir": str(pool_dir.relative_to(OUT)),
+                    "layer_sweep": str(sweep_path.relative_to(OUT)),
+                    "fourier_pc1": _maybe_rel(pool_dir / "fig2_fourier_pc1.json"),
+                    "circles": _maybe_rel(pool_dir / "fig3_circles_and_line.json"),
+                    "helix_3d": _maybe_rel_glob(pool_dir, "fig1_helix_T*.json"),
+                    "pca_2d": _maybe_rel(pool_dir / "fig4_pca_2d.json"),
+                    "meta": _maybe_rel(pool_dir / "_meta.json"),
+                },
+            }
+        )
 
     index = {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "n_cells":      len(cells),
-        "cells":        cells,
+        "n_cells": len(cells),
+        "cells": cells,
     }
     idx_path = OUT / "_index.json"
     with open(idx_path, "w", encoding="utf-8") as f:
@@ -114,19 +115,30 @@ def main() -> None:
     csv_path = OUT / "_l0_share.csv"
     with open(csv_path, "w", encoding="utf-8", newline="") as f:
         w = csv.writer(f)
-        w.writerow(["model", "script", "L0_helix_r2", "peak_helix_r2",
-                    "peak_layer", "L0_over_peak"])
+        w.writerow(
+            [
+                "model",
+                "script",
+                "L0_helix_r2",
+                "peak_helix_r2",
+                "peak_layer",
+                "L0_over_peak",
+            ]
+        )
         for c in cells:
             if c["n_max"] != 100 or c["periods"] != [2, 5, 10, 100]:
                 # The historical csv only covered the paper-default cell.
                 continue
-            w.writerow([
-                c["model"], c["script"],
-                _fmt(c["helix_r2_l0"]),
-                _fmt(c["helix_r2_peak"]),
-                c["peak_layer"] if c["peak_layer"] is not None else "",
-                _fmt(c["rho"]),
-            ])
+            w.writerow(
+                [
+                    c["model"],
+                    c["script"],
+                    _fmt(c["helix_r2_l0"]),
+                    _fmt(c["helix_r2_peak"]),
+                    c["peak_layer"] if c["peak_layer"] is not None else "",
+                    _fmt(c["rho"]),
+                ]
+            )
     print(f"wrote {csv_path}")
 
 

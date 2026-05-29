@@ -1,7 +1,3 @@
-# /// script
-# requires-python = ">=3.10"
-# dependencies = ["pillow>=10"]
-# ///
 """Stack the per-model Latin layer-sweep PNGs into one comparison image.
 
 One row per model, with a labelled header strip above each row showing
@@ -10,6 +6,7 @@ read from each model's `fig_layer_sweep.json` (written by main.py) so
 they stay in sync with what the sweep actually saw — no stale hardcoded
 numbers.
 """
+
 from __future__ import annotations
 
 import json
@@ -23,14 +20,14 @@ OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # (output dir, display name) — layer count is appended at runtime.
 MODELS = [
-    ("EleutherAI__pythia-6.9b",    "Pythia-6.9B"),
-    ("EleutherAI__gpt-j-6b",       "GPT-J-6B"),
-    ("meta-llama__Llama-3.1-8B",   "Llama-3.1-8B"),
-    ("google__gemma-4-E4B",        "Gemma-4-E4B"),
-    ("google__gemma-4-31B",        "Gemma-4-31B"),
-    ("allenai__Olmo-3-1125-32B",   "OLMo-3-32B"),
-    ("Qwen__Qwen2.5-7B",           "Qwen2.5-7B"),
-    ("Qwen__Qwen2.5-32B",          "Qwen2.5-32B"),
+    ("EleutherAI__pythia-6.9b", "Pythia-6.9B"),
+    ("EleutherAI__gpt-j-6b", "GPT-J-6B"),
+    ("meta-llama__Llama-3.1-8B", "Llama-3.1-8B"),
+    ("google__gemma-4-E4B", "Gemma-4-E4B"),
+    ("google__gemma-4-31B", "Gemma-4-31B"),
+    ("allenai__Olmo-3-1125-32B", "OLMo-3-32B"),
+    ("Qwen__Qwen2.5-7B", "Qwen2.5-7B"),
+    ("Qwen__Qwen2.5-32B", "Qwen2.5-32B"),
 ]
 
 
@@ -46,6 +43,7 @@ def label_for(model_dir: str, base_name: str) -> str:
         return f"{base_name}  ({meta['n_layers']} layers)"
     except (KeyError, json.JSONDecodeError):
         return base_name
+
 
 HEADER_H = 70
 PAD = 12

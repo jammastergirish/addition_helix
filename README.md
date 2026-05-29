@@ -31,8 +31,9 @@ out/                generated data and figures (gitignored)
 
 ## Requirements
 
-- Python ≥ 3.10 with [`uv`](https://docs.astral.sh/uv/) (each script
-  declares its own deps via PEP 723 inline metadata — no separate venv).
+- Python ≥ 3.10 with [`uv`](https://docs.astral.sh/uv/). Dependencies are
+  declared in `pyproject.toml` (pinned by `uv.lock`); `uv run` resolves them
+  into a shared project venv on first use.
 - Node ≥ 20 for the React site.
 - A Hugging Face token in `.env` as `HF_TOKEN=…` (Llama 3, Gemma 4 are
   gated).
